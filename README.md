@@ -1,2 +1,2 @@
-# jooby_python
-jooby for python
+# joopy
+joopy - a jooby-similar framework for python
