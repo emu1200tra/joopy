@@ -1,6 +1,9 @@
-from poc.src.joopy import runApp
-from poc.src.joopy import get
+from src.joopy import runApp
+from src.joopy import get
 
+@get("/")
+def home():
+    return b'home'
 
 @get("/hello")
 def hello():

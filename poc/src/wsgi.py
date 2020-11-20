@@ -1,32 +1,7 @@
 from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
-
-routes = ()
-
-
-def setup_wsgi(environ, start_response):
-    response_status = '200 OK'
-    # content-type 應該由 route 決定, 暫時先 hard code
-    headers = [('Content-type', 'text/plain')]
-
-    start_response(response_status, headers)
-
-    uri = environ['PATH_INFO']
-    # method = environ['REQUEST_METHOD']
-
-    return [routes[uri][1]()]
-
-
-def start(rs):
-    # 不應該用 global, 但不知道怎麼 pass 給 setup_wsgi 使用
-    global routes
-    routes = rs
-    httpd = make_server('', 8000, setup_wsgi)
-    print("serving http on port 8000...")
-    httpd.serve_forever()
-
-    # setup_testing_defaults(environ)
-
+from src.Server import Base
+from src.joopy import Joopy
 #
 # # A relatively simple WSGI application. It's going to print out the
 # # environment dictionary after being updated by setup_testing_defaults
@@ -61,3 +36,44 @@ def start(rs):
 # with make_server('', 8000, simple_app) as httpd:
 #     print("Serving on port 8000...")
 #     httpd.serve_forever()
+
+class wsgi_function():
+    def __init__(self, routes):
+        super().__init__()
+        self.routes = routes
+    def setup_wsgi(self, environ, start_response):
+        response_status = '200 OK'
+        # content-type 應該由 route 決定, 暫時先 hard code
+        headers = [('Content-type', 'text/plain')]
+
+        start_response(response_status, headers)
+
+        uri = environ['PATH_INFO']
+        # method = environ['REQUEST_METHOD']
+
+        return [self.routes[uri][1]()]
+
+class wsgi(Base):
+    self.apps = []
+    self.server = None
+    def __init__(self):
+        super().__init__()
+    
+    def start(self, application: Joopy):
+        self.apps.append(application)
+        self.fireStart(self.apps)
+
+        routes = application.routes
+        func = wsgi_function(routes)
+        self.server = make_server('', 8000, func.setup_wsgi)
+        #print("serving http on port 8000...")
+        #server.serve_forever()
+        self.fireReady(self.apps)
+
+        return self.server
+
+
+        
+        
+
+
