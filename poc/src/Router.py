@@ -204,7 +204,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def domain(self, domainString, subrouter):
+    def domainRouter(self, domain, subrouter):
         """
         Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
         
@@ -222,5 +222,34 @@ class Router(Registry):
         @param domain Predicate
         @param subrouter Subrouter.
         @return This router.
+        """
+        pass
+    
+    @abstractmethod
+    def domainRouterSet(self, domain, body):
+        """
+        /**
+        Import routes from given router. Predicate works like a filter and only when predicate pass
+        the routes match against the current request.
+    
+        Example of domain predicate filter:
+    
+        <pre>{@code
+            {
+                use(ctx -> ctx.getHost().equals("foo.com"), new FooApp());
+                use(ctx -> ctx.getHost().equals("bar.com"), new BarApp());
+            }
+        }</pre>
+    
+        Imported routes are matched only when predicate pass.
+    
+        NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
+    
+        NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
+    
+        @param predicate Context predicate.
+        @param router Router to import.
+        @return This router.
+        @deprecated Use {@link #mount(Predicate, Router)}
         """
         pass
