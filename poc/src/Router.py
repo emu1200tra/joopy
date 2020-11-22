@@ -1,3 +1,5 @@
+import os
+
 class Router(Registry):
     """
     Find route result.
@@ -623,6 +625,18 @@ class Router(Registry):
         """
         pass
     
+    @abstractmethod
+    def route(self, method, pattern, handler):
+        """
+        Add a route.
+   
+        @param method HTTP method.
+        @param pattern Path pattern.
+        @param handler Application code.
+        @return A route.
+        """
+        pass
+    
     def get(self, pattern, handler):
         """
         Add a HTTP GET handler.
@@ -703,5 +717,42 @@ class Router(Registry):
         """
         return self.route(TRACE, pattern, handler)
     
+    def assets(self, pattern, handler):
+        """
+        Add a static resource handler.
+   
+        @param pattern Path pattern.
+        @param handler Asset handler.
+        @return A route.
+        """
+        return self.route(GET, pattern, handler)
     
+    def assetsPath(self, pattern, source):
+        """
+        Add a static resource handler. Static resources are resolved from file system.
+   
+        @param pattern Path pattern.
+        @param source File system directory.
+        @return A route.
+        """
+        return self.assets(pattern, AssetSource.create(source))
     
+    def assetsString(self, pattern, source):
+        """
+        Add a static resource handler. Static resources are resolved from:
+   
+        - file-system if the source folder exists in the current user directory
+        - or fallback to classpath when file-system folder doesn't exist.
+   
+        NOTE: This method choose file-system or classpath, it doesn't merge them.
+   
+        @param pattern Path pattern.
+        @param source File-System folder when exists, or fallback to a classpath folder.
+        @return A route.
+        """
+        source_list = source.split('/')
+        source_list = [s for s in source_list if len(s) > 0]
+        path = os.path.join(os.getcwd(), '/'.join(source_list))
+        if os.path.exists(path):
+            return self.assets(pattern, path)
+        return self.assets(pattern, AssetSource.create(getClass().getClassLoader(), source))
