@@ -1,9 +1,9 @@
 import abc
 import sys
 from src import wsgi
-#from src import Router
+from src import Router
 from src import Registry
-#from src import RouterImpl
+from src import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
 from src.LoggerFactory import LoggerFactory
@@ -11,14 +11,6 @@ from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
 
 routers = {}
-# def runApp():
-#     wsgi.start(routers)
-
-# def get(route):
-#     def decorator(func):
-#         routers[route] = ("GET", func)
-#         return func
-#     return decorator
 
 def not_none(*args, **kargs):
     for a in args:
@@ -28,8 +20,7 @@ def not_none(*args, **kargs):
         if a is None:
             raise TypeError("Argument can not be None.")
 
-#class Joopy(Router, Registry):
-class Joopy():
+class Joopy(Router, Registry):
     # static final variable
     BASE_PACKAGE = "application.package"
     APP_NAME = "___app_name__"
@@ -121,19 +112,18 @@ class Joopy():
         if env == None:
             env = Environment.loadEnvironment(environmentOptions)
         return env
+
     def start(self):
         server = wsgi()
         try:
             return server.start(self)
-        except:
-            errorType, errorMessage, errorTraceback = sys.exc_info()
+        except exception as e:
             log = self.getLog()
-            log.error("Application startup resulted in exception {}".format(errorType), errorMessage)
+            log.error("Application startup resulted in exception", e)
             try:
                 server.stop()
-            except:
-                errorTypeServer, errorMessageServer, errorTracebackServer = sys.exc_info()
-                log.error("Server stop resulted in exception {}".format(errorTypeServer), errorMessageServer)
+            except exceptionSvr as esvr:
+                log.error("Server stop resulted in exception", esvr)
             # rethrow
             #if isinstance(errorType, StartupException):
             #    StartupException()
