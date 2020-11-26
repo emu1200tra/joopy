@@ -816,4 +816,124 @@ class Router(Registry):
         @return Status code.
         """
         pass
+
+    @abstractmethod
+    def error(self, handler):
+        """
+        Add a custom error handler.
+   
+        @param handler Error handler.
+        @return This router.
+        """
+        pass
+
+    def errorStatusCode(self, statusCode, handler):
+        """
+        Add a custom error handler that matches the given status code.
+   
+        @param statusCode Status code.
+        @param handler Error handler.
+        @return This router.
+        """
+        return self.errorStatusCode(statusCode.equals(), handler)
+
+    def errorType(self, Dtype, handler):
+        """
+        Add a custom error handler that matches the given exception type.
+   
+        @param type Exception type.
+        @param handler Error handler.
+        @return This router.
+        """
+        return self.error( lambda ctx, x, statusCode: handler.apply(ctx, x, statusCode) \
+            if isinstance(x, Dtype) or isinstance(x.getCause(), Dtype) )
+
+    def errorPredicate(self, predicate, handler):
+        """
+        Add a custom error handler that matches the given predicate.
+   
+        @param predicate Status code filter.
+        @param handler Error handler.
+        @return This router.
+        """
+        return self.error( lambda ctx, x, statusCode: handler.apply(ctx, x, statusCode) \
+            if predicate.test(statusCode) )
+
+    @abstractmethod
+    def getErrorHandler(self):
+        """
+        Get the error handler.
+   
+        @return An error handler.
+        """
+        pass
+
+    @abstractmethod
+    def getLog(self):
+        """
+        Application logger.
+   
+        @return Application logger.
+        """
+        pass
+
+    @abstractmethod
+    def responseHandler(self, factory):
+        """
+        Add a response handler factory.
+   
+        @param factory Response handler factory.
+        @return This router.
+        """
+        pass
+    
+    @abstractmethod
+    def getRouterOptions(self):
+        """
+        Router options.
+   
+        @return Router options.
+        """
+        pass
+
+    @abstractmethod
+    def setRouterOptions(self, options):
+        """
+        Set router options.
+   
+        @param options router options.
+        @return This router.
+        """
+        pass
+    
+    @abstractmethod
+    def getSessionStore(self):
+        """
+        Session store. Default use a cookie ID with a memory storage.
+   
+        See {@link SessionStore#memory()}.
+   
+        @return Session store.
+        """
+        pass
+
+    @abstractmethod
+    def setSessionStore(self, store):
+        """
+        Set session store.
+   
+        @param store Session store.
+        @return This router.
+        """
+        pass
+
+    def executor(self, name):
+        """
+        Get an executor from application registry.
+   
+        @param name Executor name.
+        @return Executor.
+        """
+        return require(Executor, name)
+
     
