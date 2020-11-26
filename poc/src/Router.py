@@ -1,6 +1,7 @@
 import os
 import Registry
 from abc import abstractmethod
+import copy
 
 class Router(Registry):
     """
@@ -936,4 +937,204 @@ class Router(Registry):
         """
         return require(Executor, name)
 
+    @abstractmethod
+    def executorRouter(self, name, executor):
+        """
+        Put an executor into the application registry.
+   
+        @param name Executor's name.
+        @param executor Executor.
+        @return This router.
+        """
+        pass
+    
+    @abstractmethod
+    def setFlashCookieByName(self, name):
+        """
+        Set flash cookie name.
+   
+        @param name Flash cookie name.
+        @return This router.
+        @deprecated Use {@link #setFlashCookie(Cookie)} instead.
+        """
+        pass
+
+    @abstractmethod
+    def getFlashCookie(self):
+        """
+        Template for the flash cookie. Default name is: <code>jooby.flash</code>.
+   
+        @return Template for the flash cookie.
+        """
+        pass
+
+    @abstractmethod
+    def setFlashCookie(self, flashCookie):
+        """
+        Sets a cookie used as a template to generate the flash cookie, allowing
+        to customize the cookie name and other cookie parameters.
+   
+        @param flashCookie The cookie template.
+        @return This router.
+        """
+        pass
+
+    @abstractmethod
+    def converterValue(self, converter):
+        """
+        Add a custom string value converter.
+   
+        @param converter Custom value converter.
+        @return This router.
+        """
+        pass
+
+    @abstractmethod
+    def converterBean(self, converter):
+        """
+        Add a custom bean value converter.
+   
+        @param converter Custom value converter.
+        @return This router.
+        """
+        pass
+    
+    @abstractmethod
+    def getConverters(self):
+        """
+        Get all simple/string value converters.
+   
+        @return All simple/string value converters.
+        """
+        pass
+
+    @abstractmethod
+    def getBeanConverters(self):
+        """
+        Get all complex/bean value converters.
+   
+        @return All complex/bean value converters.
+        """
+        pass
+
+    @abstractmethod
+    def getServerOptions(self):
+        """
+        Available server options.
+   
+        @return Server options.
+        """
+        pass
+
+    @staticmethod
+    def leadingSlash(self, path):
+        """
+        Ensure path start with a <code>/</code>(leading slash).
+   
+        @param path Path to process.
+        @return Path with leading slash.
+        """
+        if path == None or len(path) == 0 or path == '/':
+            return '/'
+        if path[0] == '/':
+            return path
+        else:
+            return '/' + path
+
+    @staticmethod
+    def noTrailingSlash(self, path):
+        """
+        Strip trailing slashes.
+   
+        @param path Path to process.
+        @return Path without trailing slashes.
+        """
+        return path.split('/')[0]
+        
+    
+    @staticmethod
+    def normalizePath(self, path):
+        """
+        Normalize a path by removing consecutive <code>/</code>(slashes).
+   
+        @param path Path to process.
+        @return Safe path pattern.
+        """
+        if path == None or len(path) == 0 or path == '/':
+            return '/'
+        buff = '/' + path if path[0] != '/' else path
+        return buff.replace('//', '/')
+    
+    @staticmethod
+    def pathKeyConsumer(self, pattern, consumer):
+        """
+        Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
+   
+        <pre>/product/{id}</pre>
+   
+        @param pattern Path pattern.
+        @param consumer Listen for key and regex variables found.
+        @return Path keys.
+        """
+        return 1
+
+
+    @staticmethod
+    def pathKeys(self, pattern):
+        """
+        Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
+   
+        <pre>/product/{id}</pre>
+   
+        @param pattern Path pattern.
+        @return Path keys.
+        """
+        return self.pathKeyConsumer( lambda pattern, (k, v): ())
+
+    @staticmethod
+    def expandOptionalVariables(self, pattern):
+        """
+        Look for optional path parameter and expand the given pattern into multiple pattern.
+   
+        <pre>
+            /path =&gt; [/path]
+            /{id} =&gt; [/{id}]
+            /path/{id} =&gt; [/path/{id}]
+   
+            /{id}? =&gt; [/, /{id}]
+            /path/{id}? =&gt; [/path, /path/{id}]
+            /path/{id}/{start}?/{end}? =&gt; [/path/{id}, /path/{id}/{start}, /path/{id}/{start}/{end}]
+            /path/{id}?/suffix =&gt; [/path, /path/{id}, /path/suffix]
+        </pre>
+   
+        @param pattern Pattern.
+        @return One or more patterns.
+        """
+        return 1
+
+    @staticmethod
+    def reverseWithMap(self, pattern, keys):
+        """
+        Recreate a path pattern using the given variables.
+   
+        @param pattern Path pattern.
+        @param keys Path keys.
+        @return Path.
+        """
+        return 1
+
+    @staticmethod
+    def reverse(self, pattern, values):
+        """
+        Recreate a path pattern using the given variables. Variable replacement is done using the
+        current index.
+   
+        @param pattern Path pattern.
+        @param values Path keys.
+        @return Path.
+        """
+        keys = {}
+        for idx, v in enumerate(values):
+            keys[ str(idx) ] = v
+        return reverseWithMap(pattern, keys)
     
