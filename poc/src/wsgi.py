@@ -54,10 +54,10 @@ class wsgi_function():
         return [self.routes[uri][1]()]
 
 class wsgi(Base):
-    self.apps = []
-    self.server = None
     def __init__(self):
         super().__init__()
+        self.apps = []
+        self.server = None
     
     def start(self, application: Joopy):
         self.apps.append(application)
@@ -66,11 +66,21 @@ class wsgi(Base):
         routes = application.routes
         func = wsgi_function(routes)
         self.server = make_server('', 8000, func.setup_wsgi)
-        #print("serving http on port 8000...")
-        #server.serve_forever()
+        self.m = Thread(target=self.server.serve_forever, name="m_process")
+        self.m.start()
         self.fireReady(self.apps)
 
-        return self.server
+        return self
+
+    def stop(self):
+        fireStop(self.apps)
+        if self.server:
+            self.s = Thread(target=self.server.shutdown, name="s_process")
+            self.s.start()
+            self.s.join()
+            self.m.join()
+        self.server = None
+        return self
 
 
         

@@ -6,6 +6,8 @@ from src import Registry
 from src import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
+from src.LoggerFactory import LoggerFactory
+from src.Logger import Logger
 
 # routers = {}
 
@@ -64,8 +66,14 @@ class Joopy(Router, Registry):
         app = createApp(args, executionMode, provider) # Joopy
         server = app.start() # Server
 
-        print("serving http on port 8000...")
-        server.serve_forever()
+        print("Start running App")
+        try:
+            while True:
+                pass
+        except:
+            server.stop()
+        finally:
+            print("App terminated")
 
     """ 
     Setup default environment, logging (logback or log4j2) and run application.
@@ -94,41 +102,32 @@ class Joopy(Router, Registry):
         return self.__mode
 
     def getLog(self):
-        pass
+        logFactory = LoggerFactory()
+        log = logFactory.getLogger()
+        return log
+
     def getEnvironment(self):
         if env == None:
             env = Environment.loadEnvironment(environmentOptions)
         return env
-    def JoopyStart(self):
-        servers = []
-        if len(servers) == 0:
-            raise Exception("Server not found.")
-        if len(servers) > 1:
-            names = [server.name for server in servers]
-            self.getLog().warn("Multiple servers found {}. Using: {}".format(names, names[0]))
-        server = servers[0]
+    def start(self):
+        server = wsgi()
         try:
-            if serverOptions == None:
-                configTemp = self.getEnvironment().getConfig()
-                serverOptions = ServerOptions.From(configTemp) if configTemp != None else None
-            if serverOptions != None:
-                serverOptions.setServer( server.getClass().getSimpleName().lower() )
-                server.setOptions(serverOptions)
             return server.start(self)
         except:
             errorType, errorMessage, errorTraceback = sys.exc_info()
             log = self.getLog()
-            log.error("Application startup resulted in exception {}".format(errorType))
+            log.error("Application startup resulted in exception {}".format(errorType), errorMessage)
             try:
                 server.stop()
             except:
                 errorTypeServer, errorMessageServer, errorTracebackServer = sys.exc_info()
-                log.info("Server stop resulted in exception {}".format(errorTypeServer))
+                log.error("Server stop resulted in exception {}".format(errorTypeServer), errorMessageServer)
             # rethrow
-            if isinstance(errorType, StartupException):
-                StartupException()
-            else:
-                raise Exception("Application startup resulted in exception")
+            #if isinstance(errorType, StartupException):
+            #    StartupException()
+            #else:
+            #    raise Exception("Application startup resulted in exception")
             
     
     def start_with_server(self, server):
@@ -138,4 +137,8 @@ class Joopy(Router, Registry):
     def ready(self, server: Base):
         print("Ready and Start")
 
+        return self
+
+    def stop(self):
+        print("Stop server")
         return self

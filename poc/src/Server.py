@@ -9,6 +9,9 @@ class Base():
     def fireStart(self, apps: List[Joopy]):
         for app in apps:
             app.start_with_server(self)
-    def fireStop(self, apps: List[Joopy]):
+    def fireReady(self, apps: List[Joopy]):
         for app in apps:
             app.ready(self)
+    def fireStop(self, apps: List[Joopy]):
+        for app in apps:
+            app.stop()
