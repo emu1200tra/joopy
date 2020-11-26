@@ -1,7 +1,7 @@
 from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
 from src.Server import Base
-from src.joopy import Joopy
+from threading import Thread
 #
 # # A relatively simple WSGI application. It's going to print out the
 # # environment dictionary after being updated by setup_testing_defaults
@@ -54,23 +54,33 @@ class wsgi_function():
         return [self.routes[uri][1]()]
 
 class wsgi(Base):
-    self.apps = []
-    self.server = None
     def __init__(self):
         super().__init__()
+        self.apps = []
+        self.server = None
     
-    def start(self, application: Joopy):
+    def start(self, application):
         self.apps.append(application)
         self.fireStart(self.apps)
 
         routes = application.routes
         func = wsgi_function(routes)
         self.server = make_server('', 8000, func.setup_wsgi)
-        #print("serving http on port 8000...")
-        #server.serve_forever()
+        self.m = Thread(target=self.server.serve_forever, name="m_process")
+        self.m.start()
         self.fireReady(self.apps)
 
-        return self.server
+        return self
+
+    def stop(self):
+        self.fireStop(self.apps)
+        if self.server:
+            self.s = Thread(target=self.server.shutdown, name="s_process")
+            self.s.start()
+            self.s.join()
+            self.m.join()
+        self.server = None
+        return self
 
 
         

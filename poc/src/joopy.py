@@ -1,14 +1,16 @@
 import abc
 import sys
 from src import wsgi
-from src import Router
+#from src import Router
 from src import Registry
-from src import RouterImpl
+#from src import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
+from src.LoggerFactory import LoggerFactory
+from src.Logger import Logger
+from src.ExecutionMode import ExecutionMode
 
-# routers = {}
-
+routers = {}
 # def runApp():
 #     wsgi.start(routers)
 
@@ -26,7 +28,8 @@ def not_none(*args, **kargs):
         if a is None:
             raise TypeError("Argument can not be None.")
 
-class Joopy(Router, Registry):
+#class Joopy(Router, Registry):
+class Joopy():
     # static final variable
     BASE_PACKAGE = "application.package"
     APP_NAME = "___app_name__"
@@ -52,20 +55,35 @@ class Joopy(Router, Registry):
         self.__lateInit = None # boolean
         self.__name = None # String
         self.__version = None # String
+
+        self.routes = routers
     
     @staticmethod
-    def runApp(self,
-        args: List[str], 
+    def runApp(args=None, 
         executionMode: ExecutionMode = ExecutionMode.DEFAULT, 
         applicationType=None,
         consumer=None, 
         provider=None):
 
-        app = createApp(args, executionMode, provider) # Joopy
+        app = Joopy.createApp(args, executionMode, provider) # Joopy
         server = app.start() # Server
 
-        print("serving http on port 8000...")
-        server.serve_forever()
+        print("Start running App")
+        try:
+            while True:
+                pass
+        except:
+            server.stop()
+        finally:
+            print("App terminated")
+
+    @staticmethod
+    def get(route):
+        def decorator(func):
+            global routers
+            routers[route] = ("GET", func)
+            return func
+        return decorator
 
     """ 
     Setup default environment, logging (logback or log4j2) and run application.
@@ -77,11 +95,12 @@ class Joopy(Router, Registry):
     """
     @staticmethod
     def createApp(self,
-        args: List[str], 
-        executionMode: ExecutionModer,
+        args, 
+        executionMode: ExecutionMode,
         applicationTyper=None,
         provider=None):
-        return provider()
+        #return provider()
+        return Joopy()
     
     """
     Application execution mode.
@@ -94,48 +113,44 @@ class Joopy(Router, Registry):
         return self.__mode
 
     def getLog(self):
-        pass
+        logFactory = LoggerFactory()
+        log = logFactory.getLogger()
+        return log
+
     def getEnvironment(self):
         if env == None:
             env = Environment.loadEnvironment(environmentOptions)
         return env
-    def JoopyStart(self):
-        servers = []
-        if len(servers) == 0:
-            raise Exception("Server not found.")
-        if len(servers) > 1:
-            names = [server.name for server in servers]
-            self.getLog().warn("Multiple servers found {}. Using: {}".format(names, names[0]))
-        server = servers[0]
+    def start(self):
+        server = wsgi()
         try:
-            if serverOptions == None:
-                configTemp = self.getEnvironment().getConfig()
-                serverOptions = ServerOptions.From(configTemp) if configTemp != None else None
-            if serverOptions != None:
-                serverOptions.setServer( server.getClass().getSimpleName().lower() )
-                server.setOptions(serverOptions)
             return server.start(self)
         except:
             errorType, errorMessage, errorTraceback = sys.exc_info()
             log = self.getLog()
-            log.error("Application startup resulted in exception {}".format(errorType))
+            log.error("Application startup resulted in exception {}".format(errorType), errorMessage)
             try:
                 server.stop()
             except:
                 errorTypeServer, errorMessageServer, errorTracebackServer = sys.exc_info()
-                log.info("Server stop resulted in exception {}".format(errorTypeServer))
+                log.error("Server stop resulted in exception {}".format(errorTypeServer), errorMessageServer)
             # rethrow
-            if isinstance(errorType, StartupException):
-                StartupException()
-            else:
-                raise Exception("Application startup resulted in exception")
+            #if isinstance(errorType, StartupException):
+            #    StartupException()
+            #else:
+            #    raise Exception("Application startup resulted in exception")
             
     
     def start_with_server(self, server):
-        self.__router.start(self)
+        #self.__router.start(self)
+        print("Serving on port 8000...")
         return self
 
     def ready(self, server: Base):
         print("Ready and Start")
 
+        return self
+
+    def stop(self):
+        print("Stop server")
         return self
