@@ -1,4 +1,4 @@
-from Logger import Logger
+from src.Logger import Logger
 
 class LoggerFactory(object):
 	def __init__(self):

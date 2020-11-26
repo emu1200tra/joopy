@@ -1,6 +1,7 @@
 from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
 from src.Server import Base
+from threading import Thread
 #
 # # A relatively simple WSGI application. It's going to print out the
 # # environment dictionary after being updated by setup_testing_defaults
@@ -72,7 +73,7 @@ class wsgi(Base):
         return self
 
     def stop(self):
-        fireStop(self.apps)
+        self.fireStop(self.apps)
         if self.server:
             self.s = Thread(target=self.server.shutdown, name="s_process")
             self.s.start()

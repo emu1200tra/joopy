@@ -1,16 +1,16 @@
 import abc
 import sys
 from src import wsgi
-from src import Router
+#from src import Router
 from src import Registry
-from src import RouterImpl
+#from src import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
 from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
+from src.ExecutionMode import ExecutionMode
 
-# routers = {}
-
+routers = {}
 # def runApp():
 #     wsgi.start(routers)
 
@@ -28,7 +28,8 @@ def not_none(*args, **kargs):
         if a is None:
             raise TypeError("Argument can not be None.")
 
-class Joopy(Router, Registry):
+#class Joopy(Router, Registry):
+class Joopy():
     # static final variable
     BASE_PACKAGE = "application.package"
     APP_NAME = "___app_name__"
@@ -54,16 +55,17 @@ class Joopy(Router, Registry):
         self.__lateInit = None # boolean
         self.__name = None # String
         self.__version = None # String
+
+        self.routes = routers
     
     @staticmethod
-    def runApp(self,
-        args: List[str], 
+    def runApp(args=None, 
         executionMode: ExecutionMode = ExecutionMode.DEFAULT, 
         applicationType=None,
         consumer=None, 
         provider=None):
 
-        app = createApp(args, executionMode, provider) # Joopy
+        app = Joopy.createApp(args, executionMode, provider) # Joopy
         server = app.start() # Server
 
         print("Start running App")
@@ -75,6 +77,14 @@ class Joopy(Router, Registry):
         finally:
             print("App terminated")
 
+    @staticmethod
+    def get(route):
+        def decorator(func):
+            global routers
+            routers[route] = ("GET", func)
+            return func
+        return decorator
+
     """ 
     Setup default environment, logging (logback or log4j2) and run application.
     @param args Application arguments. (@Nonnull String[])
@@ -85,11 +95,12 @@ class Joopy(Router, Registry):
     """
     @staticmethod
     def createApp(self,
-        args: List[str], 
-        executionMode: ExecutionModer,
+        args, 
+        executionMode: ExecutionMode,
         applicationTyper=None,
         provider=None):
-        return provider()
+        #return provider()
+        return Joopy()
     
     """
     Application execution mode.
@@ -131,7 +142,8 @@ class Joopy(Router, Registry):
             
     
     def start_with_server(self, server):
-        self.__router.start(self)
+        #self.__router.start(self)
+        print("Serving on port 8000...")
         return self
 
     def ready(self, server: Base):
