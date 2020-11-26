@@ -1,4 +1,6 @@
 import os
+import Registry
+from abc import abstractmethod
 
 class Router(Registry):
     """
@@ -756,3 +758,62 @@ class Router(Registry):
         if os.path.exists(path):
             return self.assets(pattern, path)
         return self.assets(pattern, AssetSource.create(getClass().getClassLoader(), source))
+
+    def AssetsSource(self, pattern, source):
+        """
+        Add a static resource handler.
+   
+        @param pattern Path pattern.
+        @param source Asset sources.
+        @return A route.
+        """
+        return self.assets(pattern, AssetHandler(source))
+
+    @abstractmethod
+    def match(self, ctx):
+        """
+        Find a matching route using the given context.
+   
+        If no match exists this method returns a route with a <code>404</code> handler.
+        See {@link Route#NOT_FOUND}.
+   
+        @param ctx Web Context.
+        @return A route match result.
+        """
+        pass
+
+    @abstractmethod
+    def matchResult(self, method, path):
+        """
+        Find a matching route using the given context.
+   
+        If no match exists this method returns a route with a <code>404</code> handler.
+        See {@link Route#NOT_FOUND}.
+   
+        @param method Method to match.
+        @param path Path to match.
+        @return A route match result.
+        """
+        pass
+
+    @abstractmethod
+    def errorCode(self, type, statusCode):
+        """
+        Map an exception type to a status code.
+   
+        @param type Exception type.
+        @param statusCode Status code.
+        @return This router.
+        """
+        pass
+
+    @abstractmethod
+    def errorCodeCause(self, cause):
+        """
+        Computes the status code for the given exception.
+   
+        @param cause Exception.
+        @return Status code.
+        """
+        pass
+    
