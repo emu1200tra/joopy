@@ -1,7 +1,6 @@
 from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
 from src.Server import Base
-from src.joopy import Joopy
 #
 # # A relatively simple WSGI application. It's going to print out the
 # # environment dictionary after being updated by setup_testing_defaults
@@ -59,7 +58,7 @@ class wsgi(Base):
         self.apps = []
         self.server = None
     
-    def start(self, application: Joopy):
+    def start(self, application):
         self.apps.append(application)
         self.fireStart(self.apps)
 
