@@ -10,7 +10,7 @@ from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
 
-routers = {}
+#routers = {}
 
 def not_none(*args, **kargs):
     for a in args:
@@ -46,8 +46,9 @@ class Joopy(Router, Registry):
         self.__lateInit = None # boolean
         self.__name = None # String
         self.__version = None # String
-
-        self.routes = routers
+        self.router = RouterImpl()
+        #self.routes = routers
+        #self.routes = None
     
     @staticmethod
     def runApp(args=None, 
@@ -56,7 +57,7 @@ class Joopy(Router, Registry):
         consumer=None, 
         provider=None):
 
-        app = Joopy.createApp(args, executionMode, provider) # Joopy
+        app = Joopy.createApp(args, executionMode, provider=provider) # Joopy
         server = app.start() # Server
 
         print("Start running App")
@@ -67,7 +68,7 @@ class Joopy(Router, Registry):
             server.stop()
         finally:
             print("App terminated")
-
+    '''
     @staticmethod
     def get(route):
         def decorator(func):
@@ -75,7 +76,7 @@ class Joopy(Router, Registry):
             routers[route] = ("GET", func)
             return func
         return decorator
-
+    '''
     """ 
     Setup default environment, logging (logback or log4j2) and run application.
     @param args Application arguments. (@Nonnull String[])
@@ -90,8 +91,8 @@ class Joopy(Router, Registry):
         executionMode: ExecutionMode,
         applicationTyper=None,
         provider=None):
-        #return provider()
-        return Joopy()
+
+        return provider()
     
     """
     Application execution mode.
@@ -134,6 +135,8 @@ class Joopy(Router, Registry):
     def start_with_server(self, server):
         #self.__router.start(self)
         print("Serving on port 8000...")
+        self.router.start(self);
+
         return self
 
     def ready(self, server: Base):
@@ -144,3 +147,6 @@ class Joopy(Router, Registry):
     def stop(self):
         print("Stop server")
         return self
+
+    def route(self, method, pattern, handler):
+        return self.router.route(method, pattern, handler)

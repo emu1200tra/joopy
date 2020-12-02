@@ -41,3 +41,9 @@ class RouterImpl(Router):
         mode = app.getExecutionMode()
         
         return self
+
+    def route(self, method, pattern, handler):
+        return newRoute(method, pattern, handler);
+
+    def newRoute(self, method, pattern, handler):
+        # to do: implement new route
