@@ -1,24 +1,16 @@
 import abc
 import sys
 from src import wsgi
-#from src import Router
+from src import Router
 from src import Registry
-#from src import RouterImpl
+from src import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
 from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
 
-routers = {}
-# def runApp():
-#     wsgi.start(routers)
-
-# def get(route):
-#     def decorator(func):
-#         routers[route] = ("GET", func)
-#         return func
-#     return decorator
+#routers = {}
 
 def not_none(*args, **kargs):
     for a in args:
@@ -28,8 +20,7 @@ def not_none(*args, **kargs):
         if a is None:
             raise TypeError("Argument can not be None.")
 
-#class Joopy(Router, Registry):
-class Joopy():
+class Joopy(Router, Registry):
     # static final variable
     BASE_PACKAGE = "application.package"
     APP_NAME = "___app_name__"
@@ -55,8 +46,9 @@ class Joopy():
         self.__lateInit = None # boolean
         self.__name = None # String
         self.__version = None # String
-
-        self.routes = routers
+        self.router = RouterImpl()
+        #self.routes = routers
+        #self.routes = None
     
     @staticmethod
     def runApp(args=None, 
@@ -65,7 +57,7 @@ class Joopy():
         consumer=None, 
         provider=None):
 
-        app = Joopy.createApp(args, executionMode, provider) # Joopy
+        app = Joopy.createApp(args, executionMode, provider=provider) # Joopy
         server = app.start() # Server
 
         print("Start running App")
@@ -76,7 +68,7 @@ class Joopy():
             server.stop()
         finally:
             print("App terminated")
-
+    '''
     @staticmethod
     def get(route):
         def decorator(func):
@@ -84,7 +76,7 @@ class Joopy():
             routers[route] = ("GET", func)
             return func
         return decorator
-
+    '''
     """ 
     Setup default environment, logging (logback or log4j2) and run application.
     @param args Application arguments. (@Nonnull String[])
@@ -99,8 +91,8 @@ class Joopy():
         executionMode: ExecutionMode,
         applicationTyper=None,
         provider=None):
-        #return provider()
-        return Joopy()
+
+        return provider()
     
     """
     Application execution mode.
@@ -121,19 +113,18 @@ class Joopy():
         if env == None:
             env = Environment.loadEnvironment(environmentOptions)
         return env
+
     def start(self):
         server = wsgi()
         try:
             return server.start(self)
-        except:
-            errorType, errorMessage, errorTraceback = sys.exc_info()
+        except exception as e:
             log = self.getLog()
-            log.error("Application startup resulted in exception {}".format(errorType), errorMessage)
+            log.error("Application startup resulted in exception", e)
             try:
                 server.stop()
-            except:
-                errorTypeServer, errorMessageServer, errorTracebackServer = sys.exc_info()
-                log.error("Server stop resulted in exception {}".format(errorTypeServer), errorMessageServer)
+            except exceptionSvr as esvr:
+                log.error("Server stop resulted in exception", esvr)
             # rethrow
             #if isinstance(errorType, StartupException):
             #    StartupException()
@@ -144,6 +135,8 @@ class Joopy():
     def start_with_server(self, server):
         #self.__router.start(self)
         print("Serving on port 8000...")
+        self.router.start(self);
+
         return self
 
     def ready(self, server: Base):
@@ -154,3 +147,6 @@ class Joopy():
     def stop(self):
         print("Stop server")
         return self
+
+    def route(self, method, pattern, handler):
+        return self.router.route(method, pattern, handler)

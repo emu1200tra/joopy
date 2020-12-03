@@ -60,6 +60,9 @@ class wsgi(Base):
         self.server = None
     
     def start(self, application):
+        '''
+        todo: modify routes
+        '''
         self.apps.append(application)
         self.fireStart(self.apps)
 
