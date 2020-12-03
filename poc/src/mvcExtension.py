@@ -6,10 +6,12 @@ class mvcExtension(mvcFactory):
     @staticmethod
     def install(application, provider):
         # an exception occurs!
-        application.get("/mypath", lambda cxt: \
+        def f(ctx, provider):
             myController = provider.get()
             myController.controllerMethod()
-            return myController).attribute("RequireRole", Controller1527.Role.USER) )
+            return ctx
+
+        application.get("/mypath", lambda cxt: f(ctx, provider)).attribute("RequireRole", Controller1527.Role.USER)
 
     def supports(self, classType):
         return classType == myController
