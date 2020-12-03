@@ -32,6 +32,7 @@ class Joopy(Router, Registry):
     Creates a new Jooby instance.
     """
     def __init__(self):
+        super(Joopy, self).__init__()    
         self.__router = None # RouterImpl
         self.__mode = None # ExecutionMode
         self.__tmpdir = None # Path
