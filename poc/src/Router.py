@@ -640,8 +640,8 @@ class Router(Registry):
         """
         pass
     
-    '''
-    def get(self, pattern, handler):
+    
+    def get_script(self, pattern, handler):
         """
         Add a HTTP GET handler.
    
@@ -650,7 +650,37 @@ class Router(Registry):
         @return A route.
         """
         return self.route(GET, pattern, handler)
-    '''
+
+    def post_script(self, pattern, handler):
+        """
+        Add a HTTP POST handler.
+   
+        @param pattern Path pattern.
+        @param handler Application code.
+        @return A route.
+        """
+        return self.route(POST, pattern, handler)
+
+    def put_script(self, pattern, handler):
+        """
+        Add a HTTP PUT handler.
+   
+        @param pattern Path pattern.
+        @param handler Application code.
+        @return A route.
+        """
+        return self.route(PUT, pattern, handler)
+
+    def delete_script(self, pattern, handler):
+        """
+        Add a HTTP DELETE handler.
+   
+        @param pattern Path pattern.
+        @param handler Application code.
+        @return A route.
+        """
+        return self.route(DELETE, pattern, handler)
+    
     def get(self, pattern):
         def decorator(handler):
             self.route(GET, pattern, handler)

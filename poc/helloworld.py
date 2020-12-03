@@ -6,7 +6,32 @@ from src.joopy import Joopy
 # delete: Send request to server to remove specific data
 
 class myApp(Joopy):
+"""
+Script API
+"""
+    def __init__(self):
+        super(myApp, self).__init__()    
 
+        get_script("/", lambda x: b'home')
+
+        get_script("/hello", lambda x: b'hello world')
+
+        get_script("/goodbye", lambda x: b'good bye')
+
+        '''
+        post_script("/login", lambda x: b'login process')
+
+        post_script("/database", lambda x: b'posting data')
+
+        put_script("/database", lambda x: b'updating')
+
+        delete_script("/database", lambda x: b'removing')
+        '''
+
+"""
+MVC API
+"""
+'''
     def __init__(self):
         super(myApp, self).__init__()
 
@@ -21,7 +46,7 @@ class myApp(Joopy):
     @self.get("/goodbye")
     def goodbye():
         return b'good bye'
-    '''
+    
     @Joopy.post("/login")
     def login():
         # do something with login
