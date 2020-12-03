@@ -872,7 +872,7 @@ class Router(Registry):
         @return This router.
         """
         return self.error( lambda ctx, x, statusCode: handler.apply(ctx, x, statusCode) \
-            if isinstance(x, Dtype) or isinstance(x.getCause(), Dtype) )
+            if isinstance(x, Dtype) or isinstance(x.getCause(), Dtype) else None)
 
     def errorPredicate(self, predicate, handler):
         """
@@ -883,7 +883,7 @@ class Router(Registry):
         @return This router.
         """
         return self.error( lambda ctx, x, statusCode: handler.apply(ctx, x, statusCode) \
-            if predicate.test(statusCode) )
+            if predicate.test(statusCode) else None)
 
     @abstractmethod
     def getErrorHandler(self):
