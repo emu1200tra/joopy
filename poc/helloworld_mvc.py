@@ -7,9 +7,9 @@ from src.joopy import Joopy
 """
 MVC API
 """
-class controller(Joopy):
+class Controller(Joopy):
     def __init__(self):
-        super(controller, self).__init__()
+        super(Controller, self).__init__()
 
     @self.get("/")
     def home():
@@ -44,7 +44,7 @@ class controller(Joopy):
         return b'removing'
     '''
 
-class myApp(controller):
+class myApp(Controller):
     def __init__(self):
         super(myApp, self).__init__()    
         self.mvc(provider=super())
