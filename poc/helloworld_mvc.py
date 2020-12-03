@@ -4,36 +4,12 @@ from src.joopy import Joopy
 # post: Send request to server with encrypted body (usually passwd or something that should be secret)
 # put: Send request to server with data that would replace original data on remote
 # delete: Send request to server to remove specific data
-
-class myApp(Joopy):
-"""
-Script API
-"""
-    def __init__(self):
-        super(myApp, self).__init__()    
-
-        get_script("/", lambda x: b'home')
-
-        get_script("/hello", lambda x: b'hello world')
-
-        get_script("/goodbye", lambda x: b'good bye')
-
-        '''
-        post_script("/login", lambda x: b'login process')
-
-        post_script("/database", lambda x: b'posting data')
-
-        put_script("/database", lambda x: b'updating')
-
-        delete_script("/database", lambda x: b'removing')
-        '''
-
 """
 MVC API
 """
-'''
+class controller(Joopy):
     def __init__(self):
-        super(myApp, self).__init__()
+        super(controller, self).__init__()
 
     @self.get("/")
     def home():
@@ -46,26 +22,32 @@ MVC API
     @self.get("/goodbye")
     def goodbye():
         return b'good bye'
-    
-    @Joopy.post("/login")
+    '''
+    @self.post("/login")
     def login():
         # do something with login
         return b'login process'
 
-    @Joopy.post("/database")
+    @self.post("/database")
     def post_database():
         # do something with posting data
         return b'posting data'
 
-    @Joopy.put("/database")
+    @self.put("/database")
     def update():
         # do something to update data in dataset
         return b'updating'
 
-    @Joopy.delete("/database")
+    @self.delete("/database")
     def remove():
         # remove data from database
         return b'removing'
-'''
+    '''
+
+class myApp(controller):
+    def __init__(self):
+        super(myApp, self).__init__()    
+        self.mvc(provider=super())
+        
 if __name__ == '__main__':
     myApp.runApp(provider=myApp)
