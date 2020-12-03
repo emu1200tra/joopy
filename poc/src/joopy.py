@@ -9,6 +9,7 @@ from src.wsgi import wsgi
 from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
+from src.mvcExtension import mvcExtension
 
 #routers = {}
 
@@ -151,3 +152,13 @@ class Joopy(Router, Registry):
 
     def route(self, method, pattern, handler):
         return self.router.route(method, pattern, handler)
+
+    def mvc(self, router):
+        provider = lambda: router
+        return mvc_create(router.__class__, provider)
+
+    def mvc_create(self, router=None, provider=None):
+        module = mvcExtension()
+        extension = module.create(provider)
+        extension.install(self)
+        return self
