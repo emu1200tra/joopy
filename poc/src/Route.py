@@ -1,4 +1,8 @@
 class Route:
+    def __init__(self):
+        self.__executorKey = None # String
+        self.__returnType = None; # Type
+
     class Aware:
         def setRoute(self, route:Route):
             pass
@@ -19,4 +23,17 @@ class Route:
             raise Exception
         def then(self, next):
             return lambda ctx : inner_then(ctx, next)
+    
+    def setExecutorKey(self, key: str):
+        self.__executorKey = key
+        return self
 
+    def getExecutorKey(self) -> str:
+        return self.__executorKey
+
+    def setReturnType(self, returntype: object):
+        self.__returnType = returntype
+        return self
+
+    def getReturnType(self) -> object:
+        return self.__returnType
