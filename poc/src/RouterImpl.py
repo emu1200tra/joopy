@@ -39,11 +39,6 @@ class RouterImpl(Router):
                 self.__afterList.append(filter)
             elif isinstance(filter, Route.Before):
                 self.__beforeList.append(filter)
-
-        # TODO
-        # public Stream<Route.Decorator> toDecorator() {return decoratorList.stream();}
-        # public Stream<Route.After> toAfter() {return afterList.stream();}
-        # public Stream<Route.Before> toBefore() {return beforeList.stream();}
         
         def hasPattern(self):
             return self.__pattern is not None
@@ -71,10 +66,10 @@ class RouterImpl(Router):
         self.__basePath = None # String
         self.__predicateMap = None # Map<Predicate<Context>, RouteTree>
         self.__worker = None # Executor # new ForwardingExecutor()
-        self.__routeExecutor = None # Map<Route, Executor> # new HashMap<>()
-        self.__decoders = None # Map<String, MessageDecoder> # new HashMap<>()
+        self.__routeExecutor = {} # Map<Route, Executor> # new HashMap<>()
+        self.__decoders = {} # Map<String, MessageDecoder> # new HashMap<>()
         self.__attributes = None # Map<String, Object> # new ConcurrentHashMap<>()
-        self.__handlers = None # List<ResponseHandler> # new ArrayList<>()
+        self.__handlers = [] # List<ResponseHandler> # new ArrayList<>()
         self.__services = None # ServiceRegistry # new ServiceRegistryImpl()
         self.__sessionStore = None # SessionStore # SessionStore.memory()
         self.__flashCookie = None # Cookie # new Cookie("jooby.flash").setHttpOnly(true)
@@ -189,7 +184,6 @@ class RouterImpl(Router):
         return self.newRoute(method, pattern, handler)
 
     def newRoute(self, method, pattern, handler):
-        # to do: implement new route
         tree = self.__stack[-1]._Stack__tree # RouteTree
         """ Pattern: """
         pathBuilder = RouterImpl.PathBuilder() # PathBuilder
@@ -203,67 +197,72 @@ class RouterImpl(Router):
         for stack in self.__stack:
             for next in stack._Stack__beforeList:
                 if next is None:
-        # Route.Before before = stack.stream()
-        #     .flatMap(Stack::toBefore)
-        #     .reduce(null, (it, next) -> it == null ? next : it.then(next));
+                    before = next
+                else:
+                    before.then(next)
 
         """ Decorator: """
-        # List<Route.Decorator> decoratorList = stack.stream()
-        #     .flatMap(Stack::toDecorator)
-        #     .collect(Collectors.toList());
-        # Route.Decorator decorator = decoratorList.stream()
-        #     .reduce(null, (it, next) -> it == null ? next : it.then(next));
-
+        decoratorList = [d for stack in self.__stack for d in stack._Stack__decoratorList] 
+        decorator = None # Route.Decorator
+        for next in decoratorList:
+            if next is None:
+                decorator = next
+            else:
+                decorator.then(next)
+        
         """ After: """
-        # Route.After after = stack.stream()
-        #     .flatMap(Stack::toAfter)
-        #     .reduce(null, (it, next) -> it == null ? next : it.then(next));
+        after = None # Route.After
+        for stack in self.__stack:
+            for next in stack._Stack__afterList:
+                if next is None:
+                    after = next
+                else:
+                    after.then(next)
 
         """ Route: """
         safePattern = pathBuilder.toString() # String
         route = Route(method, safePattern, handler) # Route
-        route.setPathKeys(Router.pathKeys(safePattern));
-        route.setBefore(before);
-        route.setAfter(after);
-        route.setDecorator(decorator);
-        route.setEncoder(self.__encoder);
-        route.setDecoders(self.__decoders);
+        route.setPathKeys(Router.pathKeys(safePattern))
+        route.setBefore(before)
+        route.setAfter(after)
+        route.setDecorator(decorator)
+        route.setEncoder(self.__encoder)
+        route.setDecoders(self.__decoders)
 
-        decoratorList.forEach(it -> it.setRoute(route));
-        handler.setRoute(route);
+        for it in decoratorList:
+            it.setRoute(route)
+        handler.setRoute(route)
 
-        Stack stack = this.stack.peekLast();
-        if (stack.executor != null) {
-        routeExecutor.put(route, stack.executor);
-        }
+        stack = self.__stack[-1] # Stack
+        if stack.executor is not None:
+            self.__routeExecutor[route] = stack.executor
 
-        String finalPattern = basePath == null
-            ? safePattern
-            : new PathBuilder(basePath, safePattern).toString();
+        finalPattern = None # String
+        if self.__basePath is None: 
+            finalPattern = safePattern
+        else:
+            finalPattern = RouterImpl.PathBuilder(self.__basePath, safePattern).toString()
 
-        if (routerOptions.contains(RouterOption.IGNORE_CASE)) {
-        finalPattern = finalPattern.toLowerCase();
-        }
+        if self.__routerOptions.contains(RouterOption.IGNORE_CASE):
+            finalPattern = finalPattern.lower()
 
-        for (String routePattern : Router.expandOptionalVariables(finalPattern)) {
-        if (route.getMethod().equals(WS)) {
-            tree.insert(GET, routePattern, route);
-            route.setReturnType(Context.class);
-        } else if (route.getMethod().equals(SSE)) {
-            tree.insert(GET, routePattern, route);
-            route.setReturnType(Context.class);
-        } else {
-            tree.insert(route.getMethod(), routePattern, route);
+        for routePattern in Router.expandOptionalVariables(finalPattern):
+            if route.getMethod() == "WS":
+                tree.insert(Router.GET, routePattern, route)
+                route.setReturnType(Context)
+            elif route.getMethod() == "SSE":
+                tree.insert(Router.GET, routePattern, route)
+                route.setReturnType(Context)
+            else:
+                tree.insert(route.getMethod(), routePattern, route)
 
-            if (route.isHttpOptions()) {
-            tree.insert(Router.OPTIONS, routePattern, route);
-            } else if (route.isHttpTrace()) {
-            tree.insert(Router.TRACE, routePattern, route);
-            } else if (route.isHttpHead() && route.getMethod().equals(GET)) {
-            tree.insert(Router.HEAD, routePattern, route);
-            }
-        }
-        }
+                if route.isHttpOptions():
+                    tree.insert(Router.OPTIONS, routePattern, route)
+                elif route.isHttpTrace():
+                    tree.insert(Router.TRACE, routePattern, route)
+                elif route.isHttpHead() and route.getMethod() == Router.GET:
+                    tree.insert(Router.HEAD, routePattern, route)
+
         self.__routes.add(route)
 
         return route
