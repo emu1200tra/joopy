@@ -319,7 +319,51 @@ class Route:
 
     def getReturnType(self) -> object:
         return self.__returnType
+
+    # TODO: class MediaType is not implemented yet
+    def getProduces(self) -> list[MediaType]:
+        return self.__produces 
     
+    def produces(self, *args) -> Route:
+        produces = []
+        for produce in args:
+            produces.append(produce)
+        
+        return setProduces(produces)
+
+    def setProduces(self, produces: list[MediaType]) -> Route: # Collection<MediaType> produces
+        if len(produces) > 0:
+            if self.__produces == __EMPTY_LIST:
+                 # new arrayList in java(?)
+                pass
+            
+            for produce in produces:
+                self.__produces.append(produce)
+            
+        return self               
+
+    def getConsumes(self) -> list[MediaType]: 
+        return self.__consumes
+
+    def consumes(self, *args) -> Route:
+        consumes = []
+        for consume in args:
+            consumes.append(consume)
+        
+        return setConsumes(consumes)
+
+    def setConsumes(self, consumes: list[MediaType]) -> Route: # Collection<MediaType> consumes
+        # TODO
+        if len(consumes) > 0:
+            if self.__consumes == __EMPTY_LIST:
+                # new arrayList in java(?)
+                pass
+            
+            for consume in consumes:
+                self.__consumes.append(consume)
+            
+        return self
+            
     def computePipeline(self) -> Handler:
         pipeline = None # Route.Handler
         if self.__decorator is None:
@@ -334,3 +378,7 @@ class Route:
             pipeline = pipeline.then(self.__after)
 
         return pipeline
+    
+    # TODO: ACCEPT, SUPPORT_MEDIA_TYPE
+    ACCEPT = Route.Before() # static final Route.Before
+    SUPPORT_MEDIA_TYPE = Route.Before() #static final Route.Before
