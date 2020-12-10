@@ -1,4 +1,4 @@
-from abc import abstractmethod, staticmethod
+from abc import abstractmethod
 from multipledispatch import dispatch
 from context import context
 from instant import instant
