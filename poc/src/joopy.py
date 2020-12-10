@@ -162,3 +162,28 @@ class Joopy(Router, Registry):
         extension = module.create(provider)
         extension.install(self)
         return self
+
+    def decorator(self, decorator):
+        router.decorator(decorator)
+        return self
+
+    def before(self, before):
+        router.before(before)
+        return self
+
+    def after(self, after):
+        router.after(after)
+        return self
+
+    def responseHandler(self, handler):
+        router.responseHandler(handler)
+        return self
+    
+    def getErrorHandler(self):
+        return self.router.getErrorHandler() 
+    
+    def path(self, pattern, action):
+        return self.__router.path(pattern, action)
+    
+    def routes(self, action):
+        return self.__router.routes(action)
