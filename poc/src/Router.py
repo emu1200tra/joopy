@@ -1,5 +1,6 @@
 import os
-import Registry
+from src import Registry
+from src import Route
 from abc import abstractmethod
 import copy
 
@@ -553,7 +554,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def decoratorRouter(self, decorator):
+    def decorator(self, decorator: Route.Decorator) -> Router:
         """
         Add a route decorator to the route pipeline.
    
@@ -563,7 +564,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def beforeRouter(self, before):
+    def before(self, before: Route.Decorator) -> Router:
         """
         Add a before route decorator to the route pipeline.
    
@@ -573,7 +574,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def afterRouter(self, after):
+    def after(self, after: Route.Decorator) -> Router:
         """
         Add an after route decorator to the route pipeline.
    

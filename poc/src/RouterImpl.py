@@ -57,7 +57,7 @@ class RouterImpl(Router):
 
     __ROUTE_MARK = None # Route # new Route(Router.GET, "/", null)
 
-    def __init__(self):
+    def __init__(self, loader):
         super(RouterImpl, self).__init__()
         self.__err = None # ErrorHandler
         self.__errorCodes = None # Map<String, StatusCode>
@@ -75,80 +75,39 @@ class RouterImpl(Router):
         self.__services = None # ServiceRegistry # new ServiceRegistryImpl()
         self.__sessionStore = None # SessionStore # SessionStore.memory()
         self.__flashCookie = None # Cookie # new Cookie("jooby.flash").setHttpOnly(true)
-        self.__converters = None # List<ValueConverter>
-        self.__beanConverters = None # List<BeanConverter>
-        self.__classLoader = None # ClassLoader
+        self.__converters = ValueConverters.defaultConverters() # List<ValueConverter>
+        self.__beanConverters = None # List<BeanConverter> # new ArrayList<>(3)
+        self.__classLoader = loader # ClassLoader
         self.__preDispatchInitializer = None # ContextInitializer
         self.__postDispatchInitializer = None # ContextInitializer
         self.__routerOptions = None # Set<RouterOption> # EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR)
         self.__trustProxy = None # boolean
         self.__contextAsService = None # boolean
 
-        # TODO: constructor
-        # this.classLoader = loader
         self.__stack.append(RouterImpl.Stack(self.__chi, None))
-        # converters = ValueConverters.defaultConverters()
-        # beanConverters = new ArrayList<>(3)
 
-    """
-    @param app (@Nonnull Jooby)
-    @return Router.
-    """
-    def start(self, app):
-        if self.__err == None:
-            self.__err = ErrorHandler.create()
-        else:
-            self.__err = self.__err.then(ErrorHandler.create())
 
-        # TODO: HttpMessageEncoder is not implemented yet
-        # TODO: MessageEncoder is not implemented yet
-        # TODO: ValueConverters is not implemented yet
-        # TODO: ClassSource is not implemented yet
-        # TODO: RouteAnalyzer is not implemented yet
-        self.__encoder.add(MessageEncoder.TO_STRING)
-        source = ClassSource(self.__classLoader)
-        analyzer = RouteAnalyzer(source, False)
-
-        mode = app.getExecutionMode()
-
-        for route in self.__routes:
-            executorKey = route.getExecutorKey()
-
-            # TODO: executor in java, concurrent.futures.threadpoolexecutor in python (?)
-            executor = None
-            if executorKey == None:
-                executor = self.__routeExecutor.get(route)
-                # TODO: ForwardingExecutor
-            else:
-                # TODO: ForwardingExecutor
-                pass
-
-            if route.getReturnType() == None:
-                route.setReturnType(analyzer.returnType(route.getHandle()))
-                pass
-
-            # TODO: class MediaType is not implemented yet
-            if isinstance(route.getHandler(), WebSocketHandler):
-                if not route.getConsumes(): # empty
-                    singletonList = [MediaType.json]
-                    route.setConsumes(singletonList)
-                if not route.getProduces(): # empty
-                    singletonList = [MediaType.json]
-                    route.setProduces(singletonList)
-            else:
-                # TODO: prependMediaType
-                # TODO: SUPPORT_MEDIA_TYPE, ACCEPT in Route.py
-                route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE))
-                route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT))
-                pass
-
-            # TODO: Pipeline is not implemented yet
-            pipeline = Pipeline()
-
-            # Final render
-            Route.setEncoder(self.__encoder)
-
+    def decorator(self, decorator: Route.Decorator) -> Router:
+        self.__stack[-1].then(decorator)
         return self
+
+    def after(self, after: Route.After) -> Router:
+        self.__stack[-1].then(after)
+        return self
+
+    def before(self, before: Route.Before) -> Router:
+        self.__stack[-1].then(before)
+        return self
+
+    def routes(self, action: Runnable) -> RouteSet:
+        return self.path("/", action)
+    
+    def path(self, pattern: str, action: Runnable) -> RouteSet:
+        RouteSet routeSet = RouteSet()
+        start = len(self.__routes)
+        self.newStack(self.__chi, pattern, action)
+        routeSet.setRoutes(self.__routes.subList(start, self.__routes.size())) # TODO: sublist function
+        return routeSet
 
     def route(self, method, pattern, handler):
         return self.newRoute(method, pattern, handler)
@@ -236,3 +195,98 @@ class RouterImpl(Router):
         self.__routes.add(route)
 
         return route
+
+    """
+    @param app (@Nonnull Jooby)
+    @return Router.
+    """
+    def start(self, app):
+        if self.__err == None:
+            self.__err = ErrorHandler.create()
+        else:
+            self.__err = self.__err.then(ErrorHandler.create())
+
+        # TODO: HttpMessageEncoder is not implemented yet
+        # TODO: MessageEncoder is not implemented yet
+        # TODO: ValueConverters is not implemented yet
+        # TODO: ClassSource is not implemented yet
+        # TODO: RouteAnalyzer is not implemented yet
+        self.__encoder.add(MessageEncoder.TO_STRING)
+        source = ClassSource(self.__classLoader)
+        analyzer = RouteAnalyzer(source, False)
+
+        mode = app.getExecutionMode()
+
+        for route in self.__routes:
+            executorKey = route.getExecutorKey()
+
+            # TODO: executor in java, concurrent.futures.threadpoolexecutor in python (?)
+            executor = None
+            if executorKey == None:
+                executor = self.__routeExecutor.get(route)
+                # TODO: ForwardingExecutor
+            else:
+                # TODO: ForwardingExecutor
+                pass
+
+            if route.getReturnType() == None:
+                route.setReturnType(analyzer.returnType(route.getHandle()))
+                pass
+
+            # TODO: class MediaType is not implemented yet
+            if isinstance(route.getHandler(), WebSocketHandler):
+                if not route.getConsumes(): # empty
+                    singletonList = [MediaType.json]
+                    route.setConsumes(singletonList)
+                if not route.getProduces(): # empty
+                    singletonList = [MediaType.json]
+                    route.setProduces(singletonList)
+            else:
+                # TODO: prependMediaType
+                # TODO: SUPPORT_MEDIA_TYPE, ACCEPT in Route.py
+                route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE))
+                route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT))
+                pass
+
+            # TODO: Pipeline is not implemented yet
+            pipeline = Pipeline()
+
+            # Final render
+            Route.setEncoder(self.__encoder)
+
+        return self
+
+    def destroy(self):
+        self.__routes.clear()
+        self.__routes = None
+        self.__chi.destroy()
+        if self.__errorCodes is not None:
+            self.__errorCodes.clear()
+            self.__errorCodes = None
+        if self.__predicateMap is not None:
+            for key, value in self.__predicateMap.items():
+                self.__predicateMap[key].destroy()
+            self.__predicateMap.clear()
+            self.__predicateMap = None
+
+    def newStack(self, tree: RouteTree = None, pattern: str = None, stack: Stack = None, action: Runnable, decorator: list[Route.Decorator]) -> Router:
+        # TODO: use @dispatch to overload
+        if stack is None:
+            if tree is None or pattern is None:
+                return 
+            else:
+                stack = self.newStack(self.push(tree, pattern), action, decorator)
+        for d in decorator:
+            stack.then(d)
+        self.__stack.append(stack)
+        if action is not None:
+            action.run()
+        self.__stack.pop().clear()
+        return self
+
+    def push(self, tree: RouteTree, pattern: str = None) -> Stack:
+        stack = RouterImpl.Stack(tree, Router.leadingSlash(pattern))
+        if len(self.__stack) > 0:
+            parent = self.__stack[-1]
+            stack.executor = parent.executor
+        return stack
