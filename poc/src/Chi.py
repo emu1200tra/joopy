@@ -6,6 +6,7 @@ import StaticRouterMatch
 from abc import abstractmethod, ABC
 import RouterMatch
 from typing import List
+import re
 
 class Chi(RouteTree):
     __EMPTY_STRING = ""
@@ -249,7 +250,7 @@ class Chi(RouteTree):
             else:
                 if segTyp is Chi._Chi__ntRegexp:
                     child.prefix = seg.rexPat
-                    child.rex = seg.rexPat #Pattern.compile(seg.rexPat)
+                    child.rex = re.compile(seg.rexPat)
                     
                 if segStartIdx is 0:
                     child.typ = segTyp
@@ -353,7 +354,7 @@ class Chi(RouteTree):
                                     continue
                             
                             if ntyp is Chi._Chi__ntRegexp and xn.rex is not None:
-                                if not xn.rex.matcher(xsearch[0:p]).matches():
+                                if not xn.rex.match(xsearch[0:p]):
                                     continue
                             elif xsearch[0: p].find("/") is not -1:
                                 # avoid a newRuntimeRoute across path segments
