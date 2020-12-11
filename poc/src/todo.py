@@ -13,9 +13,6 @@ class RouterOption:
 class Context:
     pass
 
-class MessageEncoder:
-    pass
-
 class ClassSource:
     pass
 
@@ -26,7 +23,4 @@ class prependMediaType:
     pass
 
 class Pipeline:
-    pass
-
-class RouteTree:
     pass
