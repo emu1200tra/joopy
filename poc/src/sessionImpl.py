@@ -7,10 +7,6 @@ from valueNode import valueNode
 from multipledispatch import dispatch
 
 class sessionImpl(session):
-    @dispatch(context, str)
-    def __init__(self, ctx: context, idx: str, ):
-        self.__init__(ctx, idx)
-
     @dispatch(context, str, {str: str})
     def __init__(self, ctx: context, idx: str, attributes: {str: str}):
         self.__ctx = ctx
@@ -21,6 +17,10 @@ class sessionImpl(session):
         self.__modify = False
         self.__lastAccessedTime = instant.now()
         self.__creationTime = instant.now()
+    
+    @dispatch(context, str)
+    def __init__(self, ctx: context, idx: str):
+        self.__init__(ctx, idx, {})
 
     def isNew(self) -> bool:
         return self.__isNew
@@ -47,7 +47,7 @@ class sessionImpl(session):
         return value.create(self.__ctx, name, self.__attributes.get(name))
     
     @staticmethod
-    def store(self, ctx: context) -> sessionStore:
+    def store(ctx: context) -> sessionStore:
         return ctx.getRouter().getSessionStore()
 
     def updateState(self):
@@ -95,10 +95,10 @@ class sessionImpl(session):
         return self
     
     def destroy(self):
-        del self.__ctx.getAttributes[NAME]
+        del self.__ctx.getAttributes[session.NAME]
         self.__attributes.cleart()
 
     def renewId(self):
-        sessionImpl.store(self.__ctx).deleteSession(self.__ctx, self)
+        type(self).store(self.__ctx).deleteSession(self.__ctx, self)
         self.updateState()
         return self
