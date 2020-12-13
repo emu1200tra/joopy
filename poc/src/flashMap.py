@@ -9,6 +9,9 @@ class flashMap(object):
     """
     NAME = 'flash'
 
+    def __init__(self):
+        self.__map__ = {}
+
     @staticmethod
     def create(ctx: context, template: cookie) -> flashMap:
         """
