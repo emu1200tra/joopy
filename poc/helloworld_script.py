@@ -12,20 +12,20 @@ Script API
     def __init__(self):
         super(myApp, self).__init__()    
 
-        self.get_script("/", lambda: b'home')
+        self.get("/", lambda: b'home')
 
-        self.get_script("/hello", lambda: b'hello world')
+        self.get("/hello", lambda: b'hello world')
 
-        self.get_script("/goodbye", lambda: b'good bye')
+        self.get("/goodbye", lambda: b'good bye')
 
         '''
-        post_script("/login", lambda x: b'login process')
+        post("/login", lambda x: b'login process')
 
-        post_script("/database", lambda x: b'posting data')
+        post("/database", lambda x: b'posting data')
 
-        put_script("/database", lambda x: b'updating')
+        put("/database", lambda x: b'updating')
 
-        delete_script("/database", lambda x: b'removing')
+        delete("/database", lambda x: b'removing')
         '''
 if __name__ == '__main__':
     myApp.runApp(provider=myApp)
