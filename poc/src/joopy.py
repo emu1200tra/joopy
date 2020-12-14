@@ -10,6 +10,7 @@ from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
 from src.mvcExtension import mvcExtension
+from multipledispatch import dispatch
 
 #routers = {}
 
@@ -116,6 +117,7 @@ class Joopy(Router, Registry):
             env = Environment.loadEnvironment(environmentOptions)
         return env
 
+    @dispatch()
     def start(self):
         server = wsgi()
         try:
@@ -133,10 +135,10 @@ class Joopy(Router, Registry):
             #else:
             #    raise Exception("Application startup resulted in exception")
             
-    
-    def start_with_server(self, server):
+    @dispatch(Base)
+    def start(self, server:Base):
         #self.__router.start(self)
-        print("Serving on port 8000...")
+        print("Start server")
         self.router.start(self);
 
         return self
@@ -187,3 +189,5 @@ class Joopy(Router, Registry):
     
     def routes(self, action):
         return self.__router.routes(action)
+
+    def match(self)

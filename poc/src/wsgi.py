@@ -2,77 +2,36 @@ from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
 from src.Server import Base
 from threading import Thread
-#
-# # A relatively simple WSGI application. It's going to print out the
-# # environment dictionary after being updated by setup_testing_defaults
-# def simple_app(environ, start_response):
-#     setup_testing_defaults(environ)
-#
-#     status = '200 OK'
-#     headers = [('Content-type', 'text/plain; charset=utf-8')]
-#
-#     start_response(status, headers)
-#
-#     print(guess_scheme(environ))
-#     print(request_uri(environ))
-#
-#     geturl = environ['PATH_INFO']
-#     print(geturl)
-#     # for item in url:
-#     #     if item[0] == geturl:
-#     #         return [item[1]().encode("utf-8")]
-#     # else:
-#     #     return '404'
-#
-#     ret = [("%s: %s\n" % (key, value)).encode("utf-8")
-#            for key, value in environ.items()]
-#
-#     ret = b'hello world'
-#     return [ret, ]
-#
-#     # return ret
-#
-#
-# with make_server('', 8000, simple_app) as httpd:
-#     print("Serving on port 8000...")
-#     httpd.serve_forever()
+from src.wsgiHandler import wsgiHandler
+import socket
+from contextlib import closing
 
-class wsgi_function():
-    def __init__(self, routes):
-        super().__init__()
-        self.routes = routes
-    def setup_wsgi(self, environ, start_response):
-        response_status = '200 OK'
-        # content-type 應該由 route 決定, 暫時先 hard code
-        headers = [('Content-type', 'text/plain')]
-
-        start_response(response_status, headers)
-
-        uri = environ['PATH_INFO']
-        # method = environ['REQUEST_METHOD']
-
-        return [self.routes[uri][1]()]
 
 class wsgi(Base):
     def __init__(self):
         super().__init__()
         self.apps = []
         self.server = None
+
+    def find_free_port(self):
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(('', 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return s.getsockname()[1]
     
     def start(self, application):
-        '''
-        todo: modify routes
-        '''
-        self.apps.append(application)
-        self.fireStart(self.apps)
-
-        routes = application.routes
-        func = wsgi_function(routes)
-        self.server = make_server('', 8000, func.setup_wsgi)
-        self.m = Thread(target=self.server.serve_forever, name="m_process")
-        self.m.start()
-        self.fireReady(self.apps)
-
+        try:
+            self.apps.append(application)
+            self.fireStart(self.apps)
+            port = find_free_port()
+            handler = wsgiHandler(application)
+            self.server = make_server('', port, handler)
+            print("Server on port: {}...".format(port))
+            self.m = Thread(target=self.server.serve_forever, name="m_process")
+            self.m.start()
+            self.fireReady(self.apps)
+        except Exception as e:
+            print("wsgi server start up error: {}".format(e))
         return self
 
     def stop(self):
@@ -84,9 +43,4 @@ class wsgi(Base):
             self.m.join()
         self.server = None
         return self
-
-
-        
-        
-
 

@@ -3,6 +3,7 @@ from src import Registry
 from src import Route
 from abc import abstractmethod
 import copy
+from multipledispatch import dispatch
 
 class Router(Registry):
     """
@@ -641,8 +642,8 @@ class Router(Registry):
         """
         pass
     
-    
-    def get_script(self, pattern, handler):
+    @dispatch(str, object)
+    def get(self, pattern, handler):
         """
         Add a HTTP GET handler.
    
@@ -652,7 +653,8 @@ class Router(Registry):
         """
         return self.route(GET, pattern, handler)
 
-    def post_script(self, pattern, handler):
+    @dispatch(str, object)
+    def post(self, pattern, handler):
         """
         Add a HTTP POST handler.
    
@@ -662,7 +664,8 @@ class Router(Registry):
         """
         return self.route(POST, pattern, handler)
 
-    def put_script(self, pattern, handler):
+    @dispatch(str, object)
+    def put(self, pattern, handler):
         """
         Add a HTTP PUT handler.
    
@@ -672,7 +675,8 @@ class Router(Registry):
         """
         return self.route(PUT, pattern, handler)
 
-    def delete_script(self, pattern, handler):
+    @dispatch(str, object)
+    def delete(self, pattern, handler):
         """
         Add a HTTP DELETE handler.
    
@@ -682,24 +686,28 @@ class Router(Registry):
         """
         return self.route(DELETE, pattern, handler)
     
+    @dispatch(str)
     def get(self, pattern):
         def decorator(handler):
             self.route(GET, pattern, handler)
             return handler
         return decorator
 
+    @dispatch(str)
     def post(self, pattern):
         def decorator(handler):
             self.route(POST, pattern, handler)
             return handler
         return decorator
     
+    @dispatch(str)
     def put(self, pattern):
         def decorator(handler):
             self.route(PUT, pattern, handler)
             return handler
         return decorator
     
+    @dispatch(str)
     def delete(self, pattern):
         def decorator(handler):
             self.route(DELETE, pattern, handler)

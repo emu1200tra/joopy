@@ -7,7 +7,7 @@ class Base():
     
     def fireStart(self, apps):
         for app in apps:
-            app.start_with_server(self)
+            app.start(self)
     def fireReady(self, apps):
         for app in apps:
             app.ready(self)
