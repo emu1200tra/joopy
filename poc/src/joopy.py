@@ -113,9 +113,9 @@ class Joopy(Router, Registry):
         return log
 
     def getEnvironment(self):
-        if env == None:
-            env = Environment.loadEnvironment(environmentOptions)
-        return env
+        if self.__env is None:
+            self.__env = Environment.loadEnvironment(self.__environmentOptions)
+        return self.__env
 
     @dispatch()
     def start(self):
@@ -157,7 +157,7 @@ class Joopy(Router, Registry):
 
     def mvc(self, router):
         provider = lambda: router
-        return mvc_create(router.__class__, provider)
+        return self.mvc_create(router.__class__, provider)
 
     def mvc_create(self, router=None, provider=None):
         module = mvcExtension()
@@ -166,23 +166,23 @@ class Joopy(Router, Registry):
         return self
 
     def decorator(self, decorator):
-        router.decorator(decorator)
+        self.__router.decorator(decorator)
         return self
 
     def before(self, before):
-        router.before(before)
+        self.__router.before(before)
         return self
 
     def after(self, after):
-        router.after(after)
+        self.__router.after(after)
         return self
 
     def responseHandler(self, handler):
-        router.responseHandler(handler)
+        self.__router.responseHandler(handler)
         return self
     
     def getErrorHandler(self):
-        return self.router.getErrorHandler() 
+        return self.__router.getErrorHandler() 
     
     def path(self, pattern, action):
         return self.__router.path(pattern, action)

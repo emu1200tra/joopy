@@ -1,7 +1,11 @@
+from multipledispatch import dispatch
+
+from src.todo import *
 from src import Route
 from src import Router
 from src import MediaType
 from src.handler import *
+
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -55,7 +59,7 @@ class RouterImpl(Router):
             self.__executor = executor
             return self
 
-    __ROUTE_MARK = None # Route # new Route(Router.GET, "/", null)
+    __ROUTE_MARK = Route(Router.GET, "/", None) # Route
 
     def __init__(self, loader):
         super(RouterImpl, self).__init__()
@@ -268,14 +272,13 @@ class RouterImpl(Router):
                 self.__predicateMap[key].destroy()
             self.__predicateMap.clear()
             self.__predicateMap = None
+    
+    @dispatch(RouteTree, str, Runnable, list[Route.Decorator])
+    def newStack(self, tree: RouteTree, pattern: str, action: Runnable, decorator: list[Route.Decorator]) -> Router:
+        return self.newStack(self.push(tree, pattern), action, decorator)
 
-    def newStack(self, tree: RouteTree = None, pattern: str = None, stack: Stack = None, action: Runnable, decorator: list[Route.Decorator]) -> Router:
-        # TODO: use @dispatch to overload
-        if stack is None:
-            if tree is None or pattern is None:
-                return 
-            else:
-                stack = self.newStack(self.push(tree, pattern), action, decorator)
+    @dispatch(Stack, Runnable, list[Route.Decorator])
+    def newStack(self, stack: Stack, action: Runnable, decorator: list[Route.Decorator]) -> Router:
         for d in decorator:
             stack.then(d)
         self.__stack.append(stack)
