@@ -55,7 +55,7 @@ class RouterMatch(Router.Match):
         context.setPathMap(self.vars)
         context.setRoute(self.__route)
         try:
-            route.getPipeline().apply(context)
+            self.__route.getPipeline().apply(context)
         except Exception as e:
             context.sendError(e)
         finally:
