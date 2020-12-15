@@ -35,7 +35,7 @@ class Joopy(Router, Registry):
     """
     def __init__(self):
         super(Joopy, self).__init__()    
-        self.__router = None # RouterImpl
+        self.__router = RouterImpl()
         self.__mode = None # ExecutionMode
         self.__tmpdir = None # Path
         self.__readyCallbacks = [] # List<SneakyThrows.Runnable>
@@ -49,7 +49,7 @@ class Joopy(Router, Registry):
         self.__lateInit = None # boolean
         self.__name = None # String
         self.__version = None # String
-        self.router = RouterImpl()
+        #self.router = RouterImpl()
         #self.routes = routers
         #self.routes = None
     
@@ -139,7 +139,7 @@ class Joopy(Router, Registry):
     def start(self, server:Base):
         #self.__router.start(self)
         print("Start server")
-        self.router.start(self);
+        self.__router.start(self);
 
         return self
 
@@ -153,7 +153,7 @@ class Joopy(Router, Registry):
         return self
 
     def route(self, method, pattern, handler):
-        return self.router.route(method, pattern, handler)
+        return self.__router.route(method, pattern, handler)
 
     def mvc(self, router):
         provider = lambda: router
@@ -190,4 +190,6 @@ class Joopy(Router, Registry):
     def routes(self, action):
         return self.__router.routes(action)
 
-    def match(self)
+    def match(self, context):
+        return self.__router.match(context)
+

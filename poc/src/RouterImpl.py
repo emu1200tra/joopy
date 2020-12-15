@@ -65,7 +65,7 @@ class RouterImpl(Router):
         super(RouterImpl, self).__init__()
         self.__err = None # ErrorHandler
         self.__errorCodes = None # Map<String, StatusCode>
-        self.__chi = None # RouteTree # new Chi()
+        self.__chi = Chi()
         self.__stack = [] # LinkedList<Stack> # new LinkedList<>()
         self.__routes = [] # List<Route> # new ArrayList<>()
         self.__encoder = None # HttpMessageEncoder # new HttpMessageEncoder()
@@ -293,3 +293,12 @@ class RouterImpl(Router):
             parent = self.__stack[-1]
             stack.executor = parent.executor
         return stack
+
+    def match(self, context):
+        #if self.__predicateMap != None:
+        #   deal with matching if predicateMap exists
+        #   otherwise deal with chi.find
+        #   predicateMap not implemented now
+        #   use chi to find element directly
+        return self.__chi.find(context.getMethod(), context.getRequestPath())
+
