@@ -2,11 +2,20 @@ from multipledispatch import dispatch
 
 from poc.src import Server
 from poc.src.context import Context
+import datetime
 
 from PyByteBuffer import ByteBuffer
 
 from poc.src.handler.ErrorHandler import ErrorHandler
 
+class SneakyThrows(object):
+    pass
+
+class ValueConverters(object):
+    pass
+
+class MediaType(object):
+    pass
 
 class ServiceKey(object):
     pass
@@ -227,6 +236,181 @@ class DefaultContext(Context):
 
         return url
 
+    @dispatch()
+    def get_request_type(self) -> MediaType:
+        contentType = self.header("Content-Type")
+        return None if contentType.is_missing() else MediaType.valueOf(contentType.value())
+
+    @dispatch(object)
+    def get_request_type(self, defaults: MediaType) -> MediaType:
+        contentType = self.header("Content-Type")
+        return defaults if contentType.is_missing() else MediaType.valueOf(contentType.value())
+
+    def get_request_length(self) -> int:
+        contentLength = self.header("Content-Length")
+        return -1 if contentLength.is_missing() else contentLength.longValue()
+
+    def get_host_and_port(self) -> str:
+        header = self.header("X-Forwarded-Host") if self.get_router().isTrustProxy() \
+            else None
+        value = header if header is not None else lambda x: header("Host").value(self.get_server_host() + ":" + self.getServerPort())
+        i = value.find(",")
+        host = value[0: i].strip(" ") if i > 0 else value
+        if host.startsWith("[") and host.endsWith("]"):
+            return host[1, len(host)-1].strip()
+        return host
+
+    def get_server_host(self):
+        host = self.get_router().get_server_options().get_host()
+        return "localhost" if host == "0.0.0.0" else host
+
+    def get_server_port(self) -> int:
+        options = self.get_router().get_server_options()
+        return options.get_secure_port() if self.is_secure() else options.get_port()
+
+    def get_port(self) -> int:
+        hostAndPort = self.get_host_and_port()
+        if hostAndPort is not None:
+            index = hostAndPort.find(":")
+            if index > 0:
+                return int(hostAndPort[index+1:])
+            return 443 if self.is_secure() else 80
+
+    def get_host(self) -> str:
+        hostAndPort = self.get_host_and_port()
+        if hostAndPort is not None:
+            index = hostAndPort.find(":")
+            return hostAndPort[0:index].strip() if index > 0 else hostAndPort
+        return self.get_server_host()
+
+    def is_secure(self) -> bool:
+        return self.get_scheme() == "https"
+
+    def form_multimap(self) -> object:
+        return self.form().to_multimap()
+
+    def form_map(self) -> object:
+        return self.form().to_map()
+
+    @dispatch(str)
+    def form(self, name: str) -> ValueNode:
+        return self.form().get(name)
+
+    @dispatch(object)
+    def form(self, type: object) -> object:
+        return self.form().to(type)
+
+    @dispatch(str)
+    def multipart(self, name: str) -> ValueNode:
+        return self.multipart().get(name)
+
+    @dispatch(object)
+    def multipart(self, type:object) -> object:
+        return self.multipart().to(type)
+
+    def multipart_multimap(self) -> object:
+        return self.multipart().to_multimap()
+
+    def multipart_map(self) -> object:
+        return self.multipart().to_map()
+
+    @dispatch()
+    def files(self) -> object:
+        return self.multipart().files()
+
+    @dispatch(str)
+    def files(self, name: str) -> object:
+        return self.multipart().files(name)
+
+    def file(self, name: str) -> FileUpload:
+        return self.multipart().file(name)
+
+    def body(self, type: object) -> object:
+        return self.body().to(type)
+
+    def convert(self, value: ValueNode, type: object) -> object:
+        result = ValueConverters.convert(value, type, self.get_router())
+        if result is None:
+            raise Exception
+        return result
+
+    def decode(self, type: object, contentType: MediaType):
+        try:
+            if MediaType.text == contentType:
+                result = ValueConverters.convert(self.body(), type, self.get_router())
+                return result
+            return self.decoder(contentType).decode(self, type)
+        except Exception as e:
+            # TODO
+            raise SneakyThrows.propogate(e)
+
+    def decoder(self, contentType: MediaType) -> MessageDecoder:
+        return self.get_route().decoder(contentType)
+
+    def set_response_header(self, name: str, value: datetime) -> Context:
+        return self.set_response_header(name, value)
+
+    def set_response_type(self, contentType: MediaType) -> Context:
+        return self.set_response_type(contentType, contentType.get_charset())
+
+    def set_response_code(self, statusCode: StatusCode) -> Context:
+        return self.set_response_code(statusCode.value())
+    
+    def render(self, value: object) -> Context:
+        try:
+            route = self.get_route()
+            encoder = route.get_encoder()
+            bytes = encoder.encode(self, value)
+            if bytes is None:
+                if not self.is_response_started():
+                    raise Exception
+                else:
+                    self.send(bytes)
+            return self
+        except Exception as e:
+            raise SneakyThrows.propogate(e)
+    
+    @dispatch(MediaType)
+    def response_stream(self, contentType: MediaType) -> object:
+        # TODO: return type: Java OutputStream
+        self.set_response_type(contentType)
+        return self.response_stream()
+
+    @dispatch(MediaType, object)
+    def response_stream(self, contentType: MediaType, consumer: object) -> Context:
+        self.set_response_type(contentType)
+        return self.response_stream(consumer)
+
+    def response_stream(self, consumer: object) -> Context:
+        try:
+            out = self.response_stream()
+            consumer.accept(out)
+        return self
+
+    @dispatch()
+    def response_writer(self):
+        return self.response_writer(MediaType.text)
+
+    @dispatch(MediaType)
+    def response_writer(self, contentType: MediaType):
+        return self.response_writer(MediaType.text, contentType.get_charset())
+
+    @dispatch(MediaType, object)
+    def response_writer(self, contentType: MediaType, consumer: object) -> Context:
+        return self.response_writer(MediaType.text, consumer)
+
+    @dispatch(Charset, object)
+    def response_writer (self, contentType: MediaType, consumer: object) -> Context:
+        return self.response_writer(contentType, contentType.get_charset(), consumer)
+
+    @dispatch(MediaType, object)
+    def response_writer (self, contentType: MediaType, charset: object,
+        consumer: object) -> Context:
+        try:
+            writer = self.response_writer(contentType, charset)
+            consumer.accept(writer)
+        return self
+
     def send_redirect(self, location):
         return self.send_redirect(StatusCode.FOUND, location)
 
@@ -289,9 +473,3 @@ class DefaultContext(Context):
             raise SneakyThrows.propagate(cause)
 
         return self
-
-
-
-
-
-
