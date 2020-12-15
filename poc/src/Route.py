@@ -19,7 +19,7 @@ class Route:
         Allows a handler to listen for route metadata.
         @param route Route metadata.
         '''
-        def setRoute(self, route:Route):
+        def set_route(self, route:Route):
             pass
     class Decorator(Aware):
         '''
@@ -245,85 +245,87 @@ class Route:
         self.__summary = None # String
         self.__description = None # String
 
-    def getPattern(self) -> str:
+    def get_pattern(self) -> str:
         return self.__pattern
 
-    def getMethod(self) -> str:
+    def get_method(self) -> str:
         return self.__method
 
-    def getPathKeys(self) -> list[str]:
+    def get_path_keys(self) -> list[str]:
         return self.__pathKeys
 
-    def setPathKeys(self, pathKeys: list[str]):
+    def set_path_keys(self, pathKeys: list[str]):
         self.__pathKeys = pathKeys
         return self
 
-    def getHandler(self) -> Handler:
+    def get_handler(self) -> Handler:
         return self.__handler
-
-    def getPipeline(self) -> Handler:
+    
+    def get_handle(self) -> Object:
+        return self.__handle;
+        
+    def get_pipeline(self) -> Handler:
         if self.__pipeline is None:
             self.__pipeline = self.computePipeline()
         return self.__pipeline
 
-    def getBefore(self) -> Before:
+    def get_before(self) -> Before:
         return self.__before
 
-    def setBefore(self, before: Before):
+    def set_before(self, before: Before):
         self.__before = before
         return self
 
-    def getAfter(self):
+    def get_after(self):
         return self.__after
 
-    def setAfter(self, after: After):
+    def set_after(self, after: After):
         self.__after = after
         return self
     
-    def getDecorator(self):
+    def get_decorator(self):
         return self.__decorator
 
-    def setDecorator(self, decorator: Decorator):
+    def set_decorator(self, decorator: Decorator):
         self.__decorator = decorator
         return self
 
-    def getEncoder(self) -> MessageEncoder:
+    def get_encoder(self) -> MessageEncoder:
         return self.__encoder
 
-    def setEncoder(self, encoder: MessageEncoder):
+    def set_encoder(self, encoder: MessageEncoder):
         self.__encoder = encoder
         return self
 
-    def getReturnType(self): # Type
+    def get_return_type(self): # Type
         return self.__returnType
     
-    def setReturnType(self, returnType): # Type
+    def set_return_type(self, returnType): # Type
         self.__returnType = returnType
         return self
 
-    def getDecoders(self) -> dict[str, MessageDecoder]:
+    def get_decoders(self) -> dict[str, MessageDecoder]:
         return self.__decoders
 
-    def setDecoders(self, decoders: dict[str, MessageDecoder]):
+    def set_decoders(self, decoders: dict[str, MessageDecoder]):
         self.__decoders = decoders
         return self
 
-    def setExecutorKey(self, key: str):
+    def set_executor_key(self, key: str):
         self.__executorKey = key
         return self
 
-    def getExecutorKey(self) -> str:
+    def get_executor_key(self) -> str:
         return self.__executorKey
 
-    def setReturnType(self, returntype: object):
+    def set_return_type(self, returntype: object):
         self.__returnType = returntype
         return self
 
-    def getReturnType(self) -> object:
+    def get_return_type(self) -> object:
         return self.__returnType
 
-    # TODO: class MediaType is not implemented yet
-    def getProduces(self) -> list[MediaType]:
+    def get_produces(self) -> list[MediaType]:
         return self.__produces 
     
     def produces(self, *args) -> Route:
@@ -331,9 +333,9 @@ class Route:
         for produce in args:
             produces.append(produce)
         
-        return setProduces(produces)
+        return set_produces(produces)
 
-    def setProduces(self, produces: list[MediaType]) -> Route: # Collection<MediaType> produces
+    def set_produces(self, produces: list[MediaType]) -> Route: # Collection<MediaType> produces
         if len(produces) > 0:
             if self.__produces == __EMPTY_LIST:
                  # new arrayList in java(?)
@@ -344,7 +346,7 @@ class Route:
             
         return self               
 
-    def getConsumes(self) -> list[MediaType]: 
+    def get_consumes(self) -> list[MediaType]: 
         return self.__consumes
 
     def consumes(self, *args) -> Route:
@@ -352,9 +354,9 @@ class Route:
         for consume in args:
             consumes.append(consume)
         
-        return setConsumes(consumes)
+        return set_consumes(consumes)
 
-    def setConsumes(self, consumes: list[MediaType]) -> Route: # Collection<MediaType> consumes
+    def set_consumes(self, consumes: list[MediaType]) -> Route: # Collection<MediaType> consumes
         # TODO
         if len(consumes) > 0:
             if self.__consumes == __EMPTY_LIST:
@@ -382,9 +384,9 @@ class Route:
         return pipeline
     
     def accept(self, ctx):
-        produceTypes = ctx.get_route().getProduces()
+        produceTypes = ctx.get_route().get_produces()
         contentType = ctx.accept(produceTypes) # MediaType
-        if contentType == None:
+        if contentType is None:
             raise Exception('NotAcceptableException')
         
         ctx.set_default_response_type(contentType)
@@ -393,11 +395,11 @@ class Route:
 
     def support_media_type(self, ctx):
         contentType = ctx.get_request_type # MediaType
-        if contentType == None:
+        if contentType is None:
             raise Exception('UnsupportedMediaType')
 
-        bool ok = False
-        for media_type in ctx.get_route()getConsumes():
+        ok = False
+        for media_type in ctx.get_route().get_consumes():
             if contentType.matches(media_type):
                 ok = True
         
