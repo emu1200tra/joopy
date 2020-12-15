@@ -11,11 +11,16 @@ class wsgiHandler(object):
 
         context = wsgiContext(environ, self.router)        
 
-        body = self.router.match(context)
-        if body:
-            start_response(response_status, headers)
-            return [body.execute(context)]
+        start_response(response_status, headers)
+
+        handler = self.router.match(context).execute(context)
+
+        return [handler]
+        '''
+        if handler:
+            return [handler.execute(context)]
         else:
             response_status = "404 NOT FOUND"
             start_response(response_status, headers)
             return None
+        '''

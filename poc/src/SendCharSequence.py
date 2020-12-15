@@ -1,18 +1,18 @@
 from src.handler.LinkedHandler import LinkedHandler
 
-class WorkerHandler(LinkedHandler):
+class SendCharSequence(LinkedHandler):
     def __init__(self, _next):
         super(WorkerHandler, self).__init__()
         self.next = _next
 
     def apply(self, context):
-        return context.dispatch(lambda: self.element)
-
-    def element(self):
         try:
-            self.next.apply(context)
+            result = self.next.apply(context)
+            if (context.isResponseStarted()):
+                return result
+            return context.send(str(result))
         except Exception as e:
-            context.sendError(e)
+            return context.sendError(e)
 
     def next(self):
         return self.next

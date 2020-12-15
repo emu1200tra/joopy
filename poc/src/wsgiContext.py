@@ -1,4 +1,6 @@
-class wsgiContext(object):
+from src.handler.DefaultContext import DefaultContext
+
+class wsgiContext(DefaultContext):
     def __init__(self, request, router):
         super(wsgiContext, self).__init__()
     	self.request = request
@@ -7,6 +9,7 @@ class wsgiContext(object):
     	self.requestPath = environ['PATH_INFO']
         self.pathMap = None
         self.route = None
+        self.ResponseStarted = False
         
     def getMethod(self):
         return self.method
@@ -21,3 +24,10 @@ class wsgiContext(object):
     def setRoute(self, route):
         self.route = route
         return self
+
+    def dispatch(self, action):
+        action()
+        return self
+
+    def isResponseStarted(self):
+        return self.ResponseStarted
