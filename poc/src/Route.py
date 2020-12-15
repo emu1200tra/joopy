@@ -1,3 +1,5 @@
+from multipledispatch import dispatch
+from abc import ABCMeta, abstractmethod
 from src import context 
 
 class Route:
@@ -14,14 +16,75 @@ class Route:
     * @author edgar
     * @since 2.0.0
     '''
-    class Aware:
+    class Aware(metaclass=ABCMeta):
         '''
         Allows a handler to listen for route metadata.
         @param route Route metadata.
         '''
-        def set_route(self, route:Route):
+        def set_route(self, route):
             pass
-    class Decorator(Aware):
+    
+    class Handler(Aware, metaclass=ABCMeta):
+        '''
+        * Route handler here is where the application logic lives.
+        *
+        * @author edgar
+        * @since 2.0.0
+        '''
+        @abstractmethod
+        def apply(self, ctx: Context):
+            '''
+            Execute application code.
+
+            @param ctx Web context.
+            @return Route response.
+            @throws Exception If something goes wrong.
+            '''
+            pass
+
+        def then(self, next):
+            '''
+            Chain this after decorator with next and produces a new decorator.
+
+            @param next Next decorator. (After)
+            @return A new handler. (Handler)
+            '''
+            def inner_then(self, ctx, next):
+                cause = None # Throwable
+                value = None # Object
+                try:
+                    value = self.apply(ctx)
+                except Exception as error:
+                    cause = error
+                result = None
+                try:
+                    if ctx.isResponseStarted():
+                        result = Context.readOnly(ctx)
+                        next.apply(result, value, cause)
+                    else:
+                        result = value
+                        next.apply(ctx, value, cause)
+                except Exception as error:
+                    result = None
+                    if cause is None:
+                        cause = error
+                    else:
+                        cause.addSuppressed(error)
+                
+                if cause is None:
+                    return result
+                else:
+                    if ctx.isResponseStarted():
+                        return ctx
+                    else:
+                        raise SneakyThrows.propagate(cause)
+            
+            if isinstance(next, Route.After):
+                return lambda ctx : inner_then(ctx, next)
+            else:
+                raise ValueError("The type of argument should be Route.After.")
+
+    class Decorator(Aware, metaclass=ABCMeta):
         '''
         * Decorates a route handler by running logic before and after route handler. This pattern is
         * also known as Filter.
@@ -41,58 +104,84 @@ class Route:
         * @author edgar
         * @since 2.0.0
         '''
-        def apply(self, next:Handler) -> Handler:
+        @abstractmethod
+        def apply(self, next):
             '''
             * Chain the decorator within next handler.
             *
-            * @param next Next handler.
-            * @return A new handler.
+            * @param next Next handler. (Handler)
+            * @return A new handler. (Handler)
             '''
             pass
+
         def then(self, next):
             '''
             * Chain this decorator with another and produces a new decorator.
             *
-            * @param next Next decorator.
-            * @return A new decorator.
+            * @param next Next decorator. (Decorator)
+            * @return A new decorator. (Decorator)
             '''
-            if isinstance(next, Decorator):
-               return lambda h : apply(next.apply(h))
-            if isinstance(next, Handler):
-                return lambda ctx : apply(next).apply(ctx)
-    class Before:
+            '''
+            * Chain this decorator with a handler and produces a new handler.
+            *
+            * @param next Next handler. (Handler)
+            * @return A new handler. (Handler)
+            '''
+            if isinstance(next, Route.Decorator):
+               return lambda h : self.apply(next.apply(h))
+            elif isinstance(next, Route.Handler):
+                return lambda ctx : self.apply(next).apply(ctx)
+            else:
+                raise ValueError("The type of argument should be Route.Decorator or Route.Handler.")
+    
+    class Before(metaclass=ABCMeta):
         '''
         * Decorates a handler and run logic before handler is executed.
         *
         * @author edgar
         * @since 2.0.0
         '''
-        def apply(self, ctx:Context):
+        @abstractmethod
+        def apply(self, ctx: Context):
             '''            
             * Chain this filter with next one and produces a new before filter.
             *
             * @param next Next decorator.
             * @return A new decorator.
             '''
-            raise Exception
+            pass
+        
         def then(self, next):
+            '''
+            * Chain this filter with next one and produces a new before filter.
+            *
+            * @param next Next decorator. (Before)
+            * @return A new decorator. (Before)
+            '''
+            def then_before(self, ctx, next):
+                self.apply(ctx)
+                if not ctx.isResponseStarted():
+                    next.apply(ctx)
             '''
             * Chain this decorator with a handler and produces a new handler.
             *
-            * @param next Next handler.
-            * @return A new handler.
-            * Chain this filter with next one and produces a new before filter.
-            *
-            * @param next Next decorator.
-            * @return A new decorator.
+            * @param next Next handler. (Handler)
+            * @return A new handler. (Handler)
             '''
-            def inner_then(self, ctx, next):
-                apply(ctx)
+            def then_handler(self, ctx, next):
+                self.apply(ctx)
                 if not ctx.isResponseStarted():
                     return next.apply(ctx)
                 return ctx
-            return lambda ctx : inner_then(ctx, next)
-    class After:
+            
+            if isinstance(next, Route.Before):
+                return lambda ctx : then_before(ctx, next)
+            elif isinstance(next, Route.Handler):
+                return lambda ctx : then_handler(ctx, next)
+            else:
+                raise ValueError("The type of argument should be Route.Before or Route.Handler.")
+            
+    class After(metaclass=ABCMeta):
         '''
         * Execute application logic after a response has been generated by a route handler.
         *
@@ -136,15 +225,8 @@ class Route:
         * @since 2.0.0
         '''
         #result: Object, failure: Throwable
-        def apply(self, ctx, result, failure):
-            '''
-            * Chain this filter with next one and produces a new after filter.
-            *
-            * @param next Next filter.
-            * @return A new filter.
-            '''
-            raise Exception
-        def then(self, next):
+        @abstractmethod
+        def apply(self, ctx: Context, result: object, failure):
             '''
             * Execute application logic on a route response.
             *
@@ -153,63 +235,25 @@ class Route:
             * @param failure Uncaught exception generated by route handler.
             * @throws Exception If something goes wrong.
             '''
-            def inner_then(self, ctx, result, failure):
-                next.apply(ctx, result, failure)
-                apply(ctx, result, failure)
-            return lambda ctx, result, failure : inner_then(ctx, result, failure)
-        
-    class Handler(Aware):
-        '''
-        * Route handler here is where the application logic lives.
-        *
-        * @author edgar
-        * @since 2.0.0
-        '''
-        def apply(self, ctx):
-            '''
-            Execute application code.
-
-            @param ctx Web context.
-            @return Route response.
-            @throws Exception If something goes wrong.
-            '''
-            raise Exception
+            pass
+            
         def then(self, next):
             '''
-            Chain this after decorator with next and produces a new decorator.
-
-            @param next Next decorator.
-            @return A new handler.
+            * Chain this filter with next one and produces a new after filter.
+            *
+            * @param next Next filter. (After)
+            * @return A new filter. (After)
             '''
-            def inner_then(self, ctx, next):
-                value = None
-                cause = None
-                try:
-                    value = apply(ctx)
-                except Exception:
-                    cause = Exception
-                result = None
-                try:
-                    if ctx.isResponseStarted():
-                        result = Context.readOnly(ctx)
-                        next.apply(result, value, cause)
-                    else:
-                        result = value
-                        next.apply(ctx, value, cause)
-                except Exception:
-                    if not cause:
-                        cause = Exception
-                    else:
-                        cause.addSuppressed(Exception)
-                
-                if not cause:
-                    return result
-                else:
-                    if ctx.isResponseStarted():
-                        return ctx
-                    else:
-                        raise SneakyThrows.propagate(cause)
-            return lambda ctx : inner_then(ctx, next)
+            def inner_then(self, ctx, result, failure):
+                next.apply(ctx, result, failure)
+                self.apply(ctx, result, failure)
+            
+            if isinstance(next, Route.After):
+                return lambda ctx, result, failure : inner_then(ctx, result, failure)
+            else:
+                raise ValueError("The type of argument should be Route.After.")
+
+    
     """
     Favicon handler as a silent 404 error.
     """
@@ -238,7 +282,7 @@ class Route:
         self.__handle = handler # object
         self.__produces = Route.__EMPTY_LIST # List<MediaType>
         self.__consumes = Route.__EMPTY_LIST # List<MediaType>
-        self.__attributes = None # Map<String, Object> # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+        self.__attributes = {} # Map<String, Object> # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
         self.__supportedMethod = None # Set<String>
         self.__executorKey = None # String
         self.__tags = Route.__EMPTY_LIST # List<String>
@@ -261,8 +305,8 @@ class Route:
     def get_handler(self) -> Handler:
         return self.__handler
     
-    def get_handle(self) -> Object:
-        return self.__handle;
+    def get_handle(self) -> object:
+        return self.__handle
         
     def get_pipeline(self) -> Handler:
         if self.__pipeline is None:
@@ -304,6 +348,26 @@ class Route:
         self.__returnType = returnType
         return self
 
+    def get_attributes(self) -> dict[str, object]:
+        return self.__attributes
+
+    @dispatch(str)
+    def attribute(self, name: str): # -> <T> T
+        return self.__attributes[name] # (T)
+
+    def set_attributes(self, attributes: dict[str, object]):
+        self.__attributes.update(attributes)
+        return self
+
+    @dispatch(str, object)
+    def attribute(self, name: str, value: object):
+        if self.__attributes == Route.__EMPTY_MAP:
+            self.__attributes = {} # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+        
+        self.__attributes[name] = value
+        
+        return self
+
     def get_decoders(self) -> dict[str, MessageDecoder]:
         return self.__decoders
 
@@ -328,16 +392,16 @@ class Route:
     def get_produces(self) -> list[MediaType]:
         return self.__produces 
     
-    def produces(self, *args) -> Route:
+    def produces(self, *args):
         produces = []
         for produce in args:
             produces.append(produce)
         
-        return set_produces(produces)
+        return self.set_produces(produces)
 
-    def set_produces(self, produces: list[MediaType]) -> Route: # Collection<MediaType> produces
+    def set_produces(self, produces: list[MediaType]): # Collection<MediaType> produces
         if len(produces) > 0:
-            if self.__produces == __EMPTY_LIST:
+            if self.__produces == Route.__EMPTY_LIST:
                  # new arrayList in java(?)
                 pass
             
@@ -349,17 +413,17 @@ class Route:
     def get_consumes(self) -> list[MediaType]: 
         return self.__consumes
 
-    def consumes(self, *args) -> Route:
+    def consumes(self, *args):
         consumes = []
         for consume in args:
             consumes.append(consume)
         
-        return set_consumes(consumes)
+        return self.set_consumes(consumes)
 
-    def set_consumes(self, consumes: list[MediaType]) -> Route: # Collection<MediaType> consumes
+    def set_consumes(self, consumes: list[MediaType]): # Collection<MediaType> consumes
         # TODO
         if len(consumes) > 0:
-            if self.__consumes == __EMPTY_LIST:
+            if self.__consumes == Route.__EMPTY_LIST:
                 # new arrayList in java(?)
                 pass
             
