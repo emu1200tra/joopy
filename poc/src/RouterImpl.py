@@ -1,9 +1,7 @@
 from multipledispatch import dispatch
-
 from src.todo import *
 from src import Route
 from src import Router
-from src import MediaType
 from src.handler import *
 
 
@@ -87,9 +85,7 @@ class RouterImpl(Router):
         self.__routerOptions = None # Set<RouterOption> # EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR)
         self.__trustProxy = None # boolean
         self.__contextAsService = None # boolean
-
         self.__stack.append(RouterImpl.Stack(self.__chi, None))
-
 
     def decorator(self, decorator: Route.Decorator) -> Router:
         self.__stack[-1].then(decorator)
@@ -155,12 +151,12 @@ class RouterImpl(Router):
         """ Route: """
         safePattern = pathBuilder.toString() # String
         route = Route(method, safePattern, handler) # Route
-        route.setPathKeys(Router.pathKeys(safePattern))
-        route.setBefore(before)
-        route.setAfter(after)
-        route.setDecorator(decorator)
-        route.setEncoder(self.__encoder)
-        route.setDecoders(self.__decoders)
+        route.set_pathKeys(Router.pathKeys(safePattern))
+        route.set_before(before)
+        route.set_after(after)
+        route.set_decorator(decorator)
+        route.set_encoder(self.__encoder)
+        route.set_decoders(self.__decoders)
 
         for it in decoratorList:
             it.setRoute(route)
@@ -180,20 +176,20 @@ class RouterImpl(Router):
             finalPattern = finalPattern.lower()
 
         for routePattern in Router.expandOptionalVariables(finalPattern):
-            if route.getMethod() == "WS":
+            if route.get_method() == "WS":
                 tree.insert(Router.GET, routePattern, route)
-                route.setReturnType(Context)
-            elif route.getMethod() == "SSE":
+                route.set_return_type(Context)
+            elif route.get_method() == "SSE":
                 tree.insert(Router.GET, routePattern, route)
-                route.setReturnType(Context)
+                route.set_return_type(Context)
             else:
-                tree.insert(route.getMethod(), routePattern, route)
+                tree.insert(route.get_method(), routePattern, route)
 
                 if route.isHttpOptions():
                     tree.insert(Router.OPTIONS, routePattern, route)
                 elif route.isHttpTrace():
                     tree.insert(Router.TRACE, routePattern, route)
-                elif route.isHttpHead() and route.getMethod() == Router.GET:
+                elif route.isHttpHead() and route.get_method() == Router.GET:
                     tree.insert(Router.HEAD, routePattern, route)
 
         self.__routes.add(route)
@@ -209,54 +205,45 @@ class RouterImpl(Router):
             self.__err = ErrorHandler.create()
         else:
             self.__err = self.__err.then(ErrorHandler.create())
-
-        # TODO: HttpMessageEncoder is not implemented yet
-        # TODO: MessageEncoder is not implemented yet
-        # TODO: ValueConverters is not implemented yet
-        # TODO: ClassSource is not implemented yet
-        # TODO: RouteAnalyzer is not implemented yet
+        
         self.__encoder.add(MessageEncoder.TO_STRING)
+
+        ValueConverters.addFallbackConverters(self.__converters)
+        ValueConverters.addFallbackBeanConverters(self.__beanConverters)
+
         source = ClassSource(self.__classLoader)
         analyzer = RouteAnalyzer(source, False)
 
         mode = app.getExecutionMode()
 
         for route in self.__routes:
-            executorKey = route.getExecutorKey()
+            executorKey = route.get_executor_key()
 
-            # TODO: executor in java, concurrent.futures.threadpoolexecutor in python (?)
             executor = None
-            if executorKey == None:
+            if executorKey is None:
                 executor = self.__routeExecutor.get(route)
-                # TODO: ForwardingExecutor
             else:
-                # TODO: ForwardingExecutor
+                # TODO....... ForwardingExecutor's logic here QQ 
                 pass
 
-            if route.getReturnType() == None:
-                route.setReturnType(analyzer.returnType(route.getHandle()))
-                pass
+            if route.get_return_type() is None:
+                route.set_return_type(analyzer.returnType(route.get_handle()))
 
-            # TODO: class MediaType is not implemented yet
-            if isinstance(route.getHandler(), WebSocketHandler):
-                if not route.getConsumes(): # empty
+            if isinstance(route.get_handler(), WebSocketHandler):
+                if not route.get_consumes(): # empty
                     singletonList = [MediaType.json]
-                    route.setConsumes(singletonList)
-                if not route.getProduces(): # empty
+                    route.set_consumes(singletonList)
+                if not route.get_produces(): # empty
                     singletonList = [MediaType.json]
-                    route.setProduces(singletonList)
+                    route.set_produces(singletonList)
             else:
-                # TODO: prependMediaType
-                # TODO: SUPPORT_MEDIA_TYPE, ACCEPT in Route.py
-                route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE))
-                route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT))
-                pass
+                route.set_before(self.prependMediaType(route.get_consumes(), route.get_before(), Route.SUPPORT_MEDIA_TYPE))
+                route.set_before(self.prependMediaType(route.get_produces(), route.get_before(), Route.ACCEPT))
 
-            # TODO: Pipeline is not implemented yet
             pipeline = Pipeline()
 
             # Final render
-            Route.setEncoder(self.__encoder)
+            Route.set_encoder(self.__encoder)
 
         return self
 
@@ -300,5 +287,13 @@ class RouterImpl(Router):
         #   otherwise deal with chi.find
         #   predicateMap not implemented now
         #   use chi to find element directly
-        return self.__chi.find(context.getMethod(), context.getRequestPath())
+        return self.__chi.find(context.get_method(), context.get_request_path())
 
+    def prependMediaType(self, contentTypes: list[MediaType], before: Route.Before, prefix: Route.Before) -> Route.Before:
+        if len(contentTypes) > 0:
+            if before is None:
+                return prefix
+            else:
+                return prefix.then(before)
+        else:
+            return before
