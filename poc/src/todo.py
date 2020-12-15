@@ -19,8 +19,9 @@ class ClassSource:
 class RouteAnalyzer:
     pass
 
-class prependMediaType:
-    pass
-
 class Pipeline:
     pass
+
+class MediaType:
+    def matches(media_type):
+        pass

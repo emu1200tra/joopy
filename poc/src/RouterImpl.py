@@ -1,9 +1,7 @@
 from multipledispatch import dispatch
-
 from src.todo import *
 from src import Route
 from src import Router
-from src import MediaType
 from src.handler import *
 
 
@@ -87,9 +85,7 @@ class RouterImpl(Router):
         self.__routerOptions = None # Set<RouterOption> # EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR)
         self.__trustProxy = None # boolean
         self.__contextAsService = None # boolean
-
         self.__stack.append(RouterImpl.Stack(self.__chi, None))
-
 
     def decorator(self, decorator: Route.Decorator) -> Router:
         self.__stack[-1].then(decorator)
@@ -213,8 +209,6 @@ class RouterImpl(Router):
         # TODO: HttpMessageEncoder is not implemented yet
         # TODO: MessageEncoder is not implemented yet
         # TODO: ValueConverters is not implemented yet
-        # TODO: ClassSource is not implemented yet
-        # TODO: RouteAnalyzer is not implemented yet
         self.__encoder.add(MessageEncoder.TO_STRING)
         source = ClassSource(self.__classLoader)
         analyzer = RouteAnalyzer(source, False)
@@ -237,7 +231,6 @@ class RouterImpl(Router):
                 route.setReturnType(analyzer.returnType(route.getHandle()))
                 pass
 
-            # TODO: class MediaType is not implemented yet
             if isinstance(route.getHandler(), WebSocketHandler):
                 if not route.getConsumes(): # empty
                     singletonList = [MediaType.json]
@@ -246,13 +239,9 @@ class RouterImpl(Router):
                     singletonList = [MediaType.json]
                     route.setProduces(singletonList)
             else:
-                # TODO: prependMediaType
-                # TODO: SUPPORT_MEDIA_TYPE, ACCEPT in Route.py
                 route.setBefore(prependMediaType(route.getConsumes(), route.getBefore(), Route.SUPPORT_MEDIA_TYPE))
                 route.setBefore(prependMediaType(route.getProduces(), route.getBefore(), Route.ACCEPT))
-                pass
 
-            # TODO: Pipeline is not implemented yet
             pipeline = Pipeline()
 
             # Final render
@@ -302,3 +291,5 @@ class RouterImpl(Router):
         #   use chi to find element directly
         return self.__chi.find(context.getMethod(), context.getRequestPath())
 
+    def prependMediaType():
+        pass

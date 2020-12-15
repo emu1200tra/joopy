@@ -1,3 +1,5 @@
+from src import context 
+
 class Route:
     '''
     * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -379,6 +381,27 @@ class Route:
 
         return pipeline
     
-    # TODO: ACCEPT, SUPPORT_MEDIA_TYPE
-    ACCEPT = Route.Before() # static final Route.Before
-    SUPPORT_MEDIA_TYPE = Route.Before() #static final Route.Before
+    def accept(self, ctx):
+        produceTypes = ctx.get_route().getProduces()
+        contentType = ctx.accept(produceTypes) # MediaType
+        if contentType == None:
+            raise Exception('NotAcceptableException')
+        
+        ctx.set_default_response_type(contentType)
+
+    ACCEPT = lambda ctx : accept(ctx)
+
+    def support_media_type(self, ctx):
+        contentType = ctx.get_request_type # MediaType
+        if contentType == None:
+            raise Exception('UnsupportedMediaType')
+
+        bool ok = False
+        for media_type in ctx.get_route()getConsumes():
+            if contentType.matches(media_type):
+                ok = True
+        
+        if ok == False:
+            raise Exception('UnsupportedMediaType' + contentType.getValue())
+
+    SUPPORT_MEDIA_TYPE = lambda ctx : support_media_type(ctx)
