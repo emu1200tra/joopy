@@ -1,3 +1,4 @@
+from multipledispatch import dispatch
 from poc.src.Registry import Registry
 
 
@@ -13,6 +14,11 @@ class ReadOnlyContext(object):
 
 class WebSocketSender(object):
     def __init__(self, context, websocket):
+        pass
+
+
+class MediaType:
+    def __init__(self):
         pass
 
 
@@ -75,10 +81,16 @@ class Context(Registry):
     def set_request_path(self, path: str):
         pass
 
-    def path(self, name: str = None):
+    @dispatch()
+    def path(self):
         pass
 
-    def path(self, class_type):
+    @dispatch(str)
+    def path(self, name: str):
+        pass
+
+    @dispatch(object)
+    def path(self, class_type: object):
         pass
 
     def path_map(self):
@@ -87,10 +99,16 @@ class Context(Registry):
     def set_path_map(self, path_map: dict):
         pass
 
-    def query(self, name: str = None):
+    @dispatch()
+    def query(self):
         pass
 
-    def query(self, class_type):
+    @dispatch(str)
+    def query(self, name: str):
+        pass
+
+    @dispatch(object)
+    def query(self, class_type: object):
         pass
 
     def query_string(self):
@@ -102,7 +120,12 @@ class Context(Registry):
     def query_multimap(self):
         pass
 
-    def header(self, name: str = None):
+    @dispatch()
+    def header(self):
+        pass
+
+    @dispatch(str)
+    def header(self, name: str):
         pass
 
     def header_map(self):
@@ -111,18 +134,31 @@ class Context(Registry):
     def header_multimap(self):
         pass
 
-    def accept_with_content_type(self, content_type):
+    @dispatch(MediaType)
+    def accept(self, content_type):
         pass
 
-    def accept_with_produce_types(self, produce_types):
+    @dispatch([MediaType])
+    def accept(self, produce_types):
         pass
 
-    def get_request_type(self, defaults=None):
+    @dispatch()
+    def get_request_type(self):
+        pass
+
+    @dispatch(MediaType)
+    def get_request_type(self, defaults):
         pass
 
     def get_request_length(self):
         pass
 
+    # object should be BiFunction<List<Locale.LanguageRange>, List<Locale>, List<Locale>> filter
+    @dispatch(object)
+    def locales(self, _filter):
+        pass
+
+    @dispatch()
     def locales(self):
         pass
 
@@ -135,7 +171,12 @@ class Context(Registry):
     def set_user(self, user: object):
         pass
 
-    def get_request_url(self, path: str = None):
+    @dispatch()
+    def get_request_url(self):
+        pass
+
+    @dispatch(str)
+    def get_request_url(self, path: str):
         pass
 
     def get_remote_address(self):
@@ -180,6 +221,7 @@ class Context(Registry):
     def form(self):
         pass
 
+    @dispatch(str)
     def form_with_name(self, name: str):
         pass
 
@@ -407,16 +449,3 @@ class Context(Registry):
 
     def websocket(self, ctx, ws):
         return WebSocketSender(ctx, ws)
-
-
-
-
-
-
-
-
-
-
-
-
-
