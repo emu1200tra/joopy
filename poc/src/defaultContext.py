@@ -52,6 +52,10 @@ class SneakyThrows(object):
     pass
 
 
+class StatusCode(object):
+    pass
+
+
 class DefaultContext(Context):
     def __init__(self):
         pass
@@ -222,6 +226,13 @@ class DefaultContext(Context):
         url += Context.query_string()
 
         return url
+
+    def send_redirect(self, location):
+        return self.send_redirect(StatusCode.FOUND, location)
+
+    def send_redirect(self, redirect, location):
+        Context.set_response_header("location", location)
+        return self.send(redirect)
 
     @dispatch(list)
     def send(self, data):
