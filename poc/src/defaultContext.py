@@ -1,6 +1,11 @@
 from multipledispatch import dispatch
 
+from poc.src import Server
 from poc.src.context import Context
+
+from PyByteBuffer import ByteBuffer
+
+from poc.src.handler.ErrorHandler import ErrorHandler
 
 
 class ServiceKey(object):
@@ -36,6 +41,14 @@ class HashValue(object):
 
 
 class MediaType(object):
+    pass
+
+
+class FileInputStream(object):
+    pass
+
+
+class SneakyThrows(object):
     pass
 
 
@@ -209,3 +222,65 @@ class DefaultContext(Context):
         url += Context.query_string()
 
         return url
+
+    @dispatch(list)
+    def send(self, data):
+        buffer = ByteBuffer.allocate(len(data))
+        for i in len(data):
+            buffer[i] = ByteBuffer.wrap(data[i])
+
+        return self.send(buffer)
+
+    @dispatch(str)
+    def send(self, data):
+        return Context.send(data, "UTF-8")
+
+    def send(self, file):
+        Context.set_response_header("Content-Disposition", file.get_content_disposition)
+        content = file.stream()
+        length = file.get_file_size()
+        if length > 0:
+            Context.set_response_length(length)
+        Context.set_response_type(file.get_content_type)
+        if content is FileInputStream:
+            Context.send(content.get_channel())
+        else:
+            Context.send(content)
+
+        return self
+
+    def send_error(self, cause):
+        Context.send_error(cause, Context.get_router().error_code(cause))
+        return self
+
+    def send_error(self, cause, code):
+        router = Context.get_router()
+        log = router.get_log()
+        if Context.is_response_started():
+            log.error(ErrorHandler.errorMessage(self, code), cause)
+        else:
+            try:
+                if Context.get_reset_headers_on_error():
+                    Context.remove_response_header()
+
+                Context.set_response_code(code)
+                router.get_error_handler().apply(self, cause, code)
+            except Exception as x:
+                if not Context.is_response_started():
+                    ErrorHandler.create().apply(self, cause, code)
+
+                if Server.connection_lost(x):
+                    log.debug("error handler resulted in a exception while processing" + cause + x)
+                else:
+                    log.error("error handler resulted in a exception while processing " + cause + x)
+
+        if SneakyThrows.isFatal(cause):
+            raise SneakyThrows.propagate(cause)
+
+        return self
+
+
+
+
+
+
