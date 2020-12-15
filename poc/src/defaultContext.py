@@ -104,7 +104,7 @@ class DefaultContext(Context):
 
         return session
 
-    def sessionOrNull(self):
+    def session_or_null(self):
         session = Context.get_attributes().get(Session.Name)
         if session is None:
             router = Context.get_router()
@@ -209,4 +209,3 @@ class DefaultContext(Context):
         url += Context.query_string()
 
         return url
-
