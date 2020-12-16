@@ -1,9 +1,8 @@
 from multipledispatch import dispatch
 from src.todo import *
-from src import Route
-from src import Router
+from src.Route import Route
+from src.Router import Router
 from src.handler import *
-
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -201,7 +200,7 @@ class RouterImpl(Router):
     @return Router.
     """
     def start(self, app):
-        if self.__err == None:
+        if self.__err is None:
             self.__err = ErrorHandler.create()
         else:
             self.__err = self.__err.then(ErrorHandler.create())
@@ -237,8 +236,8 @@ class RouterImpl(Router):
                     singletonList = [MediaType.json]
                     route.set_produces(singletonList)
             else:
-                route.set_before(self.prependMediaType(route.get_consumes(), route.get_before(), Route.SUPPORT_MEDIA_TYPE))
-                route.set_before(self.prependMediaType(route.get_produces(), route.get_before(), Route.ACCEPT))
+                route.set_before(self.__prepend_media_type(route.get_consumes(), route.get_before(), Route.SUPPORT_MEDIA_TYPE))
+                route.set_before(self.__prepend_media_type(route.get_produces(), route.get_before(), Route.ACCEPT))
 
             pipeline = Pipeline()
 
@@ -289,7 +288,7 @@ class RouterImpl(Router):
         #   use chi to find element directly
         return self.__chi.find(context.get_method(), context.get_request_path())
 
-    def prependMediaType(self, contentTypes: list[MediaType], before: Route.Before, prefix: Route.Before) -> Route.Before:
+    def __prepend_media_type(self, contentTypes: list[MediaType], before: Route.Before, prefix: Route.Before) -> Route.Before:
         if len(contentTypes) > 0:
             if before is None:
                 return prefix

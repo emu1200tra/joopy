@@ -1,3 +1,4 @@
+from multipledispatch import dispatch
 from abc import abstractmethod, ABC
 
 class MessageEncoder(ABC):
@@ -10,6 +11,12 @@ class MessageEncoder(ABC):
         return lambda ctx, value: self.encode(ctx, value) \
             if ctx.accept(contentType) else None
 
+    @classmethod
+    def to_string(cls, value: int):
+        pass
+    
+    TO_STRING = lambda ctx, value : MessageEncoder.to_string(ctx, value)
+
 class ToStringMessageEncoder(MessageEncoder):
     # To string renderer
 
@@ -18,3 +25,6 @@ class ToStringMessageEncoder(MessageEncoder):
             return value.toString().encode('utf-8')
         # TODO: NotAcceptableException(ctx.header("Accept").valueOrNull())
         raise Exception
+
+class HttpMessageEncoder(MessageEncoder):
+    pass

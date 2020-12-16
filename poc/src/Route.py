@@ -49,7 +49,7 @@ class Route:
             @param next Next decorator. (After)
             @return A new handler. (Handler)
             '''
-            def inner_then(self, ctx, next):
+            def inner_then(ctx, next):
                 cause = None # Throwable
                 value = None # Object
                 try:
@@ -158,7 +158,7 @@ class Route:
             * @param next Next decorator. (Before)
             * @return A new decorator. (Before)
             '''
-            def then_before(self, ctx, next):
+            def then_before(ctx, next):
                 self.apply(ctx)
                 if not ctx.isResponseStarted():
                     next.apply(ctx)
@@ -168,7 +168,7 @@ class Route:
             * @param next Next handler. (Handler)
             * @return A new handler. (Handler)
             '''
-            def then_handler(self, ctx, next):
+            def then_handler(ctx, next):
                 self.apply(ctx)
                 if not ctx.isResponseStarted():
                     return next.apply(ctx)
@@ -244,7 +244,7 @@ class Route:
             * @param next Next filter. (After)
             * @return A new filter. (After)
             '''
-            def inner_then(self, ctx, result, failure):
+            def inner_then(ctx, result, failure):
                 next.apply(ctx, result, failure)
                 self.apply(ctx, result, failure)
             
@@ -447,7 +447,8 @@ class Route:
 
         return pipeline
     
-    def accept(self, ctx):
+    @classmethod
+    def accept(cls, ctx):
         produceTypes = ctx.get_route().get_produces()
         contentType = ctx.accept(produceTypes) # MediaType
         if contentType is None:
@@ -455,9 +456,10 @@ class Route:
         
         ctx.set_default_response_type(contentType)
 
-    ACCEPT = lambda ctx : accept(ctx)
+    ACCEPT = lambda ctx : Route.accept(ctx)
 
-    def support_media_type(self, ctx):
+    @classmethod
+    def support_media_type(cls, ctx):
         contentType = ctx.get_request_type # MediaType
         if contentType is None:
             raise Exception('UnsupportedMediaType')
@@ -470,4 +472,4 @@ class Route:
         if ok == False:
             raise Exception('UnsupportedMediaType' + contentType.getValue())
 
-    SUPPORT_MEDIA_TYPE = lambda ctx : support_media_type(ctx)
+    SUPPORT_MEDIA_TYPE = lambda ctx : Route.support_media_type(ctx)
