@@ -1145,7 +1145,7 @@ class Router(Registry):
         @param pattern Pattern.
         @return One or more patterns.
         """
-        return 1
+        return []
 
     @staticmethod
     def reverseWithMap(pattern, keys):
@@ -1156,7 +1156,7 @@ class Router(Registry):
         @param keys Path keys.
         @return Path.
         """
-        return 1
+        return ""
 
     @staticmethod
     def reverse(pattern, values):

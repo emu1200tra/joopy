@@ -67,7 +67,10 @@ class RouteSet:
     pass
 
 class RouterOption:
-    pass
+    IGNORE_CASE = "IGNORE_CASE"
+    RESET_HEADERS_ON_ERROR = "RESET_HEADERS_ON_ERROR"
+    IGNORE_TRAILING_SLASH = "IGNORE_TRAILING_SLASH"
+    NORMALIZE_SLASH = "NORMALIZE_SLASH"
 
 class Context:
     pass

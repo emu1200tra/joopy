@@ -1,6 +1,6 @@
 from multipledispatch import dispatch
 from src.Registry import Registry
-
+from src.todo import *
 
 class ParamLookupImpl(object):
     def __init__(self, context):
@@ -288,7 +288,7 @@ class Context(Registry):
     def is_in_io_thread(self):
         pass
 
-    def dispatch(self, executor, action):
+    def _dispatch(self, executor, action):
         pass
 
     def detach(self, next_route_handler):
