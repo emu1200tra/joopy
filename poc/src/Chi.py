@@ -56,10 +56,10 @@ class Chi(RouteTree):
             self.__route = route
 
         def get(self, method: str) -> StaticRouterMatch:
-            return self.__route if self.__method is method else None
+            return self.__route if self.__method == method else None
 
         def matches(self, method: str) -> bool:
-            return self.__method is method
+            return self.__method == method
         
         def clear(self):
             self.__method = None
@@ -160,13 +160,13 @@ class Chi(RouteTree):
                 # the tail
                 label = search[0]
                 seg = None # Segment
-                if label is "{" or label is "*":
+                if label == "{" or label == "*":
                     seg = self.patNextSegment(search)
                 else:
                     seg = Segment()
 
                 prefix = None # str
-                if seg.nodeType is Chi._Chi__ntRegexp:
+                if seg.nodeType == Chi._Chi__ntRegexp:
                     prefix = seg.rexPat
                 else:
                     prefix = Chi._Chi__EMPTY_STRING
@@ -194,7 +194,7 @@ class Chi(RouteTree):
                 # Static nodes fall below here.
                 # Determine longest prefix of the search key on newRuntimeRoute.
                 commonPrefix = self.longestPrefix(search, n.prefix)
-                if commonPrefix is len(n.prefix):
+                if commonPrefix == len(n.prefix):
                     # the common prefix is as long as the current node's prefix 
                     # we're attempting to insert. keep the search going.
                     search = search[commonPrefix: ]
@@ -243,19 +243,19 @@ class Chi(RouteTree):
             segEndIdx = seg.endIndex
 
             # Add child depending on next up segment
-            if segTyp is Chi._Chi__ntStatic:
+            if segTyp == Chi._Chi__ntStatic:
                 # Search prefix is all static (that is, has no params in path)
                 # noop
                 pass
             else:
-                if segTyp is Chi._Chi__ntRegexp:
+                if segTyp == Chi._Chi__ntRegexp:
                     child.prefix = seg.rexPat
                     child.rex = re.compile(seg.rexPat)
                     
-                if segStartIdx is 0:
+                if segStartIdx == 0:
                     child.typ = segTyp
 
-                    if segTyp is Chi._Chi.__ntCatchAll:
+                    if segTyp == Chi._Chi.__ntCatchAll:
                         segStartIdx = -1
                     else:
                         segStartIdx = segEndIdx
@@ -263,7 +263,7 @@ class Chi(RouteTree):
                         segStartIdx = len(search)
                     child.tail = seg.tail # for params, we set the tail
                 
-                    if segStartIdx is not len(search):
+                    if segStartIdx != len(search):
                         # add static edge for the remaining part, split the end.
                         # its not possible to have adjacent param nodes, so its certainly
                         # going to be a static node next.
@@ -296,7 +296,7 @@ class Chi(RouteTree):
             nds = self.children[child.typ]
             if nds:
                 for c in nds:
-                    if c.label is label and c.tail is tail:
+                    if c.label == label and c.tail == tail:
                         c = child
                         c.label = label
                         c.tail = tail
@@ -308,8 +308,8 @@ class Chi(RouteTree):
             nds = self.children[ntyp]
             if nds:
                 for nd in nds:
-                    if nd.label is label or nd.tail is tail:
-                        if ntyp is Chi._Chi__ntRegexp and nd.prefix is not prefix:
+                    if nd.label == label or nd.tail == tail:
+                        if ntyp == Chi._Chi__ntRegexp and nd.prefix != prefix:
                             continue
                         return nd
             return None
@@ -333,12 +333,12 @@ class Chi(RouteTree):
 
                     label = path[0] if len(path) > 0 else Chi.ZERO_CHAR
 
-                    if ntyp is Chi._Chi__ntStatic:
+                    if ntyp == Chi._Chi__ntStatic:
                         xn = self.findEdge(nds, label)
                         if xn is None or not xsearch.startswith(xn.prefix):
                             continue
                         xsearch = xsearch[len(xn.prefix)]
-                    elif ntyp is Chi._Chi__ntParam or ntyp is Chi._Chi__ntRegexp:
+                    elif ntyp == Chi._Chi__ntParam or ntyp == Chi._Chi__ntRegexp:
                         # short-circuit and return no matching route for empty param values
                         if not xsearch:
                             continue
@@ -348,15 +348,15 @@ class Chi(RouteTree):
                             # label for param nodes is the delimiter byte
                             p = xsearch.find(xn.tail)
                             if p < 0:
-                                if xn.tail is "/":
+                                if xn.tail == "/":
                                     p = len(xsearch)
                                 else:
                                     continue
                             
-                            if ntyp is Chi._Chi__ntRegexp and xn.rex is not None:
+                            if ntyp == Chi._Chi__ntRegexp and xn.rex is not None:
                                 if not xn.rex.match(xsearch[0:p]):
                                     continue
-                            elif xsearch[0: p].find("/") is not -1:
+                            elif xsearch[0: p].find("/") != -1:
                                 # avoid a newRuntimeRoute across path segments
                                 continue
 
@@ -426,7 +426,7 @@ class Chi(RouteTree):
                 else:
                     i = num # breaks cond
 
-            return ns[idx] if ns[idx].label is label else None
+            return ns[idx] if ns[idx].label == label else None
         
         def isLeaf(self) -> bool:
             return self.endpoints is None
@@ -437,7 +437,7 @@ class Chi(RouteTree):
             two strings
             '''
             for i, k in enumerate(zip(k1, k2)):
-                if k[0] is not k[1]:
+                if k[0] != k[1]:
                     return i
             return i + 1
         
@@ -449,7 +449,7 @@ class Chi(RouteTree):
             if ns and len(ns) > 1:
                 ns.sort(key=sortCriteria)
                 for n in reversed(ns):
-                    if n.typ > Chi._Chi__ntStatic and n.tail is "/":
+                    if n.typ > Chi._Chi__ntStatic and n.tail == "/":
                         n, ns[len(ns) - 1] = ns[len(ns) - 1], n
                         return
 
@@ -491,15 +491,15 @@ class Chi(RouteTree):
                 range = pattern[ps: ]
                 for i in range(len(range)):
                     c = range[i]
-                    if c is "{":
+                    if c == "{":
                         cc += 1
-                    elif c is "}":
+                    elif c == "}":
                         cc -= 1
-                    if cc is 0:
+                    if cc == 0:
                         pe = ps + i
                         break;
 
-                if pe is ps:
+                if pe == ps:
                     raise Exception(
                         "Router: route param closing delimiter '}' is missing")
 
@@ -516,9 +516,9 @@ class Chi(RouteTree):
                     rexpat = key[idx + 1: ]
 
                 if len(rexpat) > 0:
-                    if rexpat[0] is not "^":
+                    if rexpat[0] != "^":
                         rexpat = "^" + rexpat
-                    if rexpat[len(rexpat) - 1] is not "$":
+                    if rexpat[len(rexpat) - 1] != "$":
                         rexpat = rexpat + "$"
 
                 return Segment(nt, rexpat, tail, ps, pe)
