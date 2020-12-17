@@ -585,7 +585,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def dispatch(self, body):
+    def _dispatch(self, body):
         """
         Dispatch route pipeline to the {@link #getWorker()} worker thread pool. After dispatch
         application code is allowed to do blocking calls.

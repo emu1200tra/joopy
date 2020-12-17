@@ -1,7 +1,8 @@
-from Route import Route
+from .Route import Route
+from .context import Context
 
 class myControllerHandler(Route.Handler):
-    def __init__(self, provider: Provider<MyController>):
+    def __init__(self, provider: object):
         self.__provider = provider
     
     def apply(self, ctx: Context) -> object:

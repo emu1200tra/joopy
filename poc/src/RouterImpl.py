@@ -3,6 +3,7 @@ from src.todo import *
 from src.Route import Route
 from src.Router import Router
 from src.handler import *
+from typing import List
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -102,7 +103,7 @@ class RouterImpl(Router):
         return self.path("/", action)
     
     def path(self, pattern: str, action: Runnable) -> RouteSet:
-        RouteSet routeSet = RouteSet()
+        routeSet = RouteSet()
         start = len(self.__routes)
         self.newStack(self.__chi, pattern, action)
         routeSet.setRoutes(self.__routes.subList(start, self.__routes.size())) # TODO: sublist function
@@ -259,12 +260,12 @@ class RouterImpl(Router):
             self.__predicateMap.clear()
             self.__predicateMap = None
     
-    @dispatch(RouteTree, str, Runnable, list[Route.Decorator])
-    def newStack(self, tree: RouteTree, pattern: str, action: Runnable, decorator: list[Route.Decorator]) -> Router:
+    @dispatch(object, str, Runnable, List[Route.Decorator])
+    def newStack(self, tree: object, pattern: str, action: Runnable, decorator: List[Route.Decorator]) -> Router:
         return self.newStack(self.push(tree, pattern), action, decorator)
 
-    @dispatch(Stack, Runnable, list[Route.Decorator])
-    def newStack(self, stack: Stack, action: Runnable, decorator: list[Route.Decorator]) -> Router:
+    @dispatch(Stack, Runnable, List[Route.Decorator])
+    def newStack(self, stack: Stack, action: Runnable, decorator: List[Route.Decorator]) -> Router:
         for d in decorator:
             stack.then(d)
         self.__stack.append(stack)
@@ -273,7 +274,7 @@ class RouterImpl(Router):
         self.__stack.pop().clear()
         return self
 
-    def push(self, tree: RouteTree, pattern: str = None) -> Stack:
+    def push(self, tree: object, pattern: str = None) -> Stack:
         stack = RouterImpl.Stack(tree, Router.leadingSlash(pattern))
         if len(self.__stack) > 0:
             parent = self.__stack[-1]
@@ -288,7 +289,7 @@ class RouterImpl(Router):
         #   use chi to find element directly
         return self.__chi.find(context.get_method(), context.get_request_path())
 
-    def __prepend_media_type(self, contentTypes: list[MediaType], before: Route.Before, prefix: Route.Before) -> Route.Before:
+    def __prepend_media_type(self, contentTypes: List[MediaType], before: Route.Before, prefix: Route.Before) -> Route.Before:
         if len(contentTypes) > 0:
             if before is None:
                 return prefix

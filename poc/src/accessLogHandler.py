@@ -1,7 +1,8 @@
 import Route
 import Context
 import time
-from typing import List, Callable
+from typing import List
+from collections.abc import Callable
 from multipledispatch import dispatch
 
 class AccessLogHandler(Route.Decorator):
@@ -24,8 +25,8 @@ class AccessLogHandler(Route.Decorator):
     """
     __MESSAGE_SIZE = 256
     
-    @dispatch(object)
-    def __init__(self, userId: func = None):
+    @dispatch(Callable)
+    def __init__(self, userId: Callable = None):
         """
         Creates a new {@link AccessLogHandler} and use the given function and userId provider. Please
         note, if the user isn't present this function is allowed to returns <code>-</code> (dash
@@ -90,7 +91,7 @@ class AccessLogHandler(Route.Decorator):
         timestamp = int(round(time.time() * 1000))
         return lambda ctx: self.__apply_inner(_next, timestamp, ctx)
     
-    def __append_headers(self, buff: str, requestHeaders: List[str], headers: func):
+    def __append_headers(self, buff: str, requestHeaders: List[str], headers: Callable):
         for header in requestHeaders:
             value = headers(header)
             if value is None:
@@ -132,8 +133,8 @@ class AccessLogHandler(Route.Decorator):
         """
         pass
 
-    @dispatch(func)
-    def date_formatter(self, formatter: func):
+    @dispatch(Callable)
+    def date_formatter(self, formatter: Callable):
         if formatter is None:
             """
             new a formatter

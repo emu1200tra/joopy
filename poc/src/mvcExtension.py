@@ -1,6 +1,5 @@
-from abc import staticmethod
-import mvcFactory
-import myController
+from .mvcFactory import mvcFactory
+from .myControllerHandler import myControllerHandler
 
 class mvcExtension(mvcFactory):
     @staticmethod
