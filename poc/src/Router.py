@@ -1,6 +1,6 @@
 import os
-from src import Registry
-from src import Route
+from .Registry import Registry
+from .Route import Route
 from abc import abstractmethod
 import copy
 from multipledispatch import dispatch
@@ -555,7 +555,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def decorator(self, decorator: Route.Decorator) -> Router:
+    def decorator(self, decorator: Route.Decorator):
         """
         Add a route decorator to the route pipeline.
    
@@ -565,7 +565,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def before(self, before: Route.Decorator) -> Router:
+    def before(self, before: Route.Decorator):
         """
         Add a before route decorator to the route pipeline.
    
@@ -575,7 +575,7 @@ class Router(Registry):
         pass
     
     @abstractmethod
-    def after(self, after: Route.Decorator) -> Router:
+    def after(self, after: Route.Decorator):
         """
         Add an after route decorator to the route pipeline.
    
@@ -651,7 +651,7 @@ class Router(Registry):
         @param handler Application code.
         @return A route.
         """
-        return self.route(GET, pattern, handler)
+        return self.route(Router.GET, pattern, handler)
 
     @dispatch(str, object)
     def post(self, pattern, handler):
@@ -1123,7 +1123,7 @@ class Router(Registry):
         @param pattern Path pattern.
         @return Path keys.
         """
-        return self.pathKeyConsumer( lambda pattern, (k, v): ())
+        return self.pathKeyConsumer( lambda pattern, k, v: ())
 
     @staticmethod
     def expandOptionalVariables(self, pattern):

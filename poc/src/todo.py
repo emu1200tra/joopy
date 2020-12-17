@@ -1,4 +1,61 @@
-class ValueConverters:
+class Charset(object):
+    pass
+class MessageDecoder(object):
+    pass
+
+class FileUpload(object):
+    pass
+
+class ValueNode(object):
+    pass
+
+class ValueConverters(object):
+    pass
+
+class MediaType(object):
+    pass
+
+class ServiceKey(object):
+    pass
+
+
+class FlashMap(object):
+    pass
+
+
+class Value(object):
+    pass
+
+
+class Session(object):
+    pass
+
+
+class MissingValue(object):
+    pass
+
+
+class SingleValue(object):
+    pass
+
+
+class UrlParser(object):
+    pass
+
+
+class HashValue(object):
+    pass
+
+
+class FileInputStream(object):
+    pass
+
+
+class SneakyThrows(object):
+    pass
+
+
+class StatusCode(object):
     pass
 
 class Runnable:

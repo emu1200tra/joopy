@@ -1,4 +1,4 @@
-from .ErrorHandler import ErrorHandler
+from src.handler.ErrorHandler import ErrorHandler
 class DefaultErrorHandler(ErrorHandler):
     '''
     * Default error handler with content negotiation support and optionally mute log statement base

@@ -1,12 +1,15 @@
 from multipledispatch import dispatch
 from abc import abstractmethod, ABC
+from .MediaType import MediaType
+from .context import Context
+
 class MessageEncoder(ABC):
 
     @abstractmethod
     def encode(self) -> bytearray:
         pass
 
-    def accept(self, contentType: MediaType) -> MessageEncoder:
+    def accept(self, contentType: MediaType):
         return lambda ctx, value: self.encode(ctx, value) \
             if ctx.accept(contentType) else None
     

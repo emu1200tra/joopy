@@ -1,12 +1,12 @@
-from src.handler.DefaultContext import DefaultContext
+from src.defaultContext import DefaultContext
 
 class wsgiContext(DefaultContext):
     def __init__(self, request, router):
         super(wsgiContext, self).__init__()
-    	self.request = request
-    	self.router = router
-    	self.method = self.environ['REQUEST_METHOD']
-    	self.requestPath = environ['PATH_INFO']
+        self.request = request
+        self.router = router
+        self.method = self.environ['REQUEST_METHOD']
+        self.requestPath = self.environ['PATH_INFO']
         self.pathMap = None
         self.route = None
         self.ResponseStarted = False

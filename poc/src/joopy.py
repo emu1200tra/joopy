@@ -1,6 +1,6 @@
 import abc
 import sys
-from src import wsgi
+import src.wsgi as wsgi
 from src import Router
 from src import Registry
 from src import RouterImpl

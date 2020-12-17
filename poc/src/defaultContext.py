@@ -1,68 +1,13 @@
 from multipledispatch import dispatch
 
-from poc.src import Server
-from poc.src.context import Context
+from src import Server
+from src.context import Context
 import datetime
 
 from PyByteBuffer import ByteBuffer
 
-from poc.src.handler.ErrorHandler import ErrorHandler
-
-class SneakyThrows(object):
-    pass
-
-class ValueConverters(object):
-    pass
-
-class MediaType(object):
-    pass
-
-class ServiceKey(object):
-    pass
-
-
-class FlashMap(object):
-    pass
-
-
-class Value(object):
-    pass
-
-
-class Session(object):
-    pass
-
-
-class MissingValue(object):
-    pass
-
-
-class SingleValue(object):
-    pass
-
-
-class UrlParser(object):
-    pass
-
-
-class HashValue(object):
-    pass
-
-
-class MediaType(object):
-    pass
-
-
-class FileInputStream(object):
-    pass
-
-
-class SneakyThrows(object):
-    pass
-
-
-class StatusCode(object):
-    pass
+from src.handler.ErrorHandler import ErrorHandler
+from .todo import *
 
 
 class DefaultContext(Context):
@@ -103,6 +48,7 @@ class DefaultContext(Context):
         Context.get_attributes().put(key, value)
         return self
 
+    @dispatch()
     def flash(self):
         return Context.get_attributes().computeIfAbsent(FlashMap.NAME, lambda key: FlashMap.create(self,
                                                                                                    Context.get_router().getFlashCookie().clone()))
@@ -385,6 +331,8 @@ class DefaultContext(Context):
         try:
             out = self.response_stream()
             consumer.accept(out)
+        except:
+            pass
         return self
 
     @dispatch()
@@ -409,6 +357,8 @@ class DefaultContext(Context):
         try:
             writer = self.response_writer(contentType, charset)
             consumer.accept(writer)
+        except:
+            pass
         return self
 
     def send_redirect(self, location):

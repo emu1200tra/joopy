@@ -1,5 +1,5 @@
 from multipledispatch import dispatch
-from poc.src.Registry import Registry
+from src.Registry import Registry
 
 
 class ParamLookupImpl(object):

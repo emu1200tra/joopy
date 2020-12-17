@@ -1,6 +1,10 @@
 from multipledispatch import dispatch
 from abc import ABCMeta, abstractmethod
-from src import context 
+
+from typing import List, Dict
+from .context import Context
+from .MessageEncoder import MessageEncoder
+from .todo import *
 
 class Route:
     '''
@@ -295,10 +299,10 @@ class Route:
     def get_method(self) -> str:
         return self.__method
 
-    def get_path_keys(self) -> list[str]:
+    def get_path_keys(self) -> List[str]:
         return self.__pathKeys
 
-    def set_path_keys(self, pathKeys: list[str]):
+    def set_path_keys(self, pathKeys: List[str]):
         self.__pathKeys = pathKeys
         return self
 
@@ -348,14 +352,14 @@ class Route:
         self.__returnType = returnType
         return self
 
-    def get_attributes(self) -> dict[str, object]:
+    def get_attributes(self) -> Dict[str, object]:
         return self.__attributes
 
     @dispatch(str)
     def attribute(self, name: str): # -> <T> T
         return self.__attributes[name] # (T)
 
-    def set_attributes(self, attributes: dict[str, object]):
+    def set_attributes(self, attributes: Dict[str, object]):
         self.__attributes.update(attributes)
         return self
 
@@ -368,10 +372,10 @@ class Route:
         
         return self
 
-    def get_decoders(self) -> dict[str, MessageDecoder]:
+    def get_decoders(self) -> Dict[str, MessageDecoder]:
         return self.__decoders
 
-    def set_decoders(self, decoders: dict[str, MessageDecoder]):
+    def set_decoders(self, decoders: Dict[str, MessageDecoder]):
         self.__decoders = decoders
         return self
 
@@ -389,7 +393,7 @@ class Route:
     def get_return_type(self) -> object:
         return self.__returnType
 
-    def get_produces(self) -> list[MediaType]:
+    def get_produces(self) -> List[MediaType]:
         return self.__produces 
     
     def produces(self, *args):
@@ -399,7 +403,7 @@ class Route:
         
         return self.set_produces(produces)
 
-    def set_produces(self, produces: list[MediaType]): # Collection<MediaType> produces
+    def set_produces(self, produces: List[MediaType]): # Collection<MediaType> produces
         if len(produces) > 0:
             if self.__produces == Route.__EMPTY_LIST:
                  # new arrayList in java(?)
@@ -410,7 +414,7 @@ class Route:
             
         return self               
 
-    def get_consumes(self) -> list[MediaType]: 
+    def get_consumes(self) -> List[MediaType]: 
         return self.__consumes
 
     def consumes(self, *args):
@@ -420,7 +424,7 @@ class Route:
         
         return self.set_consumes(consumes)
 
-    def set_consumes(self, consumes: list[MediaType]): # Collection<MediaType> consumes
+    def set_consumes(self, consumes: List[MediaType]): # Collection<MediaType> consumes
         # TODO
         if len(consumes) > 0:
             if self.__consumes == Route.__EMPTY_LIST:

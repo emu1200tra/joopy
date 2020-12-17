@@ -6,9 +6,9 @@ from src.joopy import Joopy
 # delete: Send request to server to remove specific data
 
 class myApp(Joopy):
-"""
-Script API
-"""
+    """
+    Script API
+    """
     def __init__(self):
         super(myApp, self).__init__()    
 
