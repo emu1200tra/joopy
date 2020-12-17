@@ -17,8 +17,7 @@ class AssetHandler:
 
     @dispatch(str, Iterable)
     def __init__(self, fallback: str, sources: Iterable):
-        """
-        Creates a new asset handler that fallback to the given fallback asset when the asset
+        """Creates a new asset handler that fallback to the given fallback asset when the asset
         is not found. Instead of produces a <code>404</code> its fallback to the given asset.
 
         <pre>{@code{
