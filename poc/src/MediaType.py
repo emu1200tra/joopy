@@ -1,11 +1,12 @@
 from multipledispatch import dispatch
 
+
 class MediaType:
     def __init__(self):
-        self.__value = None # String
-        self.__raw = None # String
-        self.__charset = None # Charset
-        self.__subtypeStart = None # int
+        self.__value = None  # String
+        self.__raw = None  # String
+        self.__charset = None  # Charset
+        self.__subtypeStart = None  # int
         """
         private MediaType(@Nonnull String value, Charset charset) {
             this.raw = value;
@@ -25,7 +26,7 @@ class MediaType:
         }
         """
 
-    @dispatch(object) # str or MediaType
+    @dispatch(object)  # str or MediaType
     def matches(self, str_or_mediaType) -> bool:
         if isinstance(str_or_mediaType, str):
             return MediaType.matches(self.__value, str_or_mediaType)
@@ -38,17 +39,17 @@ class MediaType:
     @dispatch(str, str)
     def matches(expected: str, contentType: str) -> bool:
         start, len1, end = 0, len(expected), contentType.index(',')
-    
+
         while end != -1:
             if MediaType.matchOne(expected, len1, contentType[start: end].strip()):
                 return True
-            
+
             start, end = end + 1, contentType.index(',', start)
-        
+
         clen = len(contentType)
         if start < clen:
             return MediaType.matchOne(expected, len1, contentType[start: clen].strip())
-        
+
         return False
 
     @staticmethod
@@ -57,9 +58,9 @@ class MediaType:
             return True
 
         i, len2 = 0, len(contentType)
-        len = min(len1, len2)
+        len_ = min(len1, len2)
 
-        while i < len:
+        while i < len_:
             ch1 = expected[i]
             ch2 = contentType[i]
 
@@ -70,22 +71,22 @@ class MediaType:
                         if ch1 == '*':
                             if i == len1 - 1:
                                 return True
-                            
+
                             # tail/suffix matches
                             j, k = len1 - 1, len2 - 1
                             while j > i:
                                 if expected[j] != contentType[k]:
                                     return False
-                                
+
                                 j, k = j - 1, k - 1
-                            
+
                             return True
-                        else: 
+                        else:
                             return False
                     else:
-                         return False
+                        return False
                 else:
                     return False
             i += 1
-        
+
         return i == len and len1 == len2
