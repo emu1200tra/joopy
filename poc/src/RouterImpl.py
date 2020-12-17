@@ -5,6 +5,7 @@ from src.Router import Router
 from src.Chi import Chi
 from src.handler import *
 from typing import List
+from src.MessageEncoder import *
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -83,21 +84,21 @@ class RouterImpl(Router):
         self.__classLoader = loader # ClassLoader
         self.__preDispatchInitializer = None # ContextInitializer
         self.__postDispatchInitializer = None # ContextInitializer
-        self.__routerOptions = None # Set<RouterOption> # EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR)
+        self.__routerOptions = set(RouterOption.RESET_HEADERS_ON_ERROR) # Set<RouterOption> # EnumSet.of(RouterOption.RESET_HEADERS_ON_ERROR)
         self.__trustProxy = None # boolean
         self.__contextAsService = None # boolean
         self.__stack.append(RouterImpl.Stack(self.__chi, None))
 
     def decorator(self, decorator: Route.Decorator) -> Router:
-        self.__stack[-1].then(decorator)
+        self.__stack[-1].then(Route.Decorator(decorator))
         return self
 
     def after(self, after: Route.After) -> Router:
-        self.__stack[-1].then(after)
+        self.__stack[-1].then(Route.After(after))
         return self
 
     def before(self, before: Route.Before) -> Router:
-        self.__stack[-1].then(before)
+        self.__stack[-1].then(Route.Before(before))
         return self
 
     def routes(self, action: Runnable) -> RouteSet:
@@ -107,11 +108,11 @@ class RouterImpl(Router):
         routeSet = RouteSet()
         start = len(self.__routes)
         self.newStack(self.__chi, pattern, action)
-        routeSet.setRoutes(self.__routes.subList(start, self.__routes.size())) # TODO: sublist function
+        routeSet.set_route(self.__routes.subList(start, self.__routes.size())) # TODO: sublist function
         return routeSet
 
     def route(self, method, pattern, handler):
-        return self.newRoute(method, pattern, handler)
+        return self.newRoute(method, pattern, Route.Handler(handler))
 
     def newRoute(self, method, pattern, handler):
         tree = self.__stack[-1]._Stack__tree # RouteTree
@@ -160,8 +161,8 @@ class RouterImpl(Router):
         route.set_decoders(self.__decoders)
 
         for it in decoratorList:
-            it.setRoute(route)
-        handler.setRoute(route)
+            it.set_route(route)
+        handler.set_route(route)
 
         stack = self.__stack[-1] # Stack
         if stack.executor is not None:
@@ -173,7 +174,7 @@ class RouterImpl(Router):
         else:
             finalPattern = RouterImpl.PathBuilder(self.__basePath, safePattern).toString()
 
-        if self.__routerOptions.contains(RouterOption.IGNORE_CASE):
+        if RouterOption.IGNORE_CASE in self.__routerOptions:
             finalPattern = finalPattern.lower()
 
         for routePattern in Router.expandOptionalVariables(finalPattern):
@@ -193,7 +194,7 @@ class RouterImpl(Router):
                 elif route.isHttpHead() and route.get_method() == Router.GET:
                     tree.insert(Router.HEAD, routePattern, route)
 
-        self.__routes.add(route)
+        self.__routes.append(route)
 
         return route
 
@@ -207,7 +208,7 @@ class RouterImpl(Router):
         else:
             self.__err = self.__err.then(ErrorHandler.create())
         
-        self.__encoder.add(MessageEncoder.TO_STRING)
+        self.__encoder.add(ToStringMessageEncoder)
 
         ValueConverters.addFallbackConverters(self.__converters)
         ValueConverters.addFallbackBeanConverters(self.__beanConverters)
