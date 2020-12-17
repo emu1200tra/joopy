@@ -1,4 +1,6 @@
 from src.defaultContext import DefaultContext
+from multipledispatch import dispatch
+from src.exception import StatusCode
 
 class wsgiContext(DefaultContext):
     def __init__(self, request, router):
@@ -10,6 +12,8 @@ class wsgiContext(DefaultContext):
         self.pathMap = None
         self.route = None
         self.ResponseStarted = False
+        self.body = None
+        self.statusCode = StatusCode.OK.toString()
         
     def getMethod(self):
         return self.method
@@ -31,3 +35,9 @@ class wsgiContext(DefaultContext):
 
     def isResponseStarted(self):
         return self.ResponseStarted
+
+    @dispatch(str, str):
+    def send(self, data, codec):
+        self.body = data.encode(codec)
+        return self.body
+

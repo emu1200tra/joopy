@@ -9,13 +9,13 @@ class wsgiHandler(object):
         response_status = '200 OK'
         headers = [('Content-type', 'text/plain')]
 
-        context = wsgiContext(environ, self.router)        
+        context = wsgiContext(environ, self.router)      
 
-        start_response(response_status, headers)
+        self.router.match(context).execute(context)  
 
-        handler = self.router.match(context).execute(context)
+        start_response(context.statusCode, headers)
 
-        return [handler]
+        return [context.body]
         '''
         if handler:
             return [handler.execute(context)]

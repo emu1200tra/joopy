@@ -377,7 +377,7 @@ class DefaultContext(Context):
 
     @dispatch(str)
     def send(self, data):
-        return Context.send(data, "UTF-8")
+        return self.send(data, "UTF-8")
 
     def send(self, file):
         Context.set_response_header("Content-Disposition", file.get_content_disposition)
