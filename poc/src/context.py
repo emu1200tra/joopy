@@ -50,6 +50,9 @@ class Context(Registry):
 
     def session(self, name: str = None):
         pass
+    
+    def session_or_null(self):
+        pass
 
     def cookie(self, name):
         pass
@@ -324,13 +327,16 @@ class Context(Registry):
     def set_response_cookie(self, cookie):
         pass
 
-    def set_response_type_with_str(self, content_type):
+    @dispatch(str)
+    def set_response_type(self, content_type):
+        pass
+    
+    @dispatch(MediaType)
+    def set_response_type(self, content_type):
         pass
 
-    def set_response_type_with_media_type(self, content_type):
-        pass
-
-    def set_response_type_with_media_type_and_charset(self, content_type, charset):
+    @dispatch(MediaType, Charset)
+    def set_response_type(self, content_type, charset):
         pass
 
     def set_default_response_type(self, content_type):
@@ -339,10 +345,16 @@ class Context(Registry):
     def get_response_type(self):
         pass
 
+    @dispatch(StatusCode)
     def set_response_code(self, status_code):
         pass
 
-    def set_response_code_with_int(self, status_code):
+    @dispatch(int)
+    def set_response_code(self, status_code):
+        pass
+    
+    @dispatch()
+    def set_response_code(self):
         pass
 
     def get_response_code(self):
@@ -354,7 +366,8 @@ class Context(Registry):
     def response_stream(self):
         pass
 
-    def response_stream_with_content_type(self, content_type):
+    
+    def response_stream(self, content_type):
         pass
 
     def response_stream_with_content_type_and_consumer(self, content_type, consumer):
@@ -365,16 +378,19 @@ class Context(Registry):
 
     def response_sender(self):
         pass
-
+    
+    @dispatch()
     def response_writer(self):
         pass
 
-    def response_writer_with_content_type(self, content_type):
+    @dispatch(MediaType)
+    def response_writer(self, content_type):
         pass
 
-    def response_writer_with_content_Type_and_charset(self, content_type, charset):
+    @dispatch(MediaType, Charset)
+    def response_writer(self, content_type, charset):
         pass
-
+    
     def response_writer_with_content_type_and_consumer(self, content_type, consumer):
         pass
 
@@ -384,16 +400,24 @@ class Context(Registry):
     def response_writer_with_content_type_and_charset_and_consumer(self, content_type, charset, consumer):
         raise Exception
 
+    @dispatch(str)
     def send_redirect(self, location):
         pass
 
-    def send_redirect_with_status_code_and_location(self, redirect, location):
+    @dispatch(StatusCode, str)
+    def send_redirect(self, redirect, location):
+        pass
+    
+    @dispatch(str)
+    def send(self, data):
         pass
 
-    def send_with_str_data(self, data):
+    @dispatch(str, Charset)
+    def send(self, data, charset):
         pass
 
-    def send_with_str_data_and_charset(self, data, charset):
+    @dispatch(StatusCode)
+    def send(self, status_code):
         pass
 
     def send_with_byte_data(self, data):
@@ -422,14 +446,13 @@ class Context(Registry):
 
     def send_with_file_channel(self, file):
         pass
-
-    def send_with_status_code(self, status_code):
-        pass
-
+    
+    @dispatch(Exception)
     def send_error(self, cause):
         pass
 
-    def send_error_with_status_code(self, cause, status_code):
+    @dispatch(Exception, StatusCode)
+    def send_error(self, cause, status_code):
         pass
 
     def is_response_started(self):

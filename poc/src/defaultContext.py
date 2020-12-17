@@ -50,8 +50,7 @@ class DefaultContext(Context):
 
     @dispatch()
     def flash(self):
-        return Context.get_attributes().computeIfAbsent(FlashMap.NAME, lambda key: FlashMap.create(self,
-                                                                                                   Context.get_router().getFlashCookie().clone()))
+        return Context.get_attributes().computeIfAbsent(FlashMap.NAME, lambda key: FlashMap.create(self,Context.get_router().getFlashCookie().clone()))
 
     @dispatch(str)
     def flash(self, name):
