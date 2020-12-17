@@ -5,11 +5,11 @@ class ForwardingContext(Context):
     def __init__(self, context):
         self.ctx = context
 
-    def getUser(self):
-        return self.ctx.getUser()
+    def get_user(self):
+        return self.ctx.get_user()
 
-    def setUser(self, user):
-        self.ctx.setUser(user)
+    def set_user(self, user):
+        self.ctx.set_user(user)
         return self
 
     def forward(self, path):
@@ -19,11 +19,11 @@ class ForwardingContext(Context):
     def matches(self, pattern):
         return self.ctx.matches(pattern)
 
-    def isSecure(self):
-        return self.isSecure()
+    def is_secure(self):
+        return self.is_secure()
 
-    def getAttribute(self):
-        return self.ctx.getAttributes()
+    def get_attribute(self):
+        return self.ctx.get_attributes()
 
     @dispatch(str)
     def attribute(self, key):
@@ -34,8 +34,8 @@ class ForwardingContext(Context):
         self.ctx.attribute(key, value)
         return self
 
-    def getRouter(self):
-        return self.ctx.getRouter()
+    def get_router(self):
+        return self.ctx.get_router()
 
     def flash(self):
         return self.ctx.flash()
@@ -48,50 +48,53 @@ class ForwardingContext(Context):
     def session(self):
         return self.session()
 
-    def sessionOrNull(self):
-        return self.ctx.sessionOrNull()
+    def session_or_null(self):
+        return self.ctx.session_or_null()
 
     def cookie(self, name):
         return self.ctx.cookie(name)
 
-    def cookieMap(self):
-        return self.ctx.cookieMap()
+    def cookie_map(self):
+        return self.ctx.cookie_map()
 
-    def getMethod(self, method):
-        self.ctx.setMethod(method)
+    def get_method(self, method):
+        self.ctx.get_method(method)
         return self
 
-    def setMethod(self, method):
-        self.ctx.setMethod(method)
+    def set_method(self, method):
+        self.ctx.set_method(method)
         return self
     
-    def getRoute(self, route):
-        return self.ctx.getRoute()
+    def get_route(self, route):
+        return self.ctx.get_route()
 
-    def setRoute(self, route):
-        return self.ctx.setRoute(route)
+    def set_route(self, route):
+        return self.ctx.set_route(route)
 
-    def getRequestPath(self):
-        return ctx.getRequestPath()
+    def get_request_path(self):
+        return ctx.get_request_path()
   
-    def setRequestPath(self, path):
-        self.ctx.setRequestPath(path)
+    def set_request_path(self, path):
+        self.ctx.set_request_path(path)
         return self
 
+    @dispatch(str)
     def path(self, name):
         return self.ctx.path(name)
-  
+    
+    @dispatch(object)
     def path(self, type):
         return self.ctx.path(type)
 
+    @dispatch()
     def path(self):
         return self.ctx.path()   
 
-    def pathMap(self):
-        return self.ctx.pathMap()
+    def path_map(self):
+        return self.ctx.path_map()
     
-    def setPathMap(self, pathMap):
-        self.ctx.setPathMap(pathMap)
+    def set_path_map(self, pathMap):
+        self.ctx.set_path_map(pathMap)
         return self
 
     @dispatch()
@@ -106,14 +109,14 @@ class ForwardingContext(Context):
     def query(self, type):
         return self.ctx.query(type)
 
-    def queryString(self): 
-        return self.ctx.queryString()
+    def query_string(self): 
+        return self.ctx.query_string()
     
-    def queryMap(self): 
-        return self.ctx.queryMap()
+    def query_map(self): 
+        return self.ctx.query_map()
 
-    def queryMultimap(self): 
-        return self.ctx.queryMultimap()
+    def query_multimap(self): 
+        return self.ctx.query_multimap()
 
     @dispatch()
     def header(self): 
@@ -123,90 +126,90 @@ class ForwardingContext(Context):
     def header(self, name):
         return self.ctx.header(name)
     
-    def headerMap(self): 
-        return self.ctx.headerMap()
+    def header_map(self): 
+        return self.ctx.header_map()
     
 
-    def headerMultimap(self): 
-        return self.ctx.headerMultimap()
-    '''
-    @dispatch()
+    def header_multimap(self): 
+        return self.ctx.header_multimap()
+    
+    @dispatch(MediaType)
     def accept(self, contentType):
         return self.ctx.accept(contentType)
     
-    @dispatch()
+    @dispatch(List[MediaType])
     def accept(self, produceTypes):
         return self.ctx.accept(produceTypes)
     
     @dispatch()
-    def getRequestType(self):
-        return self.ctx.getRequestType()
+    def get_request_type(self):
+        return self.ctx.get_request_type()
+
+    @dispatch(MediaType)
+    def get_request_type(self, defaults):
+        return self.ctx.get_request_type(defaults)
+    
+
+    def get_request_length(self):
+        return self.ctx.get_request_length()
+    
+    def get_remote_address(self):
+        return self.ctx.get_remote_address()
+    
+    def set_remote_address(self, remote_address):
+        self.ctx.set_remote_address(remote_address)
+        return self
+
+    def get_host(self): 
+        return self.ctx.get_host()
+    
+    def set_host(self, host):
+        self.ctx.set_host(host)
+        return self
+    
+    def get_server_port(self): 
+        return self.ctx.get_server_port()
+    
+
+    def get_server_host(self): 
+        return self.ctx.get_server_host()
+    
+
+    def get_port(self):
+        return self.ctx.get_port()
+    
+
+    def set_port(self, port):
+        self.self.ctx.set_port(port)
+        return self
+    
+    def get_host_and_port(self): 
+        return self.ctx.get_host_and_port()
 
     @dispatch()
-    def getRequestType(self, defaults):
-        return self.ctx.getRequestType(defaults)
-    '''
-
-    def getRequestLength(self):
-        return self.ctx.getRequestLength()
-    
-    def getRemoteAddress(self):
-        return self.ctx.getRemoteAddress()
-    
-    def setRemoteAddress(self, remoteAddress):
-        self.ctx.setRemoteAddress(remoteAddress)
-        return self
-
-    def getHost(self): 
-        return self.ctx.getHost()
-    
-    def setHost(self, host):
-        self.ctx.setHost(host)
-        return self
-    
-    def getServerPort(self): 
-        return self.ctx.getServerPort()
-    
-
-    def getServerHost(self): 
-        return self.ctx.getServerHost()
-    
-
-    def getPort(self):
-        return self.ctx.getPort()
-    
-
-    def setPort(self, port):
-        self.self.ctx.setPort(port)
-        return self
-    
-    def getHostAndPort(self): 
-        return self.ctx.getHostAndPort()
-
-    @dispatch()
-    def getRequestURL(self):
-        return self.ctx.getRequestURL()
+    def get_request_url(self):
+        return self.ctx.get_request_url()
 
     @dispatch(str)
-    def getRequestURL(self, path): 
-        return self.ctx.getRequestURL(path)
+    def get_request_url(self, path): 
+        return self.ctx.get_request_url(path)
     
 
-    def getProtocol(self):
-        return self.ctx.getProtocol()
+    def get_protocol(self):
+        return self.ctx.get_protocol()
     
-    def getScheme(self): 
-        return self.ctx.getScheme()
+    def get_scheme(self): 
+        return self.ctx.get_scheme()
     
-    def setScheme(self, scheme):
-        self.self.ctx.setScheme(scheme)
+    def set_scheme(self, scheme):
+        self.self.ctx.set_scheme(scheme)
         return self
     
-    def formMultimap(self): 
-        return self.ctx.formMultimap()
+    def form_multimap(self): 
+        return self.ctx.form_multimap()
     
-    def formMap(self): 
-        return self.ctx.formMap()
+    def form_map(self): 
+        return self.ctx.form_map()
     
     @dispatch()
     def form(self): 
@@ -215,29 +218,29 @@ class ForwardingContext(Context):
     @dispatch(str)
     def form(self, name):
         return self.ctx.form(name)
-    '''
-    @dispatch()
+    
+    @dispatch(object)
     def form(self, type):
         return self.ctx.form(type)
-    '''
-    @dispatch
+    
+    @dispatch()
     def multipart(self): 
         return self.ctx.multipart()
     
     @dispatch(str)
     def multipart(self, name):
         return self.ctx.multipart(name)
-    '''
-    @dispatch()
+    
+    @dispatch(object)
     def multipart(self, type):
         return self.ctx.multipart(type)
-    '''
-
-    def multipartMultimap(self): 
-        return self.ctx.multipartMultimap()
     
-    def multipartMap(self):
-        return self.ctx.multipartMap()
+
+    def multipart_multimap(self): 
+        return self.ctx.multipart_multimap()
+    
+    def multipart_map(self):
+        return self.ctx.multipart_map()
     
     @dispatch()
     def files(self): 
@@ -253,11 +256,11 @@ class ForwardingContext(Context):
     @dispatch()
     def body(self):
         return self.ctx.body()
-    '''
-    @dispatch()
+    
+    @dispatch(object)
     def body(self, type):
         return self.ctx.body(type)
-    '''
+    
 
     def convert(self, value, type):
         return self.ctx.convert(value, type)
@@ -268,20 +271,18 @@ class ForwardingContext(Context):
     def decoder(self, contentType):
         return self.ctx.decoder(contentType)
     
-    def isInIoThread(self):
-        return self.ctx.isInIoThread()
+    def is_in_io_thread(self):
+        return self.ctx.is_in_io_thread()
     
-    '''
-    @dispatch
-    def dispatch(self, action):
+    @dispatch(Runnable)
+    def _dispatch(self, action):
         self.ctx.dispatch(action)
         return self
     
-    @dispatch.add
-    def dispatch(self, executor, action):
+    @dispatch(Executor, Runnable)
+    def _dispatch(self, executor, action):
         self.ctx.dispatch(executor, action)
         return self
-    '''
 
     def detach(self, next):
         self.ctx.detach(next)
@@ -292,62 +293,66 @@ class ForwardingContext(Context):
         self.ctx.upgrade(handler)
         return self
 
-    def setResponseHeader(self, name, value):
-        self.ctx.setResponseHeader(name, value)
+    @dispatch(str, str)
+    def set_response_header(self, name, value):
+        self.ctx.set_response_header(name, value)
         return self
-    
+
     @dispatch(str)
-    def removeResponseHeader(self, name):
-        self.ctx.removeResponseHeader(name)
+    def set_response_header(self, name):
+        self.ctx.set_response_header(name)
         return self
     
-    @dispatch()
-    def removeResponseHeaders(self):
-        self.ctx.removeResponseHeaders()
+    def remove_response_header(self, name):
+        self.ctx.remove_response_header(name)
+        return self    
+
+    def remove_response_headers(self):
+        self.ctx.remove_response_headers()
         return self
     
 
-    def getResponseHeader(self, name):
-        return self.ctx.getResponseHeader(name)
+    def get_response_header(self, name):
+        return self.ctx.get_response_header(name)
     
 
-    def getResponseLength():
-        return self.ctx.getResponseLength()
+    def get_response_length(self):
+        return self.ctx.get_response_length()
     
-    def setResponseLength(self, length):
-        self.ctx.setResponseLength(length)
-        return self
-    
-
-    def setResponseCookie(self, cookie):
-        self.ctx.setResponseCookie(cookie)
+    def set_response_length(self, length):
+        self.ctx.set_response_length(length)
         return self
     
 
-    def setResponseType(self, contentType):
-        self.ctx.setResponseType(contentType)
+    def set_response_cookie(self, cookie):
+        self.ctx.set_response_cookie(cookie)
         return self
     
-    '''
-    def setResponseType(self, contentType, charset):
-        self.ctx.setResponseType(contentType, charset)
+    @dispatch(MediaType)
+    def set_response_type(self, contentType):
+        self.ctx.set_response_type(contentType)
         return self
-    '''
+    
+    @dispatch(MediaType, Charset)
+    def set_response_type(self, contentType, charset):
+        self.ctx.set_response_type(contentType, charset)
+        return self
 
-    def setDefaultResponseType(self, contentType):
-        self.ctx.setResponseType(contentType)
+
+    def set_default_responseType(self, contentType):
+        self.ctx.set_responseType(contentType)
         return self
     
 
-    def getResponseType(self):
-        return self.ctx.getResponseType()
+    def get_responseType(self):
+        return self.ctx.get_responseType()
     
-    def setResponseCode(self, statusCode):
-        self.ctx.setResponseCode(statusCode)
+    def set_response_code(self, statusCode):
+        self.ctx.set_response_code(statusCode)
         return self
     
-    def getResponseCode(self): 
-        return self.ctx.getResponseCode()
+    def get_response_code(self): 
+        return self.ctx.get_response_code()
     
 
     def render(self, value):
@@ -355,12 +360,12 @@ class ForwardingContext(Context):
         return self
     
 
-    def responseStream(self): 
-        return self.ctx.responseStream()
+    def response_stream(self): 
+        return self.ctx.r_sponse_stream()
     
 
-    def responseStream(self, contentType):
-        return self.ctx.responseStream(contentType)
+    def response_stream(self, contentType):
+        return self.ctx.response_stream(contentType)
     '''
     def responseStream(self, contentType, consumer):
         return self.ctx.responseStream(contentType, consumer)
@@ -369,21 +374,21 @@ class ForwardingContext(Context):
         return self.ctx.responseStream(consumer)
     '''
 
-    def responseSender(self): 
-        return self.ctx.responseSender()
+    def response_sender(self): 
+        return self.ctx.response_sender()
     
 
-    def responseWriter(self): 
-        return self.ctx.responseWriter()
+    def response_writer(self): 
+        return self.ctx.response_writer()
     
-
-    def responseWriter(self, contentType):
-        return self.ctx.responseWriter(contentType)
+    @dispatch(MediaType)
+    def response_writer(self, contentType):
+        return self.ctx.response_writer(contentType)
     
+    @dispatch(MediaType, Charset)
+    def response_writer(self, contentType, charset):
+        return self.ctx.response_writer(contentType, charset)
     '''
-    def responseWriter(self, contentType, charset):
-        return self.ctx.responseWriter(contentType, charset)
-
     def responseWriter(self, consumer):
         return self.ctx.responseWriter(consumer)
     
@@ -408,12 +413,12 @@ class ForwardingContext(Context):
     def send(self, data):
         self.ctx.send(data)
         return self
-    '''
+
     @dispatch(str, Charset)
     def send(self, data, charset):
         self.ctx.send(data, charset)
         return self
-    '''
+
     
     @dispatch(Exception)
     def sendError(self, cause):
@@ -426,32 +431,32 @@ class ForwardingContext(Context):
         return self
     
 
-    def isResponseStarted(self):
-        return self.ctx.isResponseStarted()
+    def is_response_started(self):
+        return self.ctx.is_response_started()
     
     @dispatch()
-    def getResetHeadersOnError(self):
-        return self.ctx.getResetHeadersOnError()
+    def get_reset_headers_on_error(self):
+        return self.ctx.get_reset_headers_on_error()
     
     @dispatch(bool)
-    def setResetHeadersOnError(self, value):
-        self.ctx.setResetHeadersOnError(value)
+    def set_reset_headers_on_error(self, value):
+        self.ctx.set_reset_headers_on_error(value)
         return self
     
 
-    def onComplete(self, task):
-        self.ctx.onComplete(task)
+    def on_complete(self, task):
+        self.ctx.on_complete(task)
         return self
     
-    '''
+    @dispatch(object)
     def require(self, type): 
         return self.ctx.require(type)
     
-
+    @dispatch(object, str)
     def require(self, type, name):
         return self.ctx.require(type, name)
     
-
+    '''
     def require(self, key):
         return self.ctx.require(key)
     '''
