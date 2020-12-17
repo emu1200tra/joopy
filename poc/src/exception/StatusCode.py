@@ -404,9 +404,12 @@ class StatusCode:
 
     def reason(self):
         return self.__reason
-
+    
     def valueOf(self, statusCode):
-        raise NotImplementedError
+        if statusCode == CONTINUE_CODE:
+            return CONTINUE
+        elif statusCode == SWITCHING_PROTOCOLS_CODE:
+            return SWITCHING_PROTOCOLS
 
 
 def main():

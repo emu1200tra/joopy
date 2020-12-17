@@ -18,7 +18,7 @@ class StatusCodeBase:
         Usage Example: StatusCode.OK.toString() return: 'Success(200)'
 
         """
-        return self.reason()+"("+str(self.value())+")"
+        return str(self.value()) + " " + self.reason()
 
     def equals(self, obj):
         if isinstance(obj, StatusCodeBase):
