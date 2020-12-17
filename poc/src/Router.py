@@ -1,6 +1,7 @@
 import os
 from .Registry import Registry
 from .Route import Route
+from .todo import *
 from abc import abstractmethod
 import copy
 from multipledispatch import dispatch
@@ -969,7 +970,7 @@ class Router(Registry):
         @param name Executor name.
         @return Executor.
         """
-        return require(Executor, name)
+        return Registry.require(Executor, name)
 
     @abstractmethod
     def executorRouter(self, name, executor):
@@ -1061,7 +1062,7 @@ class Router(Registry):
         pass
 
     @staticmethod
-    def leadingSlash(self, path):
+    def leadingSlash(path):
         """
         Ensure path start with a <code>/</code>(leading slash).
    
@@ -1076,7 +1077,7 @@ class Router(Registry):
             return '/' + path
 
     @staticmethod
-    def noTrailingSlash(self, path):
+    def noTrailingSlash(path):
         """
         Strip trailing slashes.
    
@@ -1087,7 +1088,7 @@ class Router(Registry):
         
     
     @staticmethod
-    def normalizePath(self, path):
+    def normalizePath(path):
         """
         Normalize a path by removing consecutive <code>/</code>(slashes).
    
@@ -1100,7 +1101,7 @@ class Router(Registry):
         return buff.replace('//', '/')
     
     @staticmethod
-    def pathKeyConsumer(self, pattern, consumer):
+    def pathKeyConsumer(pattern, consumer):
         """
         Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
    
@@ -1114,7 +1115,7 @@ class Router(Registry):
 
 
     @staticmethod
-    def pathKeys(self, pattern):
+    def pathKeys(pattern):
         """
         Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
    
@@ -1123,10 +1124,10 @@ class Router(Registry):
         @param pattern Path pattern.
         @return Path keys.
         """
-        return self.pathKeyConsumer( lambda pattern, k, v: ())
+        return Router.pathKeyConsumer(pattern, lambda pattern, k, v: ())
 
     @staticmethod
-    def expandOptionalVariables(self, pattern):
+    def expandOptionalVariables(pattern):
         """
         Look for optional path parameter and expand the given pattern into multiple pattern.
    
@@ -1147,7 +1148,7 @@ class Router(Registry):
         return 1
 
     @staticmethod
-    def reverseWithMap(self, pattern, keys):
+    def reverseWithMap(pattern, keys):
         """
         Recreate a path pattern using the given variables.
    
@@ -1158,7 +1159,7 @@ class Router(Registry):
         return 1
 
     @staticmethod
-    def reverse(self, pattern, values):
+    def reverse(pattern, values):
         """
         Recreate a path pattern using the given variables. Variable replacement is done using the
         current index.
@@ -1170,5 +1171,5 @@ class Router(Registry):
         keys = {}
         for idx, v in enumerate(values):
             keys[ str(idx) ] = v
-        return reverseWithMap(pattern, keys)
+        return Router.reverseWithMap(pattern, keys)
     

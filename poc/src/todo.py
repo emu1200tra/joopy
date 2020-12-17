@@ -10,7 +10,9 @@ class ValueNode(object):
     pass
 
 class ValueConverters(object):
-    pass
+    @staticmethod
+    def defaultConverters():
+        pass
 
 class MediaType(object):
     pass
@@ -84,4 +86,10 @@ class Executor:
 
 class ForwardingExecutor:
     # implement Executor
+    pass
+
+class Server:
+    pass
+
+class Environment:
     pass

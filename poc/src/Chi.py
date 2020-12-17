@@ -1,10 +1,10 @@
-import MessageEncoder
-import Route
-import RouteTree
-import Router
-import StaticRouterMatch
+from .MessageEncoder import MessageEncoder
+from .Route import Route
+from .RouteTree import RouteTree
+from .Router import Router
+from .StaticRouterMatch import StaticRouterMatch
 from abc import abstractmethod, ABC
-import RouterMatch
+from .RouterMatch import RouterMatch
 from typing import List
 import re
 
@@ -26,7 +26,7 @@ class Chi(RouteTree):
         __encoder: MessageEncoder
         '''
         self.__encoder = None
-        self.__root = _Node()
+        self.__root = Chi._Node()
         self.__staticPaths = {} # Map<Object, StaticRoute>
 
     class _MethodMatcher(ABC):
@@ -66,7 +66,7 @@ class Chi(RouteTree):
             self.__route = None
 
     class _MultipleMethodMatcher(_MethodMatcher):
-        def __init__(self, matcher: _SingleMethodMatcher):
+        def __init__(self, matcher):
             '''
             __methods: {str, StaticRouterMatch} dict
             (ConcurrentHashMap in Java)
@@ -93,17 +93,17 @@ class Chi(RouteTree):
 
         def put(self, method: str, route: Route):
             if self.__matcher is None:
-                matcher = _SingleMethodMatcher()
-            elif isinstance(matcher, _SingleMethodMatcher):
-                matcher = _MultipleMethodMatcher()
+                matcher = Chi._SingleMethodMatcher()
+            elif isinstance(matcher, Chi._SingleMethodMatcher):
+                matcher = Chi._MultipleMethodMatcher()
             self.__matcher.put(method, StaticRouterMatch(route));
 
     class Segment:
         def __init__(self, nodeType: int = None, 
-                regex: str = Chi._Chi__EMPTY_STRING, tail: str = None, 
+                regex: str = None, tail: str = None, 
                 startIndex: int = None, endIndex: int = None):
             self.nodeType = nodeType
-            self.rexPat = regex
+            self.rexPat = Chi.__EMPTY_STRING if regex is None else regex
             self.tail = tail
             self.startIndex = startIndex
             self.endIndex = endIndex
@@ -128,24 +128,23 @@ class Chi(RouteTree):
             self.endpoints = None
             self.children = [[] for i in range(Chi._Chi__NODE_SIZE)]
 
-        def typ(self, typ: int) -> _Node:
+        def typ(self, typ: int):
             self.typ = typ
             return self
         
-        def label(self, label: str) -> _Node:
+        def label(self, label: str):
             self.label = label
             return self
 
-        def tail(self, tail: str) -> _Node:
+        def tail(self, tail: str):
             self.tail = tail
             return self
 
-        def prefix(self, prefix: str) -> _Node:
+        def prefix(self, prefix: str):
             self.prefix = prefix
             return self
 
-        def insertRoute(self, method: str, pattern: str, route: Route) \
-            -> _Node:
+        def insertRoute(self, method: str, pattern: str, route: Route):
             n = self
             parent = None # Node
             search = pattern
@@ -163,7 +162,7 @@ class Chi(RouteTree):
                 if label == "{" or label == "*":
                     seg = self.patNextSegment(search)
                 else:
-                    seg = Segment()
+                    seg = Chi.Segment()
 
                 prefix = None # str
                 if seg.nodeType == Chi._Chi__ntRegexp:
@@ -177,7 +176,7 @@ class Chi(RouteTree):
 
                 # No edge, create one
                 if n is None:
-                    child = _Node().label(label).tail(seg.tail).prefix(search)
+                    child = Chi._Node().label(label).tail(seg.tail).prefix(search)
                     hn = parent.addChild(child, search)
                     hn.setEndpoint(method, route)
                     return hn
@@ -201,7 +200,7 @@ class Chi(RouteTree):
                     continue;
 
                 # Split the node
-                child = _Node().typ(Chi._Chi__ntStatic).prefix(search[:commonPrefix])
+                child = Chi._Node().typ(Chi._Chi__ntStatic).prefix(search[:commonPrefix])
                 parent.replaceChild(search[0], seg.tail, child);
 
                 # Restore the existing node
@@ -217,12 +216,12 @@ class Chi(RouteTree):
                   return child
 
                 # Create a new edge for the node
-                subchild = _Node().typ(Chi._Chi__ntStatic).label(search[0]).prefix(search)
+                subchild = Chi._Node().typ(Chi._Chi__ntStatic).label(search[0]).prefix(search)
                 hn = child.addChild(subchild, search)
                 hn.setEndpoint(method, route)
                 return hn
 
-        def addChild(self, child: _Node, search: str) -> _Node:
+        def addChild(self, child, search: str):
             '''
             addChild appends the new `child` node to the tree using the `pattern` 
             as the trie key. For a URL router like chi's, we split the static, 
@@ -270,7 +269,7 @@ class Chi(RouteTree):
 
                         search = search[segStartIdx: ]
 
-                        nn = _Node().typ(Chi._Chi__ntStatic).label(search[0])\
+                        nn = Chi._Node().typ(Chi._Chi__ntStatic).label(search[0])\
                             .prefix(search)
                         hn = child.addChild(nn, search)
 
@@ -285,14 +284,14 @@ class Chi(RouteTree):
                     # add the param edge node
                     search = search[segStartIdx]
 
-                    nn = _Node().typ(segTyp).label(search[0]).tail(seg.tail)
+                    nn = Chi._Node().typ(segTyp).label(search[0]).tail(seg.tail)
                     hn = child.addChild(nn, search)
             
             n.children[child.typ] = self.__append(n.children[child.typ], child)
             self.tailSort(n.children[child.typ])
             return hn
                 
-        def replaceChild(self, label: str, tail: str, child: _Node):
+        def replaceChild(self, label: str, tail: str, child):
             nds = self.children[child.typ]
             if nds:
                 for c in nds:
@@ -303,8 +302,7 @@ class Chi(RouteTree):
                         return
             raise Exception("chi: replacing missing child")
 
-        def getEdge(self, ntyp: int, label: str, tail: str, prefix: str)\
-            -> _Node:
+        def getEdge(self, ntyp: int, label: str, tail: str, prefix: str):
             nds = self.children[ntyp]
             if nds:
                 for nd in nds:
@@ -412,7 +410,7 @@ class Chi(RouteTree):
                 
             return None
 
-        def findEdge(self, ns: List[_Node], label: str) -> _Node:
+        def findEdge(self, ns: List, label: str):
             num = len(ns)
             idx = 0
             i = 0
@@ -441,9 +439,9 @@ class Chi(RouteTree):
                     return i
             return i + 1
         
-        def tailSort(self, ns: List[_Node]):
+        def tailSort(self, ns: List):
 
-            def sortCriteria(n: _Node):
+            def sortCriteria(n):
                 return n.label
 
             if ns and len(ns) > 1:
@@ -453,14 +451,14 @@ class Chi(RouteTree):
                         n, ns[len(ns) - 1] = ns[len(ns) - 1], n
                         return
 
-        def __append(self, src: List[_Node], child: _Node) -> List[_Node]:
+        def __append(self, src: List, child) -> List:
             if not src:
                 return [child]
             else:
                 src.append(child)
                 return src
 
-        def patNextSegment(self, pattern: str) -> Segment:
+        def patNextSegment(self, pattern: str):
             '''
             patNextSegment returns the next segment details from a pattern:
             node type, param key, regexp string, param tail byte, param starting 
@@ -470,7 +468,7 @@ class Chi(RouteTree):
             ws = pattern.find('*')
 
             if ps < 0 and ws < 0:
-                return Segment(Chi._Chi__ntStatic, Chi._Chi__EMPTY_STRING,
+                return Chi.Segment(Chi._Chi__ntStatic, Chi._Chi__EMPTY_STRING,
                 Chi.ZERO_CHAR, 0, len(pattern))
 
             # Sanity check
@@ -521,12 +519,12 @@ class Chi(RouteTree):
                     if rexpat[len(rexpat) - 1] != "$":
                         rexpat = rexpat + "$"
 
-                return Segment(nt, rexpat, tail, ps, pe)
+                return Chi.Segment(nt, rexpat, tail, ps, pe)
 
             # Wildcard pattern as finale
             # EDIT: should we panic if there is stuff after the * ???
             # We allow naming a wildcard: *path
-            return Segment(Chi._Chi__ntCatchAll, Chi._Chi__EMPTY_STRING,
+            return Chi.Segment(Chi._Chi__ntCatchAll, Chi._Chi__EMPTY_STRING,
                 Chi.ZERO_CHAR, ws, len(pattern))
             
         def destroy(self):
@@ -542,7 +540,7 @@ class Chi(RouteTree):
                 self.endpoints = None
 
     def insertInternal(self, method: str, pattern: str, route: Route):
-        baseCatchAll = baseCatchAll(pattern)
+        baseCatchAll = self.baseCatchAll(pattern)
 
         if len(baseCatchAll) > 1:
             # Add route pattern: /static/?* => /static
@@ -557,7 +555,7 @@ class Chi(RouteTree):
             if pattern in self.__staticPaths:
                 staticRoute = self.__staticPaths[pattern]
             else:
-                staticRoute = StaticRoute()
+                staticRoute = Chi.StaticRoute()
                 self.__staticPaths[pattern] = staticRoute
             staticRoute[method] = route
 

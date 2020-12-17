@@ -1,6 +1,8 @@
 from collections import OrderedDict
-import Route
-import Context
+from .Router import Router
+from .Route import Route
+from .defaultContext import Context
+from .MessageEncoder import MessageEncoder
 from typing import List, Set, OrderedDict
 
 class RouterMatch(Router.Match):
@@ -46,7 +48,7 @@ class RouterMatch(Router.Match):
     def pathMap(self) -> OrderedDict[str, str]:
         return self.vars
 
-    def found(self, route: Route) -> RouterMatch:
+    def found(self, route: Route):
         self.__route = route
         self.matches = True
         return self
@@ -63,8 +65,7 @@ class RouterMatch(Router.Match):
             self.__route = None
             self.vars = None
 
-    def missing(self, method: str, path: str, encoder: MessageEncoder) \
-            -> RouterMatch:
+    def missing(self, method: str, path: str, encoder: MessageEncoder):
         h = None # Route.Handler
         if self.__handler is None:
             h = Route.FAVICON if path.endswith("/favicon.ico") \

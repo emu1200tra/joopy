@@ -2,6 +2,7 @@ from multipledispatch import dispatch
 from src.todo import *
 from src.Route import Route
 from src.Router import Router
+from src.Chi import Chi
 from src.handler import *
 from typing import List
 
@@ -151,7 +152,7 @@ class RouterImpl(Router):
         """ Route: """
         safePattern = pathBuilder.toString() # String
         route = Route(method, safePattern, handler) # Route
-        route.set_pathKeys(Router.pathKeys(safePattern))
+        route.set_path_keys(Router.pathKeys(safePattern))
         route.set_before(before)
         route.set_after(after)
         route.set_decorator(decorator)
@@ -260,11 +261,11 @@ class RouterImpl(Router):
             self.__predicateMap.clear()
             self.__predicateMap = None
     
-    @dispatch(object, str, Runnable, List[Route.Decorator])
+    @dispatch(object, str, Runnable, list)
     def newStack(self, tree: object, pattern: str, action: Runnable, decorator: List[Route.Decorator]) -> Router:
         return self.newStack(self.push(tree, pattern), action, decorator)
 
-    @dispatch(Stack, Runnable, List[Route.Decorator])
+    @dispatch(Stack, Runnable, list)
     def newStack(self, stack: Stack, action: Runnable, decorator: List[Route.Decorator]) -> Router:
         for d in decorator:
             stack.then(d)

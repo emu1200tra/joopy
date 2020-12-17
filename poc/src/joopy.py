@@ -1,15 +1,17 @@
 import abc
 import sys
 import src.wsgi as wsgi
-from src import Router
-from src import Registry
-from src import RouterImpl
+from src.Router import Router
+from src.Registry import Registry
+from src.RouterImpl import RouterImpl
 from src.Server import Base
 from src.wsgi import wsgi
+from src.Chi import Chi
 from src.LoggerFactory import LoggerFactory
 from src.Logger import Logger
 from src.ExecutionMode import ExecutionMode
 from src.mvcExtension import mvcExtension
+from src.todo import *
 from multipledispatch import dispatch
 
 #routers = {}
@@ -35,7 +37,7 @@ class Joopy(Router, Registry):
     """
     def __init__(self):
         super(Joopy, self).__init__()    
-        self.__router = RouterImpl()
+        self.__router = RouterImpl(None)
         self.__mode = None # ExecutionMode
         self.__tmpdir = None # Path
         self.__readyCallbacks = [] # List<SneakyThrows.Runnable>
@@ -89,8 +91,7 @@ class Joopy(Router, Registry):
     @return Application.
     """
     @staticmethod
-    def createApp(self,
-        args, 
+    def createApp(args, 
         executionMode: ExecutionMode,
         applicationTyper=None,
         provider=None):
@@ -122,12 +123,12 @@ class Joopy(Router, Registry):
         server = wsgi()
         try:
             return server.start(self)
-        except exception as e:
+        except Exception as e:
             log = self.getLog()
             log.error("Application startup resulted in exception", e)
             try:
                 server.stop()
-            except exceptionSvr as esvr:
+            except Exception as esvr:
                 log.error("Server stop resulted in exception", esvr)
             # rethrow
             #if isinstance(errorType, StartupException):
@@ -135,8 +136,8 @@ class Joopy(Router, Registry):
             #else:
             #    raise Exception("Application startup resulted in exception")
             
-    @dispatch(Base)
-    def start(self, server:Base):
+    @dispatch(Server)
+    def start(self, server: Server):
         #self.__router.start(self)
         print("Start server")
         self.__router.start(self);
