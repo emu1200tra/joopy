@@ -45,9 +45,9 @@ class AccessLogHandler(Route.Decorator):
         The logging system
         """
         self.__log = LoggerFactory.get_logger(get_class())
-        self.__logRecord = self.__log.info()
-        self.__requestHeaders = []
-        self.__responseHeaders = []
+        self.__log_record = self.__log.info()
+        self.__request_headers = []
+        self.__response_headers = []
 
     @dispatch()
     def __init__(self):
@@ -57,47 +57,47 @@ class AccessLogHandler(Route.Decorator):
         self.__init__(self.__USER_ON_DASH)
 
     def __apply_inner(self, _next, timestamp, ctx):
-        ctx.onComplete(lambda context: self.__apply_inner_inner(
+        ctx.on_complete(lambda context: self.__apply_inner_inner(
             timestamp, ctx, context))
         return _next.apply(ctx)
 
     def __apply_inner_inner(self, timestamp, ctx, context):
         sb = ""
-        sb += ctx.getRemoteAddress()
+        sb += ctx.get_remote_address()
         sb += (self.__SP + self.__DASH + self.__SP)
         sb += self.__userId.apply(ctx)
         sb += self.__SP
         sb += (self.__BL + self.__df.apply(timestamp) + self.__BR)
         sb += self.__SP
-        sb += (self.__Q + ctx.getMethod())
+        sb += (self.__Q + ctx.get_method())
         sb += self.__SP
-        sb += ctx.getRequestPath()
-        sb += ctx.queryString()
+        sb += ctx.get_request_path()
+        sb += ctx.query_string()
         sb += self.__SP
-        sb += ctx.getProtocol()
+        sb += ctx.get_protocol()
         sb += (self.__Q + self.__SP)
-        sb += ctx.getResponseCode().value()
+        sb += ctx.get_response_code().value()
         sb += self.__SP
 
-        responseLength = ctx.getResponseLength()
-        sb += responseLength if responseLength > 0 else self.__DASH
+        response_length = ctx.get_response_length()
+        sb += response_length if response_length > 0 else self.__DASH
 
         now = int(round(time.time() * 1000))
         sb += self.__SP
         sb += (now - timestamp)
 
-        self.__append_headers(sb, self.__requestHeaders,
+        self.__append_headers(sb, self.__request_headers,
                               lambda h: ctx.header(h))
-        self.__append_headers(sb, self.__responseHeaders,
-                              lambda h: ctx.getResponseHeader(h))
-        self.__logRecord.accept(sb)
+        self.__append_headers(sb, self.__response_headers,
+                              lambda h: ctx.get_response_header(h))
+        self.__log_record.accept(sb)
 
     def apply(self, _next: Route.Handler):
         timestamp = int(round(time.time() * 1000))
         return lambda ctx: self.__apply_inner(_next, timestamp, ctx)
 
-    def __append_headers(self, buff: str, requestHeaders: List[str], headers: Callable):
-        for header in requestHeaders:
+    def __append_headers(self, buff: str, request_headers: List[str], headers: Callable):
+        for header in request_headers:
             value = headers(header)
             if value is None:
                 buff += (self.__SP + self.__Q + self.__DASH + self.__Q)
@@ -125,7 +125,7 @@ class AccessLogHandler(Route.Decorator):
             """
             pass
         else:
-            self.__logRecord = log
+            self.__log_record = log
         return self
 
     @dispatch(str)
@@ -164,7 +164,7 @@ class AccessLogHandler(Route.Decorator):
         @param names Header names.
         @return This instance.
         """
-        self.__requestHeaders = names.copy()
+        self.__request_headers = names.copy()
         return self
 
     def response_header(self, names: List[str]):
@@ -174,5 +174,5 @@ class AccessLogHandler(Route.Decorator):
         @param names Header names.
         @return This instance.
         """
-        self.__responseHeaders = names.copy()
+        self.__response_headers = names.copy()
         return self
