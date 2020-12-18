@@ -81,9 +81,6 @@ class ClassSource:
 class RouteAnalyzer:
     pass
 
-class Pipeline:
-    pass
-
 class Executor:
     pass
 
@@ -95,4 +92,22 @@ class Server:
     pass
 
 class Environment:
+    pass
+
+class ClassLoader:
+    pass
+
+class ResponseHandler:
+    pass
+
+class ContextInitializer:
+    pass
+
+class DispatchHandler:
+    pass
+
+class PostDispatchInitializerHandler:
+    pass
+
+class HeadResponseHandler:
     pass
