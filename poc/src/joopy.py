@@ -136,8 +136,8 @@ class Joopy(Router, Registry):
             #else:
             #    raise Exception("Application startup resulted in exception")
             
-    @dispatch(Server)
-    def start(self, server: Server):
+    @dispatch(Base)
+    def start(self, server: Base):
         #self.__router.start(self)
         print("Start server")
         self.__router.start(self);

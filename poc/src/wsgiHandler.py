@@ -10,7 +10,7 @@ class wsgiHandler(object):
         headers = [('Content-type', 'text/plain')]
 
         context = wsgiContext(environ, self.router)      
-
+        
         self.router.match(context).execute(context)  
 
         start_response(context.statusCode, headers)

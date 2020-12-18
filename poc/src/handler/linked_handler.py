@@ -1,5 +1,5 @@
-from ..Route import Handler
+from ..Route import Route
 
-class LinkedHandler(Handler):
+class LinkedHandler(Route.Handler):
     def next(self):
         pass
