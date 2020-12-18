@@ -1,6 +1,5 @@
 from multipledispatch import dispatch
 from typing import List
-
 from .todo import *
 from .Route import Route
 from .Router import Router
@@ -105,7 +104,7 @@ class RouterImpl(Router):
 
     def routes(self, action: Runnable) -> RouteSet:
         return self.path("/", action)
-    
+
     def path(self, pattern: str, action: Runnable) -> RouteSet:
         routeSet = RouteSet()
         start = len(self.__routes)
@@ -209,7 +208,7 @@ class RouterImpl(Router):
             self.__err = ErrorHandler.create()
         else:
             self.__err = self.__err.then(ErrorHandler.create())
-        
+
         self.__encoder.add(ToStringMessageEncoder)
 
         ValueConverters.addFallbackConverters(self.__converters)
@@ -227,7 +226,7 @@ class RouterImpl(Router):
             if executorKey is None:
                 executor = self.__routeExecutor.get(route)
             else:
-                # TODO....... ForwardingExecutor's logic here QQ 
+                # TODO....... ForwardingExecutor's logic here QQ
                 pass
 
             if route.get_return_type() is None:
@@ -244,12 +243,21 @@ class RouterImpl(Router):
                 route.set_before(self.__prepend_media_type(route.get_consumes(), route.get_before(), Route.SUPPORT_MEDIA_TYPE))
                 route.set_before(self.__prepend_media_type(route.get_produces(), route.get_before(), Route.ACCEPT))
 
-            pipeline = Pipeline()
+            # Route.Handler
+            pipeline = Pipeline.compute(source.get_loader(), route, \
+                    self.__force_mode(route, mode), executor, \
+                    self.__postDispatchInitializers, self.__handlers)
+            route.set_pipeline(pipeline)
 
             # Final render
             Route.set_encoder(self.__encoder)
 
         return self
+
+    def __force_mode(route: Route, mode: ExecutionMode) -> ExecutionMode:
+        if route.get_method() == Router.WS: # "WS" string compare 
+            return ExecutionMode.WORKER
+        return mode
 
     def destroy(self):
         self.__routes.clear()
@@ -263,7 +271,7 @@ class RouterImpl(Router):
                 self.__predicateMap[key].destroy()
             self.__predicateMap.clear()
             self.__predicateMap = None
-    
+
     @dispatch(object, str, Runnable, list)
     def newStack(self, tree: object, pattern: str, action: Runnable, decorator: List[Route.Decorator]) -> Router:
         return self.newStack(self.push(tree, pattern), action, decorator)
