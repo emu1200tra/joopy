@@ -1,4 +1,3 @@
-#from src.handler.DefaultErrorHandler import DefaultErrorHandler
 class ErrorHandler():
     '''
     * Catch and encode application errors.
@@ -45,6 +44,3 @@ class ErrorHandler():
         message += ' '
         message += statusCode.reason()
         return message
-    def create(self):
-        from .default_error_handler import DefaultErrorHandler
-        return DefaultErrorHandler()

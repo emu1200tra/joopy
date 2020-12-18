@@ -8,7 +8,7 @@ from .handler import *
 from .MessageEncoder import *
 from .pipeline import Pipeline
 from .ExecutionMode import ExecutionMode
-from .handler.error_handler import ErrorHandler
+from .handler.default_error_handler import DefaultErrorHandler
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -207,9 +207,9 @@ class RouterImpl(Router):
     """
     def start(self, app):
         if self.__err is None:
-            self.__err = ErrorHandler.create()
+            self.__err = DefaultErrorHandler()
         else:
-            self.__err = self.__err.then(ErrorHandler.create())
+            self.__err = self.__err.then(DefaultErrorHandler())
 
         self.__encoder.add(ToStringMessageEncoder)
 
