@@ -1,12 +1,12 @@
 from multipledispatch import dispatch
 
-from src import Server
-from src.context import Context
+from .Server import Base
+from .context import Context
 import datetime
 
 from PyByteBuffer import ByteBuffer
 
-from src.handler.ErrorHandler import ErrorHandler
+from .handler.error_handler import ErrorHandler
 from .todo import *
 
 
@@ -166,7 +166,7 @@ class DefaultContext(Context):
         url += "://"
         url += host
 
-        if port > 0 and port is not 80 and port is not 443:
+        if port > 0 and port != 80 and port != 443:
             url += ":"
             url += port
 
@@ -413,7 +413,7 @@ class DefaultContext(Context):
                 if not Context.is_response_started():
                     ErrorHandler.create().apply(self, cause, code)
 
-                if Server.connection_lost(x):
+                if Base.connection_lost(x):
                     log.debug("error handler resulted in a exception while processing" + cause + x)
                 else:
                     log.error("error handler resulted in a exception while processing " + cause + x)

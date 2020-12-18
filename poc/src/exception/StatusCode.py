@@ -1,4 +1,4 @@
-from StatusCodeBase import StatusCodeBase
+from .StatusCodeBase import StatusCodeBase
 from final_class import final
 
 

@@ -16,5 +16,5 @@ class HeadHandler(Decorator):
     def apply(self, next):
         #NOOP, but we need it for marking the route as HTTP HEAD
         return lambda ctx : next.apply(ctx)
-    def setRoute(self, route):
-        route.setHttpHead(True)
+    def set_route(self, route):
+        route.set_http_head(True)

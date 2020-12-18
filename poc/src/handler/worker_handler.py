@@ -1,4 +1,4 @@
-from src.handler.LinkedHandler import LinkedHandler
+from .linked_handler import LinkedHandler
 
 class WorkerHandler(LinkedHandler):
     def __init__(self, _next):
@@ -6,13 +6,13 @@ class WorkerHandler(LinkedHandler):
         self.next = _next
 
     def apply(self, context):
-        return context.dispatch(lambda: self.element)
+        return context.dispatch(lambda ctx: self.element(ctx))
 
-    def element(self):
+    def element(self, ctx):
         try:
-            self.next.apply(context)
+            self.next.apply(ctx)
         except Exception as e:
-            context.sendError(e)
+            ctx.send_error(e)
 
     def next(self):
         return self.next

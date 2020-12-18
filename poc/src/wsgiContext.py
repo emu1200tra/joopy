@@ -36,7 +36,7 @@ class wsgiContext(DefaultContext):
     def isResponseStarted(self):
         return self.ResponseStarted
 
-    @dispatch(str, str):
+    @dispatch(str, str)
     def send(self, data, codec):
         self.body = data.encode(codec)
         return self.body

@@ -1,7 +1,7 @@
 from multipledispatch import dispatch
 from cache_control import CacheControl
 # from Route import Route
-from asset_source import AssetSource
+from .asset_source import AssetSource
 from collections import Iterable
 import datetime
 
