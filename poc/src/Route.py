@@ -459,8 +459,8 @@ class Route:
 
         return pipeline
     
-    @classmethod
-    def accept(cls, ctx):
+    @staticmethod
+    def accept(ctx):
         produceTypes = ctx.get_route().get_produces()
         contentType = ctx.accept(produceTypes) # MediaType
         if contentType is None:
@@ -468,10 +468,10 @@ class Route:
         
         ctx.set_default_response_type(contentType)
 
-    ACCEPT = lambda ctx : Route.accept(ctx)
+    ACCEPT = Before(lambda ctx : Route.accept(ctx))
 
-    @classmethod
-    def support_media_type(cls, ctx):
+    @staticmethod
+    def support_media_type(ctx):
         contentType = ctx.get_request_type # MediaType
         if contentType is None:
             raise Exception('UnsupportedMediaType')
@@ -484,4 +484,4 @@ class Route:
         if ok == False:
             raise Exception('UnsupportedMediaType' + contentType.getValue())
 
-    SUPPORT_MEDIA_TYPE = lambda ctx : Route.support_media_type(ctx)
+    SUPPORT_MEDIA_TYPE = Before(lambda ctx : Route.support_media_type(ctx))

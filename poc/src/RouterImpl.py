@@ -1,11 +1,13 @@
 from multipledispatch import dispatch
-from src.todo import *
-from src.Route import Route
-from src.Router import Router
-from src.Chi import Chi
-from src.handler import *
 from typing import List
-from src.MessageEncoder import *
+
+from .todo import *
+from .Route import Route
+from .Router import Router
+from .Chi import Chi
+from .handler import *
+from .MessageEncoder import *
+from .pipeline import Pipeline
 
 class RouterImpl(Router):
     class PathBuilder:
