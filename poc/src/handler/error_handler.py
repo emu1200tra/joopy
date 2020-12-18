@@ -46,5 +46,5 @@ class ErrorHandler():
         message += statusCode.reason()
         return message
     def create(self):
-        from src.handler.DefaultErrorHandler import DefaultErrorHandler
+        from .default_error_handler import DefaultErrorHandler
         return DefaultErrorHandler()
