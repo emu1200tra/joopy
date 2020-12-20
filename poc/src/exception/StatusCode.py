@@ -410,6 +410,31 @@ class StatusCode:
             return CONTINUE
         elif statusCode == SWITCHING_PROTOCOLS_CODE:
             return SWITCHING_PROTOCOLS
+        elif statusCode == PROCESSING_CODE:
+            return PROCESSING
+        elif statusCode == CHECKPOINT_CODE:
+            return CHECKPOINT
+        elif statusCode == OK_CODE:
+            return OK
+        elif statusCode == CREATED_CODE:
+            return CREATED
+        elif statusCode == ACCEPTED_CODE:
+            return ACCEPTED
+        elif statusCode == NON_AUTHORITATIVE_INFORMATION_CODE:
+            return NON_AUTHORITATIVE_INFORMATION
+        elif statusCode == NO_CONTENT_CODE:
+            return NO_CONTENT
+        elif statusCode == RESET_CONTENT_CODE:
+            return RESET_CONTENT
+        elif statusCode == PARTIAL_CONTENT_CODE:
+            return PARTIAL_CONTENT
+        elif statusCode == MULTI_STATUS_CODE:
+            return MULTI_STATUS
+        elif statusCode == ALREADY_REPORTED_CODE:
+            return ALREADY_REPORTED
+        else:
+            raise NotImplementedError
+
 
 
 def main():
