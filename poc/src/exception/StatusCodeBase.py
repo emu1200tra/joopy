@@ -1,21 +1,31 @@
 from final_class import final
 
+
+"""
+Degelagte from Class: StatusCode
+requirement: final_class module, `pip install final-class`
+
+"""
+
+
 @final
 class StatusCodeBase:
     def __init__(self, value, reason):
         self.__value = value
         self.__reason = reason
     
+    # return the integer value of this status code
     def value(self):
         return self.__value
     
+    # return the reason phrase of this status code 
     def reason(self):
         return self.__reason
 
     # Return a string representation of this status code.
     def toString(self):
         """
-        Usage Example: StatusCode.OK.toString() return: 'Success(200)'
+        Usage Example: StatusCode.OK.toString() return: '200 Success'
 
         """
         return str(self.value()) + " " + self.reason()
@@ -29,4 +39,4 @@ class StatusCodeBase:
         return self.value()
 
     def valueOf(self, statusCode):
-        pass
+        raise NotImplementedError("[Warning] Implemeted in Class: StatusCode !")

@@ -7,7 +7,10 @@ We want class level access to different statuscode
 We also want the code to be static, final, not being able to edit
 so we created a class code, pass in its .code to prevent modification
 
+requirement: final_class module, `pip install final-class`
+
 """
+
 
 @final
 class StatusCode:
@@ -405,86 +408,136 @@ class StatusCode:
     def reason(self):
         return self.__reason
     
-    def valueOf(self, statusCode):
-        if statusCode == CONTINUE_CODE:
-            return CONTINUE
-        elif statusCode == SWITCHING_PROTOCOLS_CODE:
-            return SWITCHING_PROTOCOLS
-        elif statusCode == PROCESSING_CODE:
-            return PROCESSING
-        elif statusCode == CHECKPOINT_CODE:
-            return CHECKPOINT
-        elif statusCode == OK_CODE:
-            return OK
-        elif statusCode == CREATED_CODE:
-            return CREATED
-        elif statusCode == ACCEPTED_CODE:
-            return ACCEPTED
-        elif statusCode == NON_AUTHORITATIVE_INFORMATION_CODE:
-            return NON_AUTHORITATIVE_INFORMATION
-        elif statusCode == NO_CONTENT_CODE:
-            return NO_CONTENT
-        elif statusCode == RESET_CONTENT_CODE:
-            return RESET_CONTENT
-        elif statusCode == PARTIAL_CONTENT_CODE:
-            return PARTIAL_CONTENT
-        elif statusCode == MULTI_STATUS_CODE:
-            return MULTI_STATUS
-        elif statusCode == ALREADY_REPORTED_CODE:
-            return ALREADY_REPORTED
-        elif statusCode == IM_USED_CODE:
-            return IM_USED
-        elif statusCode == MULTIPLE_CHOICES_CODE:
-            return MULTIPLE_CHOICES
-        elif statusCode == MOVED_PERMANENTLY_CODE:
-            return MOVED_PERMANENTLY
-        elif statusCode == FOUND_CODE:
-            return FOUND
-        elif statusCode == SEE_OTHER_CODE:
-            return SEE_OTHER
-        elif statusCode == NOT_MODIFIED_CODE:
-            return NOT_MODIFIED
-        elif statusCode == USE_PROXY_CODE:
-            return USE_PROXY
-        elif statusCode == TEMPORARY_REDIRECT_CODE:
-            return TEMPORARY_REDIRECT
-        elif statusCode == RESUME_INCOMPLETE_CODE:
-            return RESUME_INCOMPLETE
-        elif statusCode == BAD_REQUEST_CODE:
-            return BAD_REQUEST
-        elif statusCode == UNAUTHORIZED_CODE:
-            return UNAUTHORIZED
-        elif statusCode == PAYMENT_REQUIRED_CODE:
-            return PAYMENT_REQUIRED
-        elif statusCode == FORBIDDEN_CODE:
-            return FORBIDDEN
-        elif statusCode == NOT_FOUND_CODE:
-            return NOT_FOUND
-        elif statusCode == METHOD_NOT_ALLOWED_CODE:
-            return METHOD_NOT_ALLOWED
-        elif statusCode == NOT_ACCEPTABLE_CODE:
-            return NOT_ACCEPTABLE
-        elif statusCode == PROXY_AUTHENTICATION_REQUIRED_CODE:
-            return PROXY_AUTHENTICATION_REQUIRED
-        elif statusCode == REQUEST_TIMEOUT_CODE:
-            return REQUEST_TIMEOUT
-        elif statusCode == CONFLICT_CODE:
-            return CONFLICT
-        elif statusCode == GONE_CODE:
-            return GONE
-        elif statusCode == LENGTH_REQUIRED_CODE:
-            return LENGTH_REQUIRED
-        elif statusCode == PRECONDITION_FAILED_CODE:
-            return PRECONDITION_FAILED
-        elif statusCode == REQUEST_ENTITY_TOO_LARGE_CODE:
-            return REQUEST_ENTITY_TOO_LARGE
-        elif statusCode == REQUEST_URI_TOO_LONG_CODE:
-            return REQUEST_URI_TOO_LONG
-        elif statusCode == UNSUPPORTED_MEDIA_TYPE_CODE:
-            return UNSUPPORTED_MEDIA_TYPE
-        else:
-            raise NotImplementedError
+    @classmethod
+    def valueOf(cls, statusCode):
+        """
+        Usage:
+        0) class level: StatusCode.valueOf(404) -> return NOT_FOUND object
+        1) instance level: object.valueOf(404) -> return NOT_FOUND object
 
+        """
+        if statusCode == cls.CONTINUE_CODE:
+            return cls.CONTINUE
+        elif statusCode == cls.SWITCHING_PROTOCOLS_CODE:
+            return cls.SWITCHING_PROTOCOLS
+        elif statusCode == cls.PROCESSING_CODE:
+            return cls.PROCESSING
+        elif statusCode == cls.CHECKPOINT_CODE:
+            return cls.CHECKPOINT
+        elif statusCode == cls.OK_CODE:
+            return cls.OK
+        elif statusCode == cls.CREATED_CODE:
+            return cls.CREATED
+        elif statusCode == cls.ACCEPTED_CODE:
+            return cls.ACCEPTED
+        elif statusCode == cls.NON_AUTHORITATIVE_INFORMATION_CODE:
+            return cls.NON_AUTHORITATIVE_INFORMATION
+        elif statusCode == cls.NO_CONTENT_CODE:
+            return cls.NO_CONTENT
+        elif statusCode == cls.RESET_CONTENT_CODE:
+            return cls.RESET_CONTENT
+        elif statusCode == cls.PARTIAL_CONTENT_CODE:
+            return cls.PARTIAL_CONTENT
+        elif statusCode == cls.MULTI_STATUS_CODE:
+            return cls.MULTI_STATUS
+        elif statusCode == cls.ALREADY_REPORTED_CODE:
+            return cls.ALREADY_REPORTED
+        elif statusCode == cls.IM_USED_CODE:
+            return cls.IM_USED
+        elif statusCode == cls.MULTIPLE_CHOICES_CODE:
+            return cls.MULTIPLE_CHOICES
+        elif statusCode == cls.MOVED_PERMANENTLY_CODE:
+            return cls.MOVED_PERMANENTLY
+        elif statusCode == cls.FOUND_CODE:
+            return cls.FOUND
+        elif statusCode == cls.SEE_OTHER_CODE:
+            return cls.SEE_OTHER
+        elif statusCode == cls.NOT_MODIFIED_CODE:
+            return cls.NOT_MODIFIED
+        elif statusCode == cls.USE_PROXY_CODE:
+            return cls.USE_PROXY
+        elif statusCode == cls.TEMPORARY_REDIRECT_CODE:
+            return cls.TEMPORARY_REDIRECT
+        elif statusCode == cls.RESUME_INCOMPLETE_CODE:
+            return cls.RESUME_INCOMPLETE
+        elif statusCode == cls.BAD_REQUEST_CODE:
+            return cls.BAD_REQUEST
+        elif statusCode == cls.UNAUTHORIZED_CODE:
+            return cls.UNAUTHORIZED
+        elif statusCode == cls.PAYMENT_REQUIRED_CODE:
+            return cls.PAYMENT_REQUIRED
+        elif statusCode == cls.FORBIDDEN_CODE:
+            return cls.FORBIDDEN
+        elif statusCode == cls.NOT_FOUND_CODE:
+            return cls.NOT_FOUND
+        elif statusCode == cls.METHOD_NOT_ALLOWED_CODE:
+            return cls.METHOD_NOT_ALLOWED
+        elif statusCode == cls.NOT_ACCEPTABLE_CODE:
+            return cls.NOT_ACCEPTABLE
+        elif statusCode == cls.PROXY_AUTHENTICATION_REQUIRED_CODE:
+            return cls.PROXY_AUTHENTICATION_REQUIRED
+        elif statusCode == cls.REQUEST_TIMEOUT_CODE:
+            return cls.REQUEST_TIMEOUT
+        elif statusCode == cls.CONFLICT_CODE:
+            return cls.CONFLICT
+        elif statusCode == cls.GONE_CODE:
+            return cls.GONE
+        elif statusCode == cls.LENGTH_REQUIRED_CODE:
+            return cls.LENGTH_REQUIRED
+        elif statusCode == cls.PRECONDITION_FAILED_CODE:
+            return cls.PRECONDITION_FAILED
+        elif statusCode == cls.REQUEST_ENTITY_TOO_LARGE_CODE:
+            return cls.REQUEST_ENTITY_TOO_LARGE
+        elif statusCode == cls.REQUEST_URI_TOO_LONG_CODE:
+            return cls.REQUEST_URI_TOO_LONG
+        elif statusCode == cls.UNSUPPORTED_MEDIA_TYPE_CODE:
+            return cls.UNSUPPORTED_MEDIA_TYPE
+        elif statusCode == cls.REQUESTED_RANGE_NOT_SATISFIABLE_CODE:
+            return cls.REQUESTED_RANGE_NOT_SATISFIABLE
+        elif statusCode == cls.EXPECTATION_FAILED_CODE:
+            return cls.EXPECTATION_FAILED
+        elif statusCode == cls.I_AM_A_TEAPOT_CODE:
+            return cls.I_AM_A_TEAPOT
+        elif statusCode == cls.UNPROCESSABLE_ENTITY_CODE:
+            return cls.UNPROCESSABLE_ENTITY
+        elif statusCode == cls.LOCKED_CODE:
+            return cls.LOCKED
+        elif statusCode == cls.FAILED_DEPENDENCY_CODE:
+            return cls.FAILED_DEPENDENCY
+        elif statusCode == cls.UPGRADE_REQUIRED_CODE:
+            return cls.UPGRADE_REQUIRED
+        elif statusCode == cls.PRECONDITION_REQUIRED_CODE:
+            return cls.PRECONDITION_REQUIRED
+        elif statusCode == cls.TOO_MANY_REQUESTS_CODE:
+            return cls.TOO_MANY_REQUESTS
+        elif statusCode == cls.REQUEST_HEADER_FIELDS_TOO_LARGE_CODE:
+            return cls.REQUEST_HEADER_FIELDS_TOO_LARGE
+        elif statusCode == cls.SERVER_ERROR_CODE:
+            return cls.SERVER_ERROR
+        elif statusCode == cls.NOT_IMPLEMENTED_CODE:
+            return cls.NOT_IMPLEMENTED
+        elif statusCode == cls.BAD_GATEWAY_CODE:
+            return cls.BAD_GATEWAY
+        elif statusCode == cls.SERVICE_UNAVAILABLE_CODE:
+            return cls.SERVICE_UNAVAILABLE
+        elif statusCode == cls.GATEWAY_TIMEOUT_CODE:
+            return cls.GATEWAY_TIMEOUT
+        elif statusCode == cls.HTTP_VERSION_NOT_SUPPORTED_CODE:
+            return cls.HTTP_VERSION_NOT_SUPPORTED
+        elif statusCode == cls.VARIANT_ALSO_NEGOTIATES_CODE:
+            return cls.VARIANT_ALSO_NEGOTIATES
+        elif statusCode == cls.INSUFFICIENT_STORAGE_CODE:
+            return cls.INSUFFICIENT_STORAGE
+        elif statusCode == cls.LOOP_DETECTED_CODE:
+            return cls.LOOP_DETECTED
+        elif statusCode == cls.BANDWIDTH_LIMIT_EXCEEDED_CODE:
+            return cls.BANDWIDTH_LIMIT_EXCEEDED
+        elif statusCode == cls.NOT_EXTENDED_CODE:
+            return cls.NOT_EXTENDED
+        elif statusCode == cls.NETWORK_AUTHENTICATION_REQUIRED_CODE:
+            return cls.NETWORK_AUTHENTICATION_REQUIRED
+        else:
+            raise ValueError("[Warning] Need New StatusCode ?")
 
 
 def main():
