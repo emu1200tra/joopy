@@ -432,6 +432,56 @@ class StatusCode:
             return MULTI_STATUS
         elif statusCode == ALREADY_REPORTED_CODE:
             return ALREADY_REPORTED
+        elif statusCode == IM_USED_CODE:
+            return IM_USED
+        elif statusCode == MULTIPLE_CHOICES_CODE:
+            return MULTIPLE_CHOICES
+        elif statusCode == MOVED_PERMANENTLY_CODE:
+            return MOVED_PERMANENTLY
+        elif statusCode == FOUND_CODE:
+            return FOUND
+        elif statusCode == SEE_OTHER_CODE:
+            return SEE_OTHER
+        elif statusCode == NOT_MODIFIED_CODE:
+            return NOT_MODIFIED
+        elif statusCode == USE_PROXY_CODE:
+            return USE_PROXY
+        elif statusCode == TEMPORARY_REDIRECT_CODE:
+            return TEMPORARY_REDIRECT
+        elif statusCode == RESUME_INCOMPLETE_CODE:
+            return RESUME_INCOMPLETE
+        elif statusCode == BAD_REQUEST_CODE:
+            return BAD_REQUEST
+        elif statusCode == UNAUTHORIZED_CODE:
+            return UNAUTHORIZED
+        elif statusCode == PAYMENT_REQUIRED_CODE:
+            return PAYMENT_REQUIRED
+        elif statusCode == FORBIDDEN_CODE:
+            return FORBIDDEN
+        elif statusCode == NOT_FOUND_CODE:
+            return NOT_FOUND
+        elif statusCode == METHOD_NOT_ALLOWED_CODE:
+            return METHOD_NOT_ALLOWED
+        elif statusCode == NOT_ACCEPTABLE_CODE:
+            return NOT_ACCEPTABLE
+        elif statusCode == PROXY_AUTHENTICATION_REQUIRED_CODE:
+            return PROXY_AUTHENTICATION_REQUIRED
+        elif statusCode == REQUEST_TIMEOUT_CODE:
+            return REQUEST_TIMEOUT
+        elif statusCode == CONFLICT_CODE:
+            return CONFLICT
+        elif statusCode == GONE_CODE:
+            return GONE
+        elif statusCode == LENGTH_REQUIRED_CODE:
+            return LENGTH_REQUIRED
+        elif statusCode == PRECONDITION_FAILED_CODE:
+            return PRECONDITION_FAILED
+        elif statusCode == REQUEST_ENTITY_TOO_LARGE_CODE:
+            return REQUEST_ENTITY_TOO_LARGE
+        elif statusCode == REQUEST_URI_TOO_LONG_CODE:
+            return REQUEST_URI_TOO_LONG
+        elif statusCode == UNSUPPORTED_MEDIA_TYPE_CODE:
+            return UNSUPPORTED_MEDIA_TYPE
         else:
             raise NotImplementedError
 
