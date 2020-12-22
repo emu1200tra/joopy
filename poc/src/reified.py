@@ -9,5 +9,5 @@ class Reified:
     """
 
     @staticmethod
-    def raw_type(Type) -> str:
-        return str(type(Type))[8: -2] # <class 'int'> => int
+    def raw_type(Type):
+        return type(Type)

@@ -9,6 +9,7 @@ from .MessageEncoder import *
 from .pipeline import Pipeline
 from .ExecutionMode import ExecutionMode
 from .handler.default_error_handler import DefaultErrorHandler
+from .route_analyzer import RouteAnalyzer
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -71,7 +72,7 @@ class RouterImpl(Router):
         self.__chi = Chi()
         self.__stack = [] # LinkedList<Stack> # new LinkedList<>()
         self.__routes = [] # List<Route> # new ArrayList<>()
-        self.__encoder = None # HttpMessageEncoder # new HttpMessageEncoder()
+        self.__encoder = HttpMessageEncoder() # HttpMessageEncoder # new HttpMessageEncoder()
         self.__basePath = None # String
         self.__predicateMap = None # Map<Predicate<Context>, RouteTree>
         self.__worker = None # Executor # new ForwardingExecutor()
@@ -115,9 +116,9 @@ class RouterImpl(Router):
         return routeSet
 
     def route(self, method, pattern, handler):
-        return self.newRoute(method, pattern, Route.Handler(handler))
+        return self.new_route(method, pattern, Route.Handler(handler))
 
-    def newRoute(self, method, pattern, handler):
+    def new_route(self, method, pattern, handler):
         tree = self.__stack[-1]._Stack__tree # RouteTree
         """ Pattern: """
         pathBuilder = RouterImpl.PathBuilder() # PathBuilder
@@ -211,7 +212,7 @@ class RouterImpl(Router):
         else:
             self.__err = self.__err.then(DefaultErrorHandler())
 
-        self.__encoder.add(ToStringMessageEncoder)
+        self.__encoder.add(MessageEncoder.TO_STRING)
 
         ValueConverters.addFallbackConverters(self.__converters)
         ValueConverters.addFallbackBeanConverters(self.__beanConverters)
@@ -223,13 +224,17 @@ class RouterImpl(Router):
 
         for route in self.__routes:
             executorKey = route.get_executor_key()
-
             executor = None
+            """
             if executorKey is None:
                 executor = self.__routeExecutor.get(route)
             else:
-                # TODO....... ForwardingExecutor's logic here QQ
-                pass
+                if executorKey == "worker":
+                    if isinstance(executore, ForwardingExecutor):
+                        executor = ...
+                    else:
+                        executor = self.__worker 
+            """
 
             if route.get_return_type() is None:
                 route.set_return_type(analyzer.returnType(route.get_handle()))

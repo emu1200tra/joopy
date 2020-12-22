@@ -52,6 +52,8 @@ class HashValue(object):
 class FileInputStream(object):
     pass
 
+class InputStream:
+    pass
 
 class SneakyThrows(object):
     pass
@@ -78,14 +80,10 @@ class Context:
 class ClassSource:
     pass
 
-class RouteAnalyzer:
-    pass
-
 class Executor:
     pass
 
-class ForwardingExecutor:
-    # implement Executor
+class ForwardingExecutor(Executor):
     pass
 
 class Server:
@@ -95,6 +93,9 @@ class Environment:
     pass
 
 class ClassLoader:
+    pass
+
+class ClassSource:
     pass
 
 class ResponseHandler:
@@ -110,4 +111,13 @@ class PostDispatchInitializerHandler:
     pass
 
 class HeadResponseHandler:
+    pass
+
+class TemplateEngine:
+    pass
+
+class FileChannel:
+    pass
+
+class FileDownload:
     pass
