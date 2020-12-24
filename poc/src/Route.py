@@ -7,6 +7,7 @@ from .MessageEncoder import MessageEncoder
 from .todo import *
 from .exception.NotFoundException import NotFoundException
 
+
 class Route:
     '''
     * Route contains information about the HTTP method, path pattern, which content types consumes and
@@ -26,6 +27,7 @@ class Route:
         Allows a handler to listen for route metadata.
         @param route Route metadata.
         '''
+
         def set_route(self, route):
             pass
 
@@ -36,6 +38,7 @@ class Route:
         * @author edgar
         * @since 2.0.0
         '''
+
         def __init__(self, func):
             self.__func = func
 
@@ -49,16 +52,16 @@ class Route:
             '''
             return self.__func(ctx)
 
-        def then(self, next):
+        def then(self, next_):
             '''
             Chain this after decorator with next and produces a new decorator.
 
             @param next Next decorator. (After)
             @return A new handler. (Handler)
             '''
-            def inner_then(ctx, next):
-                cause = None # Throwable
-                value = None # Object
+            def inner_then(ctx, next_):
+                cause = None  # Throwable
+                value = None  # Object
                 try:
                     value = self.apply(ctx)
                 except Exception as error:
@@ -67,10 +70,10 @@ class Route:
                 try:
                     if ctx.isResponseStarted():
                         result = Context.readOnly(ctx)
-                        next.apply(result, value, cause)
+                        next_.apply(result, value, cause)
                     else:
                         result = value
-                        next.apply(ctx, value, cause)
+                        next_.apply(ctx, value, cause)
                 except Exception as error:
                     result = None
                     if cause is None:
@@ -86,8 +89,8 @@ class Route:
                     else:
                         raise SneakyThrows.propagate(cause)
 
-            if isinstance(next, Route.After):
-                return lambda ctx : inner_then(ctx, next)
+            if isinstance(next_, Route.After):
+                return lambda ctx: inner_then(ctx, next_)
             else:
                 raise ValueError("The type of argument should be Route.After.")
 
@@ -111,17 +114,18 @@ class Route:
         * @author edgar
         * @since 2.0.0
         '''
+
         def __init__(self, func):
             self.__func = func
 
-        def apply(self, next):
+        def apply(self, next_):
             '''
             * Chain the decorator within next handler.
             *
             * @param next Next handler. (Handler)
             * @return A new handler. (Handler)
             '''
-            return self.__func(next)
+            return self.__func(next_)
 
         def then(self, next):
             '''
@@ -136,12 +140,13 @@ class Route:
             * @param next Next handler. (Handler)
             * @return A new handler. (Handler)
             '''
-            if isinstance(next, Route.Decorator):
-               return lambda h : self.apply(next.apply(h))
-            elif isinstance(next, Route.Handler):
-                return lambda ctx : self.apply(next).apply(ctx)
+            if isinstance(next_, Route.Decorator):
+                return lambda h: self.apply(next_.apply(h))
+            elif isinstance(next_, Route.Handler):
+                return lambda ctx: self.apply(next_).apply(ctx)
             else:
-                raise ValueError("The type of argument should be Route.Decorator or Route.Handler.")
+                raise ValueError(
+                    "The type of argument should be Route.Decorator or Route.Handler.")
 
     class Before():
         '''
@@ -150,6 +155,7 @@ class Route:
         * @author edgar
         * @since 2.0.0
         '''
+
         def __init__(self, func):
             self.__func = func
 
@@ -162,14 +168,14 @@ class Route:
             '''
             return self.__func(ctx)
 
-        def then(self, next):
+        def then(self, next_):
             '''
             * Chain this filter with next one and produces a new before filter.
             *
             * @param next Next decorator. (Before)
             * @return A new decorator. (Before)
             '''
-            def then_before(ctx, next):
+            def then_before(ctx, next_):
                 self.apply(ctx)
                 if not ctx.isResponseStarted():
                     next.apply(ctx)
@@ -179,18 +185,19 @@ class Route:
             * @param next Next handler. (Handler)
             * @return A new handler. (Handler)
             '''
-            def then_handler(ctx, next):
+            def then_handler(ctx, next_):
                 self.apply(ctx)
                 if not ctx.isResponseStarted():
-                    return next.apply(ctx)
+                    return next_.apply(ctx)
                 return ctx
 
-            if isinstance(next, Route.Before):
-                return lambda ctx : then_before(ctx, next)
-            elif isinstance(next, Route.Handler):
-                return lambda ctx : then_handler(ctx, next)
+            if isinstance(next_, Route.Before):
+                return lambda ctx: then_before(ctx, next_)
+            elif isinstance(next_, Route.Handler):
+                return lambda ctx: then_handler(ctx, next_)
             else:
-                raise ValueError("The type of argument should be Route.Before or Route.Handler.")
+                raise ValueError(
+                    "The type of argument should be Route.Before or Route.Handler.")
 
     class After():
         '''
@@ -235,10 +242,11 @@ class Route:
         * @author edgar
         * @since 2.0.0
         '''
+
         def __init__(self, func):
             self.__func = func
 
-        #result: Object, failure: Throwable
+        # result: Object, failure: Throwable
         def apply(self, ctx: Context, result: object, failure):
             '''
             * Execute application logic on a route response.
@@ -250,7 +258,7 @@ class Route:
             '''
             return self.__func(ctx, result, failure)
 
-        def then(self, next):
+        def then(self, next_):
             '''
             * Chain this filter with next one and produces a new after filter.
             *
@@ -258,26 +266,27 @@ class Route:
             * @return A new filter. (After)
             '''
             def inner_then(ctx, result, failure):
-                next.apply(ctx, result, failure)
+                next_.apply(ctx, result, failure)
                 self.apply(ctx, result, failure)
 
-            if isinstance(next, Route.After):
-                return lambda ctx, result, failure : inner_then(ctx, result, failure)
+            if isinstance(next_, Route.After):
+                return lambda ctx, result, failure: inner_then(ctx, result, failure)
             else:
                 raise ValueError("The type of argument should be Route.After.")
-
 
     """
     Favicon handler as a silent 404 error.
     """
-    FAVICON = lambda ctx: ctx.send(StatusCode.NOT_FOUND) # Handler # ctx -> ctx.send(StatusCode.NOT_FOUND);
+    def FAVICON(ctx): return ctx.send(
+        StatusCode.NOT_FOUND)  # Handler # ctx -> ctx.send(StatusCode.NOT_FOUND);
     """
       public static final Handler NOT_FOUND = ctx -> ctx
       .sendError(new NotFoundException(ctx.getRequestPath()));
     """
-    NOT_FOUND = lambda ctx: ctx.send_error(NotFoundException(ctx.get_request_path()))
-    __EMPTY_LIST = [] # final # List # Collections.emptyList()
-    __EMPTY_MAP = {} # final # Map # Collections.emptyMap()
+    def NOT_FOUND(ctx): return ctx.send_error(
+        NotFoundException(ctx.get_request_path()))
+    __EMPTY_LIST = []  # final # List # Collections.emptyList()
+    __EMPTY_MAP = {}  # final # Map # Collections.emptyMap()
 
     """
     Creates a new route.
@@ -285,27 +294,29 @@ class Route:
     @param pattern Path pattern. (@Nonnull String)
     @param handler Route handler. (@Nonnull Handler)
     """
+
     def __init__(self, method, pattern, handler):
-        self.__decoders = Route.__EMPTY_MAP # Map<String, MessageDecoder>
-        self.__pattern = pattern # final # String
-        self.__method = method.upper() # final # String
-        self.__pathKeys = Route.__EMPTY_LIST # List<String>
-        self.__before = None # Before
-        self.__decorator = None # Decorator
-        self.__handler = handler # Handler
-        self.__after = None # After
-        self.__pipeline = None # Handler
-        self.__encoder = None # MessageEncoder
-        self.__returnType = None # Type
-        self.__handle = handler # object
-        self.__produces = Route.__EMPTY_LIST # List<MediaType>
-        self.__consumes = Route.__EMPTY_LIST # List<MediaType>
-        self.__attributes = {} # Map<String, Object> # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
-        self.__supportedMethod = None # Set<String>
-        self.__executorKey = None # String
-        self.__tags = Route.__EMPTY_LIST # List<String>
-        self.__summary = None # String
-        self.__description = None # String
+        self.__decoders = Route.__EMPTY_MAP  # Map<String, MessageDecoder>
+        self.__pattern = pattern  # final # String
+        self.__method = method.upper()  # final # String
+        self.__pathKeys = Route.__EMPTY_LIST  # List<String>
+        self.__before = None  # Before
+        self.__decorator = None  # Decorator
+        self.__handler = handler  # Handler
+        self.__after = None  # After
+        self.__pipeline = None  # Handler
+        self.__encoder = None  # MessageEncoder
+        self.__returnType = None  # Type
+        self.__handle = handler  # object
+        self.__produces = Route.__EMPTY_LIST  # List<MediaType>
+        self.__consumes = Route.__EMPTY_LIST  # List<MediaType>
+        # Map<String, Object> # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+        self.__attributes = {}
+        self.__supportedMethod = None  # Set<String>
+        self.__executorKey = None  # String
+        self.__tags = Route.__EMPTY_LIST  # List<String>
+        self.__summary = None  # String
+        self.__description = None  # String
 
     def get_pattern(self) -> str:
         return self.__pattern
@@ -363,10 +374,10 @@ class Route:
         self.__encoder = encoder
         return self
 
-    def get_return_type(self): # Type
+    def get_return_type(self):  # Type
         return self.__returnType
 
-    def set_return_type(self, returnType): # Type
+    def set_return_type(self, returnType):  # Type
         self.__returnType = returnType
         return self
 
@@ -374,8 +385,8 @@ class Route:
         return self.__attributes
 
     @dispatch(str)
-    def attribute(self, name: str): # -> <T> T
-        return self.__attributes[name] # (T)
+    def attribute(self, name: str):  # -> <T> T
+        return self.__attributes[name]  # (T)
 
     def set_attributes(self, attributes: Dict[str, object]):
         self.__attributes.update(attributes)
@@ -384,7 +395,8 @@ class Route:
     @dispatch(str, object)
     def attribute(self, name: str, value: object):
         if self.__attributes == Route.__EMPTY_MAP:
-            self.__attributes = {} # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+            # new TreeMap<>(String.CASE_INSENSITIVE_ORDER)
+            self.__attributes = {}
 
         self.__attributes[name] = value
 
@@ -421,10 +433,11 @@ class Route:
 
         return self.set_produces(produces)
 
-    def set_produces(self, produces: List[MediaType]): # Collection<MediaType> produces
+    # Collection<MediaType> produces
+    def set_produces(self, produces: List[MediaType]):
         if len(produces) > 0:
             if self.__produces == Route.__EMPTY_LIST:
-                 # new arrayList in java(?)
+                # new arrayList in java(?)
                 pass
 
             for produce in produces:
@@ -442,7 +455,8 @@ class Route:
 
         return self.set_consumes(consumes)
 
-    def set_consumes(self, consumes: List[MediaType]): # Collection<MediaType> consumes
+    # Collection<MediaType> consumes
+    def set_consumes(self, consumes: List[MediaType]):
         # TODO
         if len(consumes) > 0:
             if self.__consumes == Route.__EMPTY_LIST:
@@ -455,7 +469,7 @@ class Route:
         return self
 
     def computePipeline(self) -> Handler:
-        pipeline = None # Route.Handler
+        pipeline = None  # Route.Handler
         if self.__decorator is None:
             pipeline = self.__handler
         else:
@@ -472,17 +486,17 @@ class Route:
     @staticmethod
     def accept(ctx):
         produceTypes = ctx.get_route().get_produces()
-        contentType = ctx.accept(produceTypes) # MediaType
+        contentType = ctx.accept(produceTypes)  # MediaType
         if contentType is None:
             raise Exception('NotAcceptableException')
 
         ctx.set_default_response_type(contentType)
 
-    ACCEPT = Before(lambda ctx : Route.accept(ctx))
+    ACCEPT = Before(lambda ctx: Route.accept(ctx))
 
     @staticmethod
     def support_media_type(ctx):
-        contentType = ctx.get_request_type # MediaType
+        contentType = ctx.get_request_type  # MediaType
         if contentType is None:
             raise Exception('UnsupportedMediaType')
 
@@ -494,4 +508,4 @@ class Route:
         if ok == False:
             raise Exception('UnsupportedMediaType' + contentType.getValue())
 
-    SUPPORT_MEDIA_TYPE = Before(lambda ctx : Route.support_media_type(ctx))
+    SUPPORT_MEDIA_TYPE = Before(lambda ctx: Route.support_media_type(ctx))
