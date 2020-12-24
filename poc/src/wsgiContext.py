@@ -16,6 +16,9 @@ class wsgiContext(DefaultContext):
         self.body = None
         self.statusCode = StatusCode.OK.toString()
 
+    def get_router(self):
+        return self.router
+
     def get_method(self):
         return self.method
 
