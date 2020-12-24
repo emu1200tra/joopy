@@ -74,9 +74,6 @@ class RouterOption:
     IGNORE_TRAILING_SLASH = "IGNORE_TRAILING_SLASH"
     NORMALIZE_SLASH = "NORMALIZE_SLASH"
 
-class Context:
-    pass
-
 class ClassSource:
     pass
 

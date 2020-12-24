@@ -395,7 +395,7 @@ class DefaultContext(Context):
 
     @dispatch(Exception)
     def send_error(self, cause):
-        Context.send_error(cause, Context.get_router().error_code(cause))
+        Context.send_error(cause, Context().get_router().error_code(cause))
         return self
 
     @dispatch(Exception, StatusCode)

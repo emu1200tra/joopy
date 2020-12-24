@@ -3,12 +3,13 @@ from numbers import Number
 from .todo import *
 from .exception.StatusCode import StatusCode
 from .MessageEncoder import MessageEncoder
+from .context import Context
 
 class HttpMessageEncoder(MessageEncoder):
     def __init__(self):
         self.__encoderList = [] # List<MessageEncoder> # new ArrayList<>(2)
         self.__templateEngineList = [] # List<TemplateEngine> # new ArrayList<>(2)
-    
+
     def add(self, encoder: MessageEncoder):
         if isinstance(encoder, TemplateEngine):
             self.__templateEngineList.append(encoder)
@@ -66,5 +67,5 @@ class HttpMessageEncoder(MessageEncoder):
         result = None
         while result is None:
             result = next(it).encode(ctx, value)
-        
+
         return result
