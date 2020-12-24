@@ -323,7 +323,7 @@ class Chi(RouteTree):
             Recursive edge traversal by checking all nodeTyp groups along the way.
             It's like searching through a multi-dimensional radix trie.
             '''
-            for ntyp in range(self.Chi._Chi__NODE_SIZE):
+            for ntyp in range(Chi._Chi__NODE_SIZE):
                 nds = self.children[ntyp]
                 if nds:
                     xn = None # _Node
