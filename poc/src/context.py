@@ -1,6 +1,7 @@
 from multipledispatch import dispatch
 from src.Registry import Registry
 from src.todo import *
+from .exception.StatusCode import StatusCode
 
 class ParamLookupImpl(object):
     def __init__(self, context):
@@ -50,7 +51,7 @@ class Context(Registry):
 
     def session(self, name: str = None):
         pass
-    
+
     def session_or_null(self):
         pass
 
@@ -330,7 +331,7 @@ class Context(Registry):
     @dispatch(str)
     def set_response_type(self, content_type):
         pass
-    
+
     @dispatch(MediaType)
     def set_response_type(self, content_type):
         pass
@@ -352,7 +353,7 @@ class Context(Registry):
     @dispatch(int)
     def set_response_code(self, status_code):
         pass
-    
+
     @dispatch()
     def set_response_code(self):
         pass
@@ -366,7 +367,7 @@ class Context(Registry):
     def response_stream(self):
         pass
 
-    
+
     def response_stream(self, content_type):
         pass
 
@@ -378,7 +379,7 @@ class Context(Registry):
 
     def response_sender(self):
         pass
-    
+
     @dispatch()
     def response_writer(self):
         pass
@@ -390,7 +391,7 @@ class Context(Registry):
     @dispatch(MediaType, Charset)
     def response_writer(self, content_type, charset):
         pass
-    
+
     def response_writer_with_content_type_and_consumer(self, content_type, consumer):
         pass
 
@@ -407,7 +408,7 @@ class Context(Registry):
     @dispatch(StatusCode, str)
     def send_redirect(self, redirect, location):
         pass
-    
+
     @dispatch(str)
     def send(self, data):
         pass
@@ -446,7 +447,7 @@ class Context(Registry):
 
     def send_with_file_channel(self, file):
         pass
-    
+
     @dispatch(Exception)
     def send_error(self, cause):
         pass

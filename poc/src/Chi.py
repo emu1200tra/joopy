@@ -41,7 +41,7 @@ class Chi(RouteTree):
         @abstractmethod
         def matches(self, method: str) -> bool:
             pass
-    
+
     class _SingleMethodMatcher(_MethodMatcher):
         '''
         __method: str
@@ -60,7 +60,7 @@ class Chi(RouteTree):
 
         def matches(self, method: str) -> bool:
             return self.__method == method
-        
+
         def clear(self):
             self.__method = None
             self.__route = None
@@ -99,8 +99,8 @@ class Chi(RouteTree):
             self.__matcher.put(method, StaticRouterMatch(route));
 
     class Segment:
-        def __init__(self, nodeType: int = None, 
-                regex: str = None, tail: str = None, 
+        def __init__(self, nodeType: int = None,
+                regex: str = None, tail: str = None,
                 startIndex: int = None, endIndex: int = None):
             self.nodeType = nodeType
             self.rexPat = Chi.__EMPTY_STRING if regex is None else regex
@@ -117,7 +117,7 @@ class Chi(RouteTree):
             prefix: str, common prefix we ignore
             rex: Pattern, regexp matcher for regexp nodes
             endpoints: Map<String, Route>, http handler endpoints on leaf node
-            children: Node[NODE_SIZE][], child nodes should be stored in-order 
+            children: Node[NODE_SIZE][], child nodes should be stored in-order
             for iteration, in groups of the node type.
             '''
             self.typ = None
@@ -131,7 +131,7 @@ class Chi(RouteTree):
         def typ(self, typ: int):
             self.typ = typ
             return self
-        
+
         def label(self, label: str):
             self.label = label
             return self
@@ -169,7 +169,7 @@ class Chi(RouteTree):
                     prefix = seg.rexPat
                 else:
                     prefix = Chi._Chi__EMPTY_STRING
-                
+
                 # Look for the edge to attach to
                 parent = n
                 n = n.getEdge(seg.nodeType, label, seg.tail, prefix)
@@ -183,9 +183,9 @@ class Chi(RouteTree):
 
                 # Found an edge to newRuntimeRoute the pattern
                 if n.typ > Chi._Chi__ntStatic:
-                    # found a param node, trim the param from the search path 
-                    # and continue. This param/wild pattern segment would 
-                    # already be on the tree from a previous call to addChild 
+                    # found a param node, trim the param from the search path
+                    # and continue. This param/wild pattern segment would
+                    # already be on the tree from a previous call to addChild
                     # when creating a new node.
                     search = search[seg.endIndex: ]
                     continue
@@ -194,7 +194,7 @@ class Chi(RouteTree):
                 # Determine longest prefix of the search key on newRuntimeRoute.
                 commonPrefix = self.longestPrefix(search, n.prefix)
                 if commonPrefix == len(n.prefix):
-                    # the common prefix is as long as the current node's prefix 
+                    # the common prefix is as long as the current node's prefix
                     # we're attempting to insert. keep the search going.
                     search = search[commonPrefix: ]
                     continue;
@@ -208,7 +208,7 @@ class Chi(RouteTree):
                 n.prefix = n.prefix[commonPrefix: ]
                 child.addChild(n, n.prefix);
 
-                # If the new key is a subset, set the method/handler on this 
+                # If the new key is a subset, set the method/handler on this
                 # node and finish.
                 search = search[commonPrefix: ]
                 if not search:
@@ -223,10 +223,10 @@ class Chi(RouteTree):
 
         def addChild(self, child, search: str):
             '''
-            addChild appends the new `child` node to the tree using the `pattern` 
-            as the trie key. For a URL router like chi's, we split the static, 
-            param, regexp and wildcard segments into different nodes. In addition, 
-            addChild will recursively call itself until every pattern segment is added 
+            addChild appends the new `child` node to the tree using the `pattern`
+            as the trie key. For a URL router like chi's, we split the static,
+            param, regexp and wildcard segments into different nodes. In addition,
+            addChild will recursively call itself until every pattern segment is added
             to the url pattern tree as individual nodes, depending on type.
             '''
             n = self
@@ -250,7 +250,7 @@ class Chi(RouteTree):
                 if segTyp == Chi._Chi__ntRegexp:
                     child.prefix = seg.rexPat
                     child.rex = re.compile(seg.rexPat)
-                    
+
                 if segStartIdx == 0:
                     child.typ = segTyp
 
@@ -261,7 +261,7 @@ class Chi(RouteTree):
                     if segStartIdx < 0:
                         segStartIdx = len(search)
                     child.tail = seg.tail # for params, we set the tail
-                
+
                     if segStartIdx != len(search):
                         # add static edge for the remaining part, split the end.
                         # its not possible to have adjacent param nodes, so its certainly
@@ -286,11 +286,11 @@ class Chi(RouteTree):
 
                     nn = Chi._Node().typ(segTyp).label(search[0]).tail(seg.tail)
                     hn = child.addChild(nn, search)
-            
+
             n.children[child.typ] = self.__append(n.children[child.typ], child)
             self.tailSort(n.children[child.typ])
             return hn
-                
+
         def replaceChild(self, label: str, tail: str, child):
             nds = self.children[child.typ]
             if nds:
@@ -323,7 +323,7 @@ class Chi(RouteTree):
             Recursive edge traversal by checking all nodeTyp groups along the way.
             It's like searching through a multi-dimensional radix trie.
             '''
-            for ntyp in range(self.Chi._Chi__NODE_SIZE):
+            for ntyp in range(Chi._Chi__NODE_SIZE):
                 nds = self.children[ntyp]
                 if nds:
                     xn = None # _Node
@@ -350,7 +350,7 @@ class Chi(RouteTree):
                                     p = len(xsearch)
                                 else:
                                     continue
-                            
+
                             if ntyp == Chi._Chi__ntRegexp and xn.rex is not None:
                                 if not xn.rex.match(xsearch[0:p]):
                                     continue
@@ -368,7 +368,7 @@ class Chi(RouteTree):
                                         rctx.key(h.getPathKeys())
                                         return h
                                     rctx.methodNotAllowed(xn.endpoints.keySet())
-                            
+
                             # recursively find the next node on this branch
                             fin = xn.findRoute(rctx, method, xsearch)
                             if fin is not None:
@@ -383,7 +383,7 @@ class Chi(RouteTree):
                             rctx.value(xsearch)
                         xn = nds[0]
                         xsearch = Chi._Chi__EMPTY_STRING
-                    
+
                     if xn is None:
                         continue
 
@@ -407,7 +407,7 @@ class Chi(RouteTree):
                     # here if it ws set
                     if xn.typ > Chi._Chi__ntStatic:
                         rctx.pop()
-                
+
             return None
 
         def findEdge(self, ns: List, label: str):
@@ -425,20 +425,20 @@ class Chi(RouteTree):
                     i = num # breaks cond
 
             return ns[idx] if ns[idx].label == label else None
-        
+
         def isLeaf(self) -> bool:
             return self.endpoints is None
-        
+
         def longestPrefix(self, k1: str, k2: str) -> int:
             '''
-            longestPrefix finds the filesize of the shared prefix of 
+            longestPrefix finds the filesize of the shared prefix of
             two strings
             '''
             for i, k in enumerate(zip(k1, k2)):
                 if k[0] != k[1]:
                     return i
             return i + 1
-        
+
         def tailSort(self, ns: List):
 
             def sortCriteria(n):
@@ -461,7 +461,7 @@ class Chi(RouteTree):
         def patNextSegment(self, pattern: str):
             '''
             patNextSegment returns the next segment details from a pattern:
-            node type, param key, regexp string, param tail byte, param starting 
+            node type, param key, regexp string, param tail byte, param starting
             index, param ending index
             '''
             ps = pattern.find('{')
@@ -482,7 +482,7 @@ class Chi(RouteTree):
                 # Param/Regexp pattern is next
                 nt = Chi._Chi__ntParam
 
-                # Read to closing } taking into account opens and closes in 
+                # Read to closing } taking into account opens and closes in
                 # curl count (cc)
                 cc = 0
                 pe = ps
@@ -526,7 +526,7 @@ class Chi(RouteTree):
             # We allow naming a wildcard: *path
             return Chi.Segment(Chi._Chi__ntCatchAll, Chi._Chi__EMPTY_STRING,
                 Chi.ZERO_CHAR, ws, len(pattern))
-            
+
         def destroy(self):
             for nds in self.children:
                 if nds:

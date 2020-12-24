@@ -35,7 +35,7 @@ class Router(Registry):
             @return Path pattern variables.
             """
             pass
-    
+
     GET = "GET"
     POST = "POST"
     PUT = "PUT"
@@ -44,11 +44,11 @@ class Router(Registry):
     HEAD = "HEAD"
     OPTIONS = "OPTIONS"
     TRACE = "TRACE"
-    
+
     METHODS = (GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, TRACE)
     WS = "WS"
     SSE = "SSE"
-    
+
     @abstractmethod
     def getConfig(self):
         """
@@ -89,7 +89,7 @@ class Router(Registry):
             MissingValueException(key)
         else:
             return attribute
-    
+
     def RouterAttribute(self, key, value):
         """
         Set an application attribute.
@@ -99,7 +99,7 @@ class Router(Registry):
         """
         self.getAttributes()[key] = value
         return self
-    
+
     @abstractmethod
     def getServices(self):
         """
@@ -130,7 +130,7 @@ class Router(Registry):
         """
         When true handles X-Forwarded-* headers by updating the values on the current context to
         match what was sent in the header(s).
-        
+
         This should only be installed behind a reverse proxy that has been configured to send the
         <code>X-Forwarded-*</code> header, otherwise a remote user can spoof their address by
         sending a header with bogus values.
@@ -142,7 +142,7 @@ class Router(Registry):
             <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
             <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
         </ul>
-        
+
         @return True when enabled. Default is false.
         """
         pass
@@ -163,7 +163,7 @@ class Router(Registry):
             <li>X-Forwarded-Host: Set/update the request host {@link Context#setHost(String)}.</li>
             <li>X-Forwarded-Port: Set/update the request port {@link Context#setPort(int)}.</li>
         </ul>
-        
+
         @param trustProxy True to enabled.
         @return This router.
         """
@@ -172,7 +172,7 @@ class Router(Registry):
     def setHiddenMethod(self, parameterName):
         """
         Provides a way to override the current HTTP method. Request must be:
-        
+
         - POST Form/multipart request
 
         For alternative strategy use the {@link #setHiddenMethod(Function)} method.
@@ -185,7 +185,7 @@ class Router(Registry):
     def setHiddenMethod(self, provider):
         """
         Provides a way to override the current HTTP method using lookup strategy.
-        
+
         @param provider Lookup strategy.
         @return This router.
         """
@@ -210,12 +210,12 @@ class Router(Registry):
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def domainRouter(self, domain, subrouter):
         """
         Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
-        
+
         <pre>{@code
             {
                 domain("foo.com", new FooApp());
@@ -224,7 +224,7 @@ class Router(Registry):
         }</pre>
 
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-        
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
 
         @param domain Predicate
@@ -232,12 +232,12 @@ class Router(Registry):
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def domainRouterSet(self, domain, body):
         """
         Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
-   
+
         <pre>{@code
             {
                 domain("foo.com", () -> {
@@ -248,76 +248,76 @@ class Router(Registry):
                 });
             }
         }</pre>
-   
+
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-    
+
         @param domain Predicate
         @param body Route action.
         @return This router.
         """
         pass
-    
+
     def useRouter(self, predicate, router):
         """
         Import routes from given router. Predicate works like a filter and only when predicate pass
         the routes match against the current request.
-   
+
         Example of domain predicate filter:
-   
+
         <pre>{@code
             {
                 use(ctx -> ctx.getHost().equals("foo.com"), new FooApp());
                 use(ctx -> ctx.getHost().equals("bar.com"), new BarApp());
             }
         }</pre>
-   
+
         Imported routes are matched only when predicate pass.
-   
+
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param predicate Context predicate.
         @param router Router to import.
         @return This router.
         @deprecated Use {@link #mount(Predicate, Router)}
         """
         return self.mountRouter(predicate, router)
-    
+
     @abstractmethod
     def mountRouter(self, predicate, router):
         """
         Import routes from given router. Predicate works like a filter and only when predicate pass
         the routes match against the current request.
-   
+
         Example of domain predicate filter:
-   
+
         <pre>{@code
             {
                 use(ctx -> ctx.getHost().equals("foo.com"), new FooApp());
                 use(ctx -> ctx.getHost().equals("bar.com"), new BarApp());
             }
         }</pre>
-   
+
         Imported routes are matched only when predicate pass.
-   
+
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param predicate Context predicate.
         @param router Router to import.
         @return This router.
         """
         pass
-    
+
     def userRouterSet(self, predicate, body):
         """
         Import routes from given action. Predicate works like a filter and only when predicate pass
         the routes match against the current request.
-    
+
         Example of domain predicate filter:
-   
+
         <pre>{@code
             {
                 use(ctx -> ctx.getHost().equals("foo.com"), () -> {
@@ -328,24 +328,24 @@ class Router(Registry):
                 });
             }
         }</pre>
-    
+
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-   
+
         @param predicate Context predicate.
         @param body Route action.
         @return This router.
         @deprecated Use {@link #mount(Predicate, Runnable)}
         """
         return self.mountRouterSet(predicate, body)
-    
+
     @abstractmethod
     def mountRouterSet(predicate, body):
         """
         Import routes from given action. Predicate works like a filter and only when predicate pass
         the routes match against the current request.
-   
+
         Example of domain predicate filter:
-   
+
         <pre>{@code
             {
                 mount(ctx -> ctx.getHost().equals("foo.com"), () -> {
@@ -356,298 +356,298 @@ class Router(Registry):
                 });
             }
         }</pre>
-   
+
         NOTE: if you run behind a reverse proxy you might to enabled {@link #setTrustProxy(boolean)}.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param predicate Context predicate.
         @param body Route action.
         @return This router.
         """
         pass
-    
+
     def useRouterPath(self, path, router):
         """
         Import all routes from the given router and prefix them with the given path.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param path Prefix path.
         @param router Router to import.
         @return This router.
         @deprecated Use {@link #mount(String, Router)}
         """
         return self.mount(path, router)
-    
+
     @abstractmethod
     def mountRouterPath(self, path, router):
         """
         Import all routes from the given router and prefix them with the given path.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param path Prefix path.
         @param router Router to import.
         @return This router.
         """
         pass
-    
+
     def useRouterOnly(self, router):
         """
         Import all routes from the given router.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param router Router to import.
         @return This router.
         @deprecated Use {@link #mount(Router)}
         """
         return self.mountRouterOnly(router)
-    
+
     @abstractmethod
     def mountRouterOnly(self, router):
         """
         Import all routes from the given router.
-   
+
         NOTE: ONLY routes are imported. Services, callback, etc.. are ignored.
-   
+
         @param router Router to import.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def mvcRouter(self, router):
         """
         Import all route method from the given controller class. At runtime the controller instance
         is resolved by calling {@link Jooby#require(Class)}.
-   
+
         @param router Controller class.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def mvcT(self, router, provider):
         """
         Import all route method from the given controller class.
-   
+
         @param router Controller class.
         @param provider Controller provider.
         @param <T> Controller type.
-        @return This router.    
+        @return This router.
         """
         pass
-    
+
     @abstractmethod
     def mvcObj(self, router):
         """
         Import all route methods from given controller instance.
-   
+
         @param router Controller instance.
         @return This routes.
         """
         pass
-    
+
     @abstractmethod
     def ws(self, pattern, handler):
         """
         Add a websocket handler.
-   
+
         @param pattern WebSocket path pattern.
         @param handler WebSocket handler.
         @return A new route.
         """
         pass
-    
+
     @abstractmethod
     def sse(self, pattern, handler):
         """
         Add a server-sent event handler.
-   
+
         @param pattern Path pattern.
         @param handler Handler.
         @return A new route.
         """
         pass
-    
+
     @abstractmethod
     def getRoutes(self):
         """
         Returns all routes.
-        
+
         @return All routes.
         """
         pass
-    
+
     @abstractmethod
     def encoderRouter(self, encoder):
         """
         Register a route response encoder.
-   
+
         @param encoder MessageEncoder instance.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def encoderRouterContent(self, contentType, encoder):
         """
         Register a route response encoder.
-   
+
         @param contentType Accept header should matches the content-type.
         @param encoder MessageEncoder instance.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def getTmpdir(self):
         """
         Application temporary directory. This method initialize the {@link Environment} when isn't
         set manually.
-   
+
         @return Application temporary directory.
         """
         pass
-    
+
     @abstractmethod
     def decoder(self, contentType, decoder):
         """
         Register a decoder for the given content type.
-   
+
         @param contentType Content type to match.
         @param decoder MessageDecoder.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def getWorker(self):
         """
         Returns the worker thread pool. This thread pool is used to run application blocking code.
-   
+
         @return Worker thread pool.
         """
         pass
-    
+
     @abstractmethod
     def setWorker(self, worker):
         """
         Set a worker thread pool. This thread pool is used to run application blocking code.
-   
+
         @param worker Worker thread pool.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def setDefaultWorker(self, worker):
         """
         Set the default worker thread pool. Via this method the underlying web server set/suggests the
         worker thread pool that should be used it.
-   
+
         A call to {@link #getWorker()} returns the default thread pool, unless you explicitly set one.
-   
+
         @param worker Default worker thread pool.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def decorator(self, decorator: Route.Decorator):
         """
         Add a route decorator to the route pipeline.
-   
+
         @param decorator Decorator.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def before(self, before: Route.Decorator):
         """
         Add a before route decorator to the route pipeline.
-   
+
         @param before Before decorator.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def after(self, after: Route.Decorator):
         """
         Add an after route decorator to the route pipeline.
-   
+
         @param after After decorator.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def _dispatch(self, body):
         """
         Dispatch route pipeline to the {@link #getWorker()} worker thread pool. After dispatch
         application code is allowed to do blocking calls.
-   
+
         @param body Dispatch body.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def dispatchExecutor(self, executor, body):
         """
         Dispatch route pipeline to the given executor. After dispatch application code is allowed to
         do blocking calls.
-   
+
         @param executor Executor. {@link java.util.concurrent.ExecutorService} instances automatically
         shutdown at application exit.
         @param body Dispatch body.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def routes(self, body):
         """
         Group one or more routes. Useful for applying cross cutting concerns to the enclosed routes.
-   
+
         @param body Route body.
         @return All routes created.
         """
         pass
-    
+
     @abstractmethod
     def path(self, pattern, body):
         """
         Group one or more routes under a common path prefix. Useful for applying cross cutting
         concerns to the enclosed routes.
-   
+
         @param pattern Path pattern.
         @param body Route body.
         @return All routes created.
         """
         pass
-    
+
     @abstractmethod
     def route(self, method, pattern, handler):
         """
         Add a route.
-   
+
         @param method HTTP method.
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         pass
-    
+
     @dispatch(str, object)
     def get(self, pattern, handler):
         """
         Add a HTTP GET handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
@@ -658,7 +658,7 @@ class Router(Registry):
     def post(self, pattern, handler):
         """
         Add a HTTP POST handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
@@ -669,7 +669,7 @@ class Router(Registry):
     def put(self, pattern, handler):
         """
         Add a HTTP PUT handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
@@ -680,13 +680,13 @@ class Router(Registry):
     def delete(self, pattern, handler):
         """
         Add a HTTP DELETE handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         return self.route(DELETE, pattern, handler)
-    
+
     @dispatch(str)
     def get(self, pattern):
         def decorator(handler):
@@ -700,90 +700,90 @@ class Router(Registry):
             self.route(POST, pattern, handler)
             return handler
         return decorator
-    
+
     @dispatch(str)
     def put(self, pattern):
         def decorator(handler):
             self.route(PUT, pattern, handler)
             return handler
         return decorator
-    
+
     @dispatch(str)
     def delete(self, pattern):
         def decorator(handler):
             self.route(DELETE, pattern, handler)
             return handler
         return decorator
-    
+
     def patch(self, pattern, handler):
         """
         Add a HTTP PATCH handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         return self.route(PATCH, pattern, handler)
-    
+
     def head(self, pattern, handler):
         """
         Add a HTTP HEAD handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         return self.route(HEAD, pattern, handler)
-    
+
     def options(self, pattern, handler):
         """
         Add a HTTP OPTIONS handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         return self.route(OPTIONS, pattern, handler)
-    
+
     def trace(self, pattern, handler):
         """
         Add a HTTP TRACE handler.
-   
+
         @param pattern Path pattern.
         @param handler Application code.
         @return A route.
         """
         return self.route(TRACE, pattern, handler)
-    
+
     def assets(self, pattern, handler):
         """
         Add a static resource handler.
-   
+
         @param pattern Path pattern.
         @param handler Asset handler.
         @return A route.
         """
         return self.route(GET, pattern, handler)
-    
+
     def assetsPath(self, pattern, source):
         """
         Add a static resource handler. Static resources are resolved from file system.
-   
+
         @param pattern Path pattern.
         @param source File system directory.
         @return A route.
         """
         return self.assets(pattern, AssetSource.create(source))
-    
+
     def assetsString(self, pattern, source):
         """
         Add a static resource handler. Static resources are resolved from:
-   
+
         - file-system if the source folder exists in the current user directory
         - or fallback to classpath when file-system folder doesn't exist.
-   
+
         NOTE: This method choose file-system or classpath, it doesn't merge them.
-   
+
         @param pattern Path pattern.
         @param source File-System folder when exists, or fallback to a classpath folder.
         @return A route.
@@ -798,7 +798,7 @@ class Router(Registry):
     def AssetsSource(self, pattern, source):
         """
         Add a static resource handler.
-   
+
         @param pattern Path pattern.
         @param source Asset sources.
         @return A route.
@@ -809,10 +809,10 @@ class Router(Registry):
     def match(self, ctx):
         """
         Find a matching route using the given context.
-   
+
         If no match exists this method returns a route with a <code>404</code> handler.
         See {@link Route#NOT_FOUND}.
-   
+
         @param ctx Web Context.
         @return A route match result.
         """
@@ -822,32 +822,38 @@ class Router(Registry):
     def matchResult(self, method, path):
         """
         Find a matching route using the given context.
-   
+
         If no match exists this method returns a route with a <code>404</code> handler.
         See {@link Route#NOT_FOUND}.
-   
+
         @param method Method to match.
         @param path Path to match.
         @return A route match result.
         """
         pass
 
+    @dispatch(object, StatusCode)
     @abstractmethod
-    def errorCode(self, type, statusCode):
+    def error_code(self, obj, statusCode):
         """
         Map an exception type to a status code.
-   
+
         @param type Exception type.
         @param statusCode Status code.
         @return This router.
         """
         pass
 
+    @dispatch(Exception)
+    @abstractmethod
+    def error_code(self, cause):
+        pass
+
     @abstractmethod
     def errorCodeCause(self, cause):
         """
         Computes the status code for the given exception.
-   
+
         @param cause Exception.
         @return Status code.
         """
@@ -857,7 +863,7 @@ class Router(Registry):
     def error(self, handler):
         """
         Add a custom error handler.
-   
+
         @param handler Error handler.
         @return This router.
         """
@@ -866,7 +872,7 @@ class Router(Registry):
     def errorStatusCode(self, statusCode, handler):
         """
         Add a custom error handler that matches the given status code.
-   
+
         @param statusCode Status code.
         @param handler Error handler.
         @return This router.
@@ -876,7 +882,7 @@ class Router(Registry):
     def errorType(self, Dtype, handler):
         """
         Add a custom error handler that matches the given exception type.
-   
+
         @param type Exception type.
         @param handler Error handler.
         @return This router.
@@ -887,7 +893,7 @@ class Router(Registry):
     def errorPredicate(self, predicate, handler):
         """
         Add a custom error handler that matches the given predicate.
-   
+
         @param predicate Status code filter.
         @param handler Error handler.
         @return This router.
@@ -899,7 +905,7 @@ class Router(Registry):
     def getErrorHandler(self):
         """
         Get the error handler.
-   
+
         @return An error handler.
         """
         pass
@@ -908,7 +914,7 @@ class Router(Registry):
     def getLog(self):
         """
         Application logger.
-   
+
         @return Application logger.
         """
         pass
@@ -917,17 +923,17 @@ class Router(Registry):
     def responseHandler(self, factory):
         """
         Add a response handler factory.
-   
+
         @param factory Response handler factory.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def getRouterOptions(self):
         """
         Router options.
-   
+
         @return Router options.
         """
         pass
@@ -936,19 +942,19 @@ class Router(Registry):
     def setRouterOptions(self, options):
         """
         Set router options.
-   
+
         @param options router options.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def getSessionStore(self):
         """
         Session store. Default use a cookie ID with a memory storage.
-   
+
         See {@link SessionStore#memory()}.
-   
+
         @return Session store.
         """
         pass
@@ -957,7 +963,7 @@ class Router(Registry):
     def setSessionStore(self, store):
         """
         Set session store.
-   
+
         @param store Session store.
         @return This router.
         """
@@ -966,7 +972,7 @@ class Router(Registry):
     def executor(self, name):
         """
         Get an executor from application registry.
-   
+
         @param name Executor name.
         @return Executor.
         """
@@ -976,18 +982,18 @@ class Router(Registry):
     def executorRouter(self, name, executor):
         """
         Put an executor into the application registry.
-   
+
         @param name Executor's name.
         @param executor Executor.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def setFlashCookieByName(self, name):
         """
         Set flash cookie name.
-   
+
         @param name Flash cookie name.
         @return This router.
         @deprecated Use {@link #setFlashCookie(Cookie)} instead.
@@ -998,7 +1004,7 @@ class Router(Registry):
     def getFlashCookie(self):
         """
         Template for the flash cookie. Default name is: <code>jooby.flash</code>.
-   
+
         @return Template for the flash cookie.
         """
         pass
@@ -1008,7 +1014,7 @@ class Router(Registry):
         """
         Sets a cookie used as a template to generate the flash cookie, allowing
         to customize the cookie name and other cookie parameters.
-   
+
         @param flashCookie The cookie template.
         @return This router.
         """
@@ -1018,7 +1024,7 @@ class Router(Registry):
     def converterValue(self, converter):
         """
         Add a custom string value converter.
-   
+
         @param converter Custom value converter.
         @return This router.
         """
@@ -1028,17 +1034,17 @@ class Router(Registry):
     def converterBean(self, converter):
         """
         Add a custom bean value converter.
-   
+
         @param converter Custom value converter.
         @return This router.
         """
         pass
-    
+
     @abstractmethod
     def getConverters(self):
         """
         Get all simple/string value converters.
-   
+
         @return All simple/string value converters.
         """
         pass
@@ -1047,7 +1053,7 @@ class Router(Registry):
     def getBeanConverters(self):
         """
         Get all complex/bean value converters.
-   
+
         @return All complex/bean value converters.
         """
         pass
@@ -1056,7 +1062,7 @@ class Router(Registry):
     def getServerOptions(self):
         """
         Available server options.
-   
+
         @return Server options.
         """
         pass
@@ -1065,7 +1071,7 @@ class Router(Registry):
     def leadingSlash(path):
         """
         Ensure path start with a <code>/</code>(leading slash).
-   
+
         @param path Path to process.
         @return Path with leading slash.
         """
@@ -1080,18 +1086,18 @@ class Router(Registry):
     def noTrailingSlash(path):
         """
         Strip trailing slashes.
-   
+
         @param path Path to process.
         @return Path without trailing slashes.
         """
         return path.split('/')[0]
-        
-    
+
+
     @staticmethod
     def normalizePath(path):
         """
         Normalize a path by removing consecutive <code>/</code>(slashes).
-   
+
         @param path Path to process.
         @return Safe path pattern.
         """
@@ -1099,14 +1105,14 @@ class Router(Registry):
             return '/'
         buff = '/' + path if path[0] != '/' else path
         return buff.replace('//', '/')
-    
+
     @staticmethod
     def pathKeyConsumer(pattern, consumer):
         """
         Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
-   
+
         <pre>/product/{id}</pre>
-   
+
         @param pattern Path pattern.
         @param consumer Listen for key and regex variables found.
         @return Path keys.
@@ -1118,9 +1124,9 @@ class Router(Registry):
     def pathKeys(pattern):
         """
         Extract path keys from given path pattern. A path key (a.k.a path variable) looks like:
-   
+
         <pre>/product/{id}</pre>
-   
+
         @param pattern Path pattern.
         @return Path keys.
         """
@@ -1130,18 +1136,18 @@ class Router(Registry):
     def expandOptionalVariables(pattern):
         """
         Look for optional path parameter and expand the given pattern into multiple pattern.
-   
+
         <pre>
             /path =&gt; [/path]
             /{id} =&gt; [/{id}]
             /path/{id} =&gt; [/path/{id}]
-   
+
             /{id}? =&gt; [/, /{id}]
             /path/{id}? =&gt; [/path, /path/{id}]
             /path/{id}/{start}?/{end}? =&gt; [/path/{id}, /path/{id}/{start}, /path/{id}/{start}/{end}]
             /path/{id}?/suffix =&gt; [/path, /path/{id}, /path/suffix]
         </pre>
-   
+
         @param pattern Pattern.
         @return One or more patterns.
         """
@@ -1151,7 +1157,7 @@ class Router(Registry):
     def reverseWithMap(pattern, keys):
         """
         Recreate a path pattern using the given variables.
-   
+
         @param pattern Path pattern.
         @param keys Path keys.
         @return Path.
@@ -1163,7 +1169,7 @@ class Router(Registry):
         """
         Recreate a path pattern using the given variables. Variable replacement is done using the
         current index.
-   
+
         @param pattern Path pattern.
         @param values Path keys.
         @return Path.
@@ -1172,4 +1178,4 @@ class Router(Registry):
         for idx, v in enumerate(values):
             keys[ str(idx) ] = v
         return Router.reverseWithMap(pattern, keys)
-    
+

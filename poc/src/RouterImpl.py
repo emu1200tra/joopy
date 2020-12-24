@@ -234,7 +234,7 @@ class RouterImpl(Router):
                     if isinstance(executore, ForwardingExecutor):
                         executor = ...
                     else:
-                        executor = self.__worker 
+                        executor = self.__worker
             """
 
             if route.get_return_type() is None:
@@ -268,7 +268,7 @@ class RouterImpl(Router):
             pass # chi = new RouteTreeIgnoreTrailingSlash(chi)
         if RouterOption.NORMALIZE_SLASH in self.__routerOptions:
             pass # chi = new RouteTreeNormPath(chi)
-        
+
         """
         // unwrap executor
         worker = ((ForwardingExecutor) worker).executor;
@@ -277,13 +277,13 @@ class RouterImpl(Router):
         routeExecutor.clear();
         routeExecutor = null;
         source.destroy();
-        return this;        
-        """       
+        return this;
+        """
 
         return self
 
     def __force_mode(self, route: Route, mode: ExecutionMode) -> ExecutionMode:
-        if route.get_method() == Router.WS: # "WS" string compare 
+        if route.get_method() == Router.WS: # "WS" string compare
             return ExecutionMode.WORKER
         return mode
 

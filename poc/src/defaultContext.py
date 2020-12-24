@@ -300,7 +300,7 @@ class DefaultContext(Context):
 
     def set_response_code(self, statusCode: StatusCode) -> Context:
         return self.set_response_code(statusCode.value())
-    
+
     def render(self, value: object) -> Context:
         try:
             route = self.get_route()
@@ -314,7 +314,7 @@ class DefaultContext(Context):
             return self
         except Exception as e:
             raise SneakyThrows.propogate(e)
-    
+
     @dispatch(MediaType)
     def response_stream(self, contentType: MediaType) -> object:
         # TODO: return type: Java OutputStream
@@ -393,10 +393,12 @@ class DefaultContext(Context):
 
         return self
 
+    @dispatch(Exception)
     def send_error(self, cause):
         Context.send_error(cause, Context.get_router().error_code(cause))
         return self
 
+    @dispatch(Exception, StatusCode)
     def send_error(self, cause, code):
         router = Context.get_router()
         log = router.get_log()

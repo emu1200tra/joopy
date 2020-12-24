@@ -1,6 +1,6 @@
-from StatusCode import StatusCode
-from StatusCodeBase import StatusCodeBase
-from StatusCodeException import StatusCodeException
+from .StatusCode import StatusCode
+from .StatusCodeBase import StatusCodeBase
+from .StatusCodeException import StatusCodeException
 
 
 """

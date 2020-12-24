@@ -1,6 +1,6 @@
-from StatusCodeBase import StatusCodeBase
-from StatusCode import StatusCode
-from RuntimeException import RuntimeException
+from .StatusCodeBase import StatusCodeBase
+from .StatusCode import StatusCode
+from .RuntimeException import RuntimeException
 
 
 """
@@ -15,7 +15,7 @@ class StatusCodeException(RuntimeException):
     def __init__(self, statusCode, message=None, cause=None):
         super(StatusCodeException, self).__init__(message, cause)
         self.__statusCode = StatusCodeBase(statusCode.value(), statusCode.toString())
-        
+
     def getStatusCode(self):
         return self.__statusCode
 

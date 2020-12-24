@@ -18,12 +18,12 @@ class wsgi(Base):
             s.bind(('', 0))
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         return s.getsockname()[1]
-    
+
     def start(self, application):
         try:
             self.apps.append(application)
             self.fireStart(self.apps)
-            port = 8080 # TODO: self.find_free_port()
+            port = 8888 # TODO: self.find_free_port()
             handler = wsgiHandler(application)
             self.server = make_server('', port, handler)
             print("Server on port: {}...".format(port))

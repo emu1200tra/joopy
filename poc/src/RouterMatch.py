@@ -38,7 +38,7 @@ class RouterMatch(Router.Match):
     def methodNotAllowed(self, allow: Set[str]):
         allowString = allow
         pass
-        
+
     def matches(self) -> bool:
         return self.matches
 
@@ -54,12 +54,12 @@ class RouterMatch(Router.Match):
         return self
 
     def execute(self, context: Context):
-        context.setPathMap(self.vars)
-        context.setRoute(self.__route)
+        context.set_path_map(self.vars)
+        context.set_route(self.__route)
         try:
             self.__route.getPipeline().apply(context)
         except Exception as e:
-            context.sendError(e)
+            context.send_error(e)
         finally:
             self.__handler = None
             self.__route = None
@@ -73,6 +73,6 @@ class RouterMatch(Router.Match):
         else:
             h = self.__handler
         self.__route = Route(method, path, h)
-        self.__route.setEncoder(encoder)
-        self.__route.setReturnType(type(Context))
+        self.__route.set_encoder(encoder)
+        self.__route.set_return_type(type(Context))
         return self
