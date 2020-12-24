@@ -1,8 +1,8 @@
 from wsgiref.util import setup_testing_defaults, guess_scheme, request_uri
 from wsgiref.simple_server import make_server
-from src.Server import Base
+from .Server import Base
 from threading import Thread
-from src.wsgiHandler import wsgiHandler
+from .wsgiHandler import wsgiHandler
 import socket
 from contextlib import closing
 
@@ -23,7 +23,7 @@ class wsgi(Base):
         try:
             self.apps.append(application)
             self.fireStart(self.apps)
-            port = find_free_port()
+            port = 8080 # TODO: self.find_free_port()
             handler = wsgiHandler(application)
             self.server = make_server('', port, handler)
             print("Server on port: {}...".format(port))

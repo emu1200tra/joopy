@@ -7,20 +7,20 @@ class MediaTypeBase:
         self.subtypeEnd = None # int
         self.value = None # String
 
-        if self.substyeStart < 0:
+        if self.subtypeStart < 0:
             raise Exception('Invalid media type' + value)
-        subtypeEnd = value.index(';')
-        if subtypeEnd < 0:
+        if ';' not in value:
             self.value = self.raw
             self.subtypeEnd = len(value)
         else:
-            self.value = self.raw(0, subtypeEnd)
+            subtypeEnd = value.index(';')
+            self.value = self.raw[0: subtypeEnd]
             self.subtypeEnd = subtypeEnd
         self.charset = charset
 
 class MediaType:
     JSON = 'application/json' # static string
-    json = MediaTypeBase(MediaType.JSON, 'UTF_8'); # static MediaType; UTF_8 is charset in java
+    json = MediaTypeBase(JSON, 'UTF_8'); # static MediaType; UTF_8 is charset in java
 
     def __init__(self):
         self.__raw = MediaType.json.value
@@ -38,8 +38,8 @@ class MediaType:
         else:
             raise ValueError('input type must be String or MediaType')
 
-    @dispatch(str, str)
     @staticmethod
+    @dispatch(str, str)
     def matches(expected: str, contentType: str) -> bool:
         start, len1, end = 0, len(expected), contentType.index(',')
 

@@ -4,8 +4,9 @@ from .todo import *
 from .Route import Route
 from .Router import Router
 from .Chi import Chi
-from .handler import *
-from .MessageEncoder import *
+from .handler.web_socket_handler import WebSocketHandler
+from .HttpMessageEncoder import HttpMessageEncoder
+from .MessageEncoder import MessageEncoder
 from .pipeline import Pipeline
 from .ExecutionMode import ExecutionMode
 from .handler.default_error_handler import DefaultErrorHandler
@@ -214,11 +215,11 @@ class RouterImpl(Router):
 
         self.__encoder.add(MessageEncoder.TO_STRING)
 
-        ValueConverters.addFallbackConverters(self.__converters)
-        ValueConverters.addFallbackBeanConverters(self.__beanConverters)
+        # ValueConverters.addFallbackConverters(self.__converters)
+        # ValueConverters.addFallbackBeanConverters(self.__beanConverters)
 
-        source = ClassSource(self.__classLoader)
-        analyzer = RouteAnalyzer(source, False)
+        # source = ClassSource(self.__classLoader)
+        # analyzer = RouteAnalyzer(source, False)
 
         mode = app.getExecutionMode()
 
@@ -237,7 +238,8 @@ class RouterImpl(Router):
             """
 
             if route.get_return_type() is None:
-                route.set_return_type(analyzer.returnType(route.get_handle()))
+                # TODO: str is analyzer.returnType(route.get_handle())
+                route.set_return_type(str)
 
             if isinstance(route.get_handler(), WebSocketHandler):
                 if not route.get_consumes(): # empty
@@ -250,18 +252,37 @@ class RouterImpl(Router):
                 route.set_before(self.__prepend_media_type(route.get_consumes(), route.get_before(), Route.SUPPORT_MEDIA_TYPE))
                 route.set_before(self.__prepend_media_type(route.get_produces(), route.get_before(), Route.ACCEPT))
 
-            # Route.Handler
-            pipeline = Pipeline.compute(source.get_loader(), route, \
+            # Route.Handler  # TODO: None is source.get_loader()
+            pipeline = Pipeline.compute(None, route, \
                     self.__force_mode(route, mode), executor, \
-                    self.__postDispatchInitializers, self.__handlers)
+                    self.__postDispatchInitializer, self.__handlers)
             route.set_pipeline(pipeline)
 
             # Final render
-            Route.set_encoder(self.__encoder)
+            route.set_encoder(self.__encoder)
+
+        self.__chi.set_encoder(self.__encoder)
+        if RouterOption.IGNORE_CASE in self.__routerOptions:
+            pass # chi = new RouteTreeLowerCasePath(chi)
+        if RouterOption.IGNORE_TRAILING_SLASH in self.__routerOptions:
+            pass # chi = new RouteTreeIgnoreTrailingSlash(chi)
+        if RouterOption.NORMALIZE_SLASH in self.__routerOptions:
+            pass # chi = new RouteTreeNormPath(chi)
+        
+        """
+        // unwrap executor
+        worker = ((ForwardingExecutor) worker).executor;
+        this.stack.forEach(Stack::clear);
+        this.stack = null;
+        routeExecutor.clear();
+        routeExecutor = null;
+        source.destroy();
+        return this;        
+        """       
 
         return self
 
-    def __force_mode(route: Route, mode: ExecutionMode) -> ExecutionMode:
+    def __force_mode(self, route: Route, mode: ExecutionMode) -> ExecutionMode:
         if route.get_method() == Router.WS: # "WS" string compare 
             return ExecutionMode.WORKER
         return mode

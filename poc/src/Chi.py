@@ -591,5 +591,5 @@ class Chi(RouteTree):
             return result.missing(method, path, self.__encoder)
         return result.found(route)
 
-    def setEncoder(self, encoder: MessageEncoder):
+    def set_encoder(self, encoder: MessageEncoder):
         self.__encoder = encoder

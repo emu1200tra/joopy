@@ -1,15 +1,15 @@
 from ..context import Context
-from ..Route import Handler
+from ..Route import Route
 from ..exception.StatusCode import StatusCode
-from ..WebSocket import WebSocket
 
-class WebSocketHandler(Handler):
+class WebSocketHandler(Route.Handler):
     def __init__(self, handler):
-        self.handler = handler
+        self.__handler = handler
+    
     def apply(self, ctx):
         webSocket = ctx.header("Upgrade").value("").equalsIgnoreCase("WebSocket")
         if webSocket:
-            ctx.upgrade(handler)
+            ctx.upgrade(self.__handler)
         if not ctx.isResponseStarted():
             return ctx.send(StatusCode.NOT_FOUND)
         return ctx

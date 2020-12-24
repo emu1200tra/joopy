@@ -345,7 +345,11 @@ class Route:
     def set_decorator(self, decorator: Decorator):
         self.__decorator = decorator
         return self
-
+  
+    def set_pipeline(self, pipeline: Handler):
+        self.__pipeline = pipeline
+        return self
+    
     def get_encoder(self) -> MessageEncoder:
         return self.__encoder
 

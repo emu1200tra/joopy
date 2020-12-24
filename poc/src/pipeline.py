@@ -12,8 +12,8 @@ class Pipeline:
     @staticmethod
     def compute(loader: ClassLoader, route: Route, mode: ExecutionMode, \
         executor: Executor, initializer: ContextInitializer, responseHandler: List[ResponseHandler]) -> Route.Handler:
-        returnType = route.getReturnType() # Type
-        _type = Reified.rawType(returnType) # Class<?> 
+        returnType = route.get_return_type() # Type
+        _type = Reified.raw_type(returnType) # Class<?> 
 
         ''' Strings: '''
         if (_type is str): # TODO: CharSequence class in javas # CharSequence.class.isAssignableFrom(type)
