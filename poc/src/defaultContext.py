@@ -50,7 +50,7 @@ class DefaultContext(Context):
 
     @dispatch()
     def flash(self):
-        return Context.get_attributes().computeIfAbsent(FlashMap.NAME, lambda key: FlashMap.create(self,Context.get_router().getFlashCookie().clone()))
+        return Context.get_attributes().computeIfAbsent(FlashMap.NAME, lambda key: FlashMap.create(self, Context.get_router().getFlashCookie().clone()))
 
     @dispatch(str)
     def flash(self, name):
@@ -138,7 +138,8 @@ class DefaultContext(Context):
         return accept.is_missing() or content_type.matches(accept.value())
 
     def accept(self, produce_types):
-        accept_types = MediaType.parse(Context.header("Accept").value_or_null())
+        accept_types = MediaType.parse(
+            Context.header("Accept").value_or_null())
         result = None
         for accept_type in accept_types:
             for produce_type in produce_types:
@@ -146,7 +147,8 @@ class DefaultContext(Context):
                     if result is None:
                         result = produce_type
                     else:
-                        _max = MediaType.MOST_SPECIFIC.apply(result, produce_type)
+                        _max = MediaType.MOST_SPECIFIC.apply(
+                            result, produce_type)
                         if _max is not result:
                             result = _max
 
@@ -198,7 +200,8 @@ class DefaultContext(Context):
     def get_host_and_port(self) -> str:
         header = self.header("X-Forwarded-Host") if self.get_router().isTrustProxy() \
             else None
-        value = header if header is not None else lambda x: header("Host").value(self.get_server_host() + ":" + self.getServerPort())
+        value = header if header is not None else lambda x: header(
+            "Host").value(self.get_server_host() + ":" + self.getServerPort())
         i = value.find(",")
         host = value[0: i].strip(" ") if i > 0 else value
         if host.startsWith("[") and host.endsWith("]"):
@@ -250,7 +253,7 @@ class DefaultContext(Context):
         return self.multipart().get(name)
 
     @dispatch(object)
-    def multipart(self, type:object) -> object:
+    def multipart(self, type: object) -> object:
         return self.multipart().to(type)
 
     def multipart_multimap(self) -> object:
@@ -282,7 +285,8 @@ class DefaultContext(Context):
     def decode(self, type: object, contentType: MediaType):
         try:
             if MediaType.text == contentType:
-                result = ValueConverters.convert(self.body(), type, self.get_router())
+                result = ValueConverters.convert(
+                    self.body(), type, self.get_router())
                 return result
             return self.decoder(contentType).decode(self, type)
         except Exception as e:
@@ -347,12 +351,12 @@ class DefaultContext(Context):
         return self.response_writer(MediaType.text, consumer)
 
     @dispatch(Charset, object)
-    def response_writer (self, contentType: MediaType, consumer: object) -> Context:
+    def response_writer(self, contentType: MediaType, consumer: object) -> Context:
         return self.response_writer(contentType, contentType.get_charset(), consumer)
 
     @dispatch(MediaType, object)
-    def response_writer (self, contentType: MediaType, charset: object,
-        consumer: object) -> Context:
+    def response_writer(self, contentType: MediaType, charset: object,
+                        consumer: object) -> Context:
         try:
             writer = self.response_writer(contentType, charset)
             consumer.accept(writer)
@@ -380,7 +384,8 @@ class DefaultContext(Context):
         return self.send(data, "UTF-8")
 
     def send(self, file):
-        Context.set_response_header("Content-Disposition", file.get_content_disposition)
+        Context.set_response_header(
+            "Content-Disposition", file.get_content_disposition)
         content = file.stream()
         length = file.get_file_size()
         if length > 0:
@@ -416,9 +421,11 @@ class DefaultContext(Context):
                     ErrorHandler.create().apply(self, cause, code)
 
                 if Base.connection_lost(x):
-                    log.debug("error handler resulted in a exception while processing" + cause + x)
+                    log.debug(
+                        "error handler resulted in a exception while processing" + cause + x)
                 else:
-                    log.error("error handler resulted in a exception while processing " + cause + x)
+                    log.error(
+                        "error handler resulted in a exception while processing " + cause + x)
 
         if SneakyThrows.isFatal(cause):
             raise SneakyThrows.propagate(cause)

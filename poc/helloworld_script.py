@@ -4,15 +4,17 @@ from src.joopy import Joopy
 # put: Send request to server with data that would replace original data on remote
 # delete: Send request to server to remove specific data
 
+
 class myApp(Joopy):
     """
     Script API
     """
+
     def __init__(self):
-        super(myApp, self).__init__()    
+        super(myApp, self).__init__()
 
         self.get("/", lambda: b'home')
-        
+
         self.get("/hello", lambda: b'hello world')
 
         self.get("/goodbye", lambda: b'good bye')
@@ -26,5 +28,7 @@ class myApp(Joopy):
 
         delete("/database", lambda x: b'removing')
         '''
+
+
 if __name__ == '__main__':
     myApp.runApp(provider=myApp)
