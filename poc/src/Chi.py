@@ -99,11 +99,11 @@ class Chi(RouteTree):
             self.__matcher.put(method, StaticRouterMatch(route));
 
     class Segment:
-        def __init__(self, nodeType: int = None,
+        def __init__(self, nodeType: int = 0,
                 regex: str = None, tail: str = None,
                 startIndex: int = None, endIndex: int = None):
             self.nodeType = nodeType
-            self.rexPat = Chi.__EMPTY_STRING if regex is None else regex
+            self.rexPat = Chi._Chi__EMPTY_STRING if regex is None else regex
             self.tail = tail
             self.startIndex = startIndex
             self.endIndex = endIndex
@@ -120,7 +120,7 @@ class Chi(RouteTree):
             children: Node[NODE_SIZE][], child nodes should be stored in-order
             for iteration, in groups of the node type.
             '''
-            self.typ = None
+            self.typ = 0
             self.label = None
             self.tail = None
             self.prefix = None
@@ -132,15 +132,15 @@ class Chi(RouteTree):
             self.typ = typ
             return self
 
-        def label(self, label: str):
+        def set_label(self, label: str):
             self.label = label
             return self
 
-        def tail(self, tail: str):
+        def set_tail(self, tail: str):
             self.tail = tail
             return self
 
-        def prefix(self, prefix: str):
+        def set_prefix(self, prefix: str):
             self.prefix = prefix
             return self
 
@@ -172,11 +172,14 @@ class Chi(RouteTree):
 
                 # Look for the edge to attach to
                 parent = n
-                n = n.getEdge(seg.nodeType, label, seg.tail, prefix)
+                try:
+                    n = n.getEdge(seg.nodeType, label, seg.tail, prefix)
+                except Exception as ex:
+                    print(ex)
 
                 # No edge, create one
                 if n is None:
-                    child = Chi._Node().label(label).tail(seg.tail).prefix(search)
+                    child = Chi._Node().set_label(label).set_tail(seg.tail).set_prefix(search)
                     hn = parent.addChild(child, search)
                     hn.setEndpoint(method, route)
                     return hn
@@ -335,7 +338,7 @@ class Chi(RouteTree):
                         xn = self.findEdge(nds, label)
                         if xn is None or not xsearch.startswith(xn.prefix):
                             continue
-                        xsearch = xsearch[len(xn.prefix)]
+                        xsearch = xsearch[len(xn.prefix):]
                     elif ntyp == Chi._Chi__ntParam or ntyp == Chi._Chi__ntRegexp:
                         # short-circuit and return no matching route for empty param values
                         if not xsearch:
@@ -416,7 +419,7 @@ class Chi(RouteTree):
             i = 0
             j = num - 1
             while i <= j:
-                idx = i + (j - i) / 2
+                idx = i + (j - i) // 2
                 if label > ns[idx].label:
                     i = idx + 1
                 elif label < ns[idx].label:

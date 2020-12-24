@@ -182,6 +182,12 @@ class RouterImpl(Router):
         if RouterOption.IGNORE_CASE in self.__routerOptions:
             finalPattern = finalPattern.lower()
 
+        try:
+            tree.insertInternal("GET", "/", route)
+        except Exception as ex:
+            print(ex)
+
+
         for routePattern in Router.expandOptionalVariables(finalPattern):
             if route.get_method() == "WS":
                 tree.insert(Router.GET, routePattern, route)

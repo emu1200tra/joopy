@@ -8,8 +8,8 @@ class wsgiContext(DefaultContext):
         super(wsgiContext, self).__init__()
         self.request = request
         self.router = router
-        self.method = os.environ.get('REQUEST_METHOD', 'Not Set')
-        self.requestPath = os.environ.get('PATH_INFO', 'Not Set')
+        self.method = request['REQUEST_METHOD']
+        self.requestPath = request['PATH_INFO']
         self.pathMap = None
         self.route = None
         self.ResponseStarted = False
