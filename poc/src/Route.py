@@ -127,7 +127,7 @@ class Route:
             '''
             return self.__func(next_)
 
-        def then(self, next):
+        def then(self, next_):
             '''
             * Chain this decorator with another and produces a new decorator.
             *

@@ -1,9 +1,11 @@
+from multipledispatch import dispatch
 from collections import OrderedDict
 from .Router import Router
 from .Route import Route
 from .defaultContext import Context
 from .MessageEncoder import MessageEncoder
 from typing import List, Set, OrderedDict
+
 
 class RouterMatch(Router.Match):
     def __init__(self):
@@ -35,9 +37,16 @@ class RouterMatch(Router.Match):
     def pop(self):
         del self.vars[len(self.vars) - 1]
 
+    @dispatch(set)
     def methodNotAllowed(self, allow: Set[str]):
-        allowString = allow
-        pass
+        allowString = ','.join(list(allow))
+
+        def _next_apply(next_, ctx):
+            ctx.setResponseHeader("Allow", allowString)
+            return next_.apply(ctx)
+
+        decorator = _next_apply
+        self.handler = decorator.then(Route.METHOD_NOT_ALLOWED)
 
     def matches(self) -> bool:
         return self.matches
@@ -66,7 +75,7 @@ class RouterMatch(Router.Match):
             self.vars = None
 
     def missing(self, method: str, path: str, encoder: MessageEncoder):
-        h = None # Route.Handler
+        h = None  # Route.Handler
         if self.__handler is None:
             h = Route.FAVICON if path.endswith("/favicon.ico") \
                 else Route.NOT_FOUND
