@@ -66,7 +66,7 @@ class RouterMatch(Router.Match):
         context.set_path_map(self.vars)
         context.set_route(self.__route)
         try:
-            self.__route.getPipeline().apply(context)
+            self.__route.get_pipeline().apply(context)
         except Exception as e:
             context.send_error(e)
         finally:
