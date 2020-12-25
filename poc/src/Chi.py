@@ -7,6 +7,7 @@ from abc import abstractmethod, ABC
 from .RouterMatch import RouterMatch
 from typing import List
 import re
+from multipledispatch import dispatch
 
 class Chi(RouteTree):
     __EMPTY_STRING = ""
@@ -58,6 +59,9 @@ class Chi(RouteTree):
         def get(self, method: str) -> StaticRouterMatch:
             return self.__route if self.__method == method else None
 
+        def get_method(self) -> str:
+            return self.__method
+
         def matches(self, method: str) -> bool:
             return self.__method == method
 
@@ -72,7 +76,7 @@ class Chi(RouteTree):
             (ConcurrentHashMap in Java)
             '''
             self.__methods = {}
-            self.__methods[matcher.__method] = matcher.__route
+            self.__methods[matcher.get_method()] = matcher.get(matcher.get_method())
             matcher.clear()
 
         def get(self, method: str) -> StaticRouterMatch:
@@ -91,11 +95,14 @@ class Chi(RouteTree):
             '''
             self.__matcher = None
 
+        def get_matcher(self):
+            return self.__matcher
+
         def put(self, method: str, route: Route):
             if self.__matcher is None:
-                matcher = Chi._SingleMethodMatcher()
-            elif isinstance(matcher, Chi._SingleMethodMatcher):
-                matcher = Chi._MultipleMethodMatcher()
+                self.__matcher = Chi._SingleMethodMatcher()
+            elif isinstance(self.__matcher, Chi._SingleMethodMatcher):
+                self.__matcher = Chi._MultipleMethodMatcher(self.__matcher)
             self.__matcher.put(method, StaticRouterMatch(route));
 
     class Segment:
@@ -128,7 +135,7 @@ class Chi(RouteTree):
             self.endpoints = None
             self.children = [[] for i in range(Chi._Chi__NODE_SIZE)]
 
-        def typ(self, typ: int):
+        def set_typ(self, typ: int):
             self.typ = typ
             return self
 
@@ -172,10 +179,7 @@ class Chi(RouteTree):
 
                 # Look for the edge to attach to
                 parent = n
-                try:
-                    n = n.getEdge(seg.nodeType, label, seg.tail, prefix)
-                except Exception as ex:
-                    print(ex)
+                n = n.getEdge(seg.nodeType, label, seg.tail, prefix)
 
                 # No edge, create one
                 if n is None:
@@ -203,7 +207,7 @@ class Chi(RouteTree):
                     continue;
 
                 # Split the node
-                child = Chi._Node().typ(Chi._Chi__ntStatic).prefix(search[:commonPrefix])
+                child = Chi._Node().set_typ(Chi._Chi__ntStatic).set_prefix(search[:commonPrefix])
                 parent.replaceChild(search[0], seg.tail, child);
 
                 # Restore the existing node
@@ -219,7 +223,7 @@ class Chi(RouteTree):
                   return child
 
                 # Create a new edge for the node
-                subchild = Chi._Node().typ(Chi._Chi__ntStatic).label(search[0]).prefix(search)
+                subchild = Chi._Node().set_typ(Chi._Chi__ntStatic).set_label(search[0]).set_prefix(search)
                 hn = child.addChild(subchild, search)
                 hn.setEndpoint(method, route)
                 return hn
@@ -272,8 +276,8 @@ class Chi(RouteTree):
 
                         search = search[segStartIdx: ]
 
-                        nn = Chi._Node().typ(Chi._Chi__ntStatic).label(search[0])\
-                            .prefix(search)
+                        nn = Chi._Node().set_typ(Chi._Chi__ntStatic).set_label(search[0])\
+                            .set_prefix(search)
                         hn = child.addChild(nn, search)
 
                 elif segStartIdx > 0:
@@ -287,7 +291,7 @@ class Chi(RouteTree):
                     # add the param edge node
                     search = search[segStartIdx]
 
-                    nn = Chi._Node().typ(segTyp).label(search[0]).tail(seg.tail)
+                    nn = Chi._Node().set_typ(segTyp).set_label(search[0]).set_tail(seg.tail)
                     hn = child.addChild(nn, search)
 
             n.children[child.typ] = self.__append(n.children[child.typ], child)
@@ -309,7 +313,7 @@ class Chi(RouteTree):
             nds = self.children[ntyp]
             if nds:
                 for nd in nds:
-                    if nd.label == label or nd.tail == tail:
+                    if nd.label == label and nd.tail == tail:
                         if ntyp == Chi._Chi__ntRegexp and nd.prefix != prefix:
                             continue
                         return nd
@@ -399,7 +403,7 @@ class Chi(RouteTree):
                                 return h
                             # flag that the routing context found a route, but not a corresponding
                             # supported method
-                            rctx.methodNotAllowed(xn.endpoints.keySet());
+                            rctx.methodNotAllowed(xn.endpoints.keySet())
 
                     # Recursively returnType the next node..
                     fin = xn.findRoute(rctx, method, xsearch) # Route
@@ -542,12 +546,13 @@ class Chi(RouteTree):
                 self.endpoints.clear()
                 self.endpoints = None
 
-    def insertInternal(self, method: str, pattern: str, route: Route):
+    @dispatch(str, str, Route)
+    def insert(self, method: str, pattern: str, route: Route):
         baseCatchAll = self.baseCatchAll(pattern)
 
         if len(baseCatchAll) > 1:
             # Add route pattern: /static/?* => /static
-            self.insertInternal(method, baseCatchAll, route)
+            self.insert(method, baseCatchAll, route)
             tail = pattern[len(baseCatchAll) + 2 : ]
             pattern = baseCatchAll + "/" + tail # /static/?* => /static/*
 
@@ -560,7 +565,7 @@ class Chi(RouteTree):
             else:
                 staticRoute = Chi.StaticRoute()
                 self.__staticPaths[pattern] = staticRoute
-            staticRoute[method] = route
+            staticRoute.put(method, route)
 
         self.__root.insertRoute(method, pattern, route)
 
@@ -568,8 +573,9 @@ class Chi(RouteTree):
         i = pattern.find(self.__BASE_CATCH_ALL)
         return pattern[0:i] if i > 0 else ""
 
+    @dispatch(Route)
     def insert(self, route: Route):
-        self.insertInternal(route.getMethod(), route.getPattern(), route)
+        self.insert(route.get_method(), route.get_pattern(), route)
 
     def destroy(self):
         self.__root.destroy()
@@ -582,7 +588,7 @@ class Chi(RouteTree):
         if staticRoute is None:
             return self.__findInternal(method, path)
         else:
-            match = staticRoute.matcher.get(method)
+            match = staticRoute.get_matcher().get(method)
             return self.__findInternal(method, path) \
                 if match is None else match
 

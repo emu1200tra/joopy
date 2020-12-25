@@ -5,6 +5,7 @@ from .todo import *
 from abc import abstractmethod
 import copy
 from multipledispatch import dispatch
+import sys
 
 class Router(Registry):
     """
@@ -1117,8 +1118,47 @@ class Router(Registry):
         @param consumer Listen for key and regex variables found.
         @return Path keys.
         """
-        return 1
+        result = []
+        start = -1;
+        end = sys.maxsize
+        len_ = len(pattern)
+        curly = 0
+        for i in range(len_):
+            ch = pattern[i]
+            if ch == '{':
+                if curly == 0:
+                    start = i + 1
+                    end = sys.maxsize
+                curly += 1
+            elif ch == ':':
+                end = i
+            elif ch == '}':
+                curly -= 1;
+                if curly == 0:
+                    id = pattern[start: min(i, end)]
+                    if end == sys.maxsize:
+                        value = None
+                    else:
+                        value = pattern.substring(end + 1, i)
+                    consumer(id, value)
+                    result.add(id)
+                    start = -1
+                    end = sys.maxsize
+            elif ch == '*':
+                if i == len_ - 1:
+                    id = "*"
+                else:
+                    id = pattern[i + 1:]
+                result.add(id)
+                consumer(id, "\\.*")
+                i = len_
 
+        if len(result) == 0:
+            return []
+        elif len(result) == 1:
+            return [result[0]]
+        else:
+            return result
 
     @staticmethod
     def pathKeys(pattern):
@@ -1130,7 +1170,7 @@ class Router(Registry):
         @param pattern Path pattern.
         @return Path keys.
         """
-        return Router.pathKeyConsumer(pattern, lambda pattern, k, v: ())
+        return Router.pathKeyConsumer(pattern, lambda k, v: ())
 
     @staticmethod
     def expandOptionalVariables(pattern):
@@ -1151,8 +1191,75 @@ class Router(Registry):
         @param pattern Pattern.
         @return One or more patterns.
         """
-        return []
+        if pattern is None or pattern == "/":
+            return ["/"]
+        len_ = len(pattern)
+        key = 0
+        paths = {} # {int, str}
+        def path_appender(index, segment):
+            for i in range(index, index-1):
+                paths[i] += segment
 
+            if index not in paths:
+                value = ""
+                if index > 0:
+                    previous = paths[index-1]
+                    if previous != "/":
+                        value.append(previous)
+                paths[index] = value
+            
+            paths[index] += segment
+            return paths[index]
+
+        segment = ""
+        is_last_optional = False
+        i = 0
+        while i < len_:
+            ch = pattern[i]
+            if ch == "/":
+                if len(segment) > 0:
+                    path_appender(key, segment)
+                    segment = ""
+                segment += ch
+                i += 1
+            elif ch == "{":
+                segment += ch
+                curly = 1
+                j = i + 1
+                while j < len_:
+                    next_ = pattern[j]
+                    j += 1
+                    segment += next_
+                    if next_ == "{":
+                        curly += 1
+                    elif next_ == "}":
+                        curly -= 1
+                        if curly == 0:
+                            break
+                if j < len_ and pattern[j] == "?":
+                    j += 1
+                    is_last_optional = True
+                    if paths is None:
+                        paths[0] = "/"
+                    key += 1
+                    path_appender(key, segment)
+                else:
+                    is_last_optional = False
+                    path_appender(key, segment)
+                segment = ""
+                i = j
+            else:
+                segment += ch
+                i += 1
+        if paths is None:
+            return [pattern]
+        if len(segment) > 0:
+            path_appender(key, segment)
+            if is_last_optional:
+                key += 1
+                paths[key] = segment
+        return list(paths.values())
+        
     @staticmethod
     def reverseWithMap(pattern, keys):
         """

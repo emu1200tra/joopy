@@ -378,7 +378,7 @@ class Route:
         return self.__returnType
 
     def set_return_type(self, returnType):  # Type
-        self.__returnType = returnType
+        self.__returnType = type(returnType)
         return self
 
     def get_attributes(self) -> Dict[str, object]:

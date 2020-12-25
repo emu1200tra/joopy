@@ -14,11 +14,11 @@ class StaticRouterMatch(Router.Match):
         return self.__route
 
     def execute(self, context: Context):
-        context.setRoute(self.__route)
+        context.set_route(self.__route)
         try:
-            self.__route.getPipeline().apply(context)
+            self.__route.get_pipeline().apply(context)
         except Exception as e:
-            context.sendError(e)
+            context.send_error(e)
 
     def pathMap(self) -> Dict[str, str]:
         return {}

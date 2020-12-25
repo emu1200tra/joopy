@@ -11,6 +11,7 @@ from .pipeline import Pipeline
 from .ExecutionMode import ExecutionMode
 from .handler.default_error_handler import DefaultErrorHandler
 from .route_analyzer import RouteAnalyzer
+from .context import Context
 
 class RouterImpl(Router):
     class PathBuilder:
@@ -182,11 +183,6 @@ class RouterImpl(Router):
         if RouterOption.IGNORE_CASE in self.__routerOptions:
             finalPattern = finalPattern.lower()
 
-        try:
-            tree.insertInternal("GET", "/", route)
-        except Exception as ex:
-            print(ex)
-
 
         for routePattern in Router.expandOptionalVariables(finalPattern):
             if route.get_method() == "WS":
@@ -198,12 +194,12 @@ class RouterImpl(Router):
             else:
                 tree.insert(route.get_method(), routePattern, route)
 
-                if route.isHttpOptions():
-                    tree.insert(Router.OPTIONS, routePattern, route)
-                elif route.isHttpTrace():
-                    tree.insert(Router.TRACE, routePattern, route)
-                elif route.isHttpHead() and route.get_method() == Router.GET:
-                    tree.insert(Router.HEAD, routePattern, route)
+                # if route.isHttpOptions():
+                #     tree.insert(Router.OPTIONS, routePattern, route)
+                # elif route.isHttpTrace():
+                #     tree.insert(Router.TRACE, routePattern, route)
+                # elif route.isHttpHead() and route.get_method() == Router.GET:
+                #     tree.insert(Router.HEAD, routePattern, route)
 
         self.__routes.append(route)
 
