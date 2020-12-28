@@ -6,7 +6,7 @@ from .context import Context
 from .MessageEncoder import MessageEncoder
 from .todo import *
 from .exception.NotFoundException import NotFoundException
-
+from .exception.StatusCode import StatusCode
 
 class Route:
     '''
@@ -50,6 +50,8 @@ class Route:
             @return Route response.
             @throws Exception If something goes wrong.
             '''
+            #return self.__func(ctx)
+            ctx.set_handler(self)
             return self.__func(ctx)
 
         def then(self, next_):
@@ -277,14 +279,19 @@ class Route:
     """
     Favicon handler as a silent 404 error.
     """
-    def FAVICON(ctx): return ctx.send(
-        StatusCode.NOT_FOUND)  # Handler # ctx -> ctx.send(StatusCode.NOT_FOUND);
+    @staticmethod
+    def FAVICON(): 
+        handler = Route.Handler(lambda ctx: ctx.send_code(StatusCode.NOT_FOUND, "utf-8"))
+        return  handler # Handler # ctx -> ctx.send(StatusCode.NOT_FOUND);
     """
       public static final Handler NOT_FOUND = ctx -> ctx
       .sendError(new NotFoundException(ctx.getRequestPath()));
     """
-    def NOT_FOUND(ctx): return ctx.send_error(
-        NotFoundException(ctx.get_request_path()))
+    @staticmethod
+    def NOT_FOUND(): 
+        handler = Route.Handler(lambda ctx: ctx.send_error(NotFoundException(ctx.get_request_path()), "utf-8"))
+        return handler
+
     __EMPTY_LIST = []  # final # List # Collections.emptyList()
     __EMPTY_MAP = {}  # final # Map # Collections.emptyMap()
 

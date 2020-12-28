@@ -1,16 +1,18 @@
 from .mvcFactory import mvcFactory
 from .myControllerHandler import myControllerHandler
+from .Route import Route
 
 class mvcExtension(mvcFactory):
     @staticmethod
     def install(application, provider):
         # an exception occurs!
         def f(ctx, provider):
-            myController = provider.get()
-            myController.controllerMethod()
+            myController = provider()
+            #myController.controllerMethod()
             return ctx
 
-        application.get("/mypath", lambda cxt: f(ctx, provider)).attribute("RequireRole", Controller1527.Role.USER)
+        handler = Route.Handler(lambda ctx: f(ctx, provider))
+        application.get("/mypath", handler)#.attribute("RequireRole", Controller1527.Role.USER)
 
     def supports(self, classType):
         return classType == myController

@@ -2,6 +2,8 @@ from src.defaultContext import DefaultContext
 from multipledispatch import dispatch
 from .exception.StatusCode import StatusCode
 import os
+from .exception.StatusCodeBase import StatusCodeBase
+from .exception.NotFoundException import NotFoundException
 
 class wsgiContext(DefaultContext):
     def __init__(self, request, router):
@@ -15,6 +17,8 @@ class wsgiContext(DefaultContext):
         self.ResponseStarted = False
         self.body = None
         self.statusCode = StatusCode.OK.toString()
+        self.handler = None
+        self.header = 'text/plain'
 
     def get_router(self):
         return self.router
@@ -45,3 +49,29 @@ class wsgiContext(DefaultContext):
         self.body = data.encode(codec)
         return self.body
 
+    def send_code(self, statusCode, codec):
+        self.set_status_code(statusCode.toString())
+        self.body = statusCode.toString().encode(codec)
+        return self.body
+
+    def send_error(self, ecp, codec):
+        self.set_status_code(ecp.getStatusCode().toString())
+        self.body = ecp.getStatusCode().toString().encode(codec)
+        return self.body
+
+    def set_handler(self, handler):
+        self.handler = handler
+        return handler
+
+    #"this should be invalid function"
+    def extract(self):
+        self.body = self.handler.apply(self)
+        return self.body
+
+    def set_status_code(self, code):
+        self.statusCode = code
+        return self.statusCode
+
+    def set_header(self, header):
+        self.header = header;
+        return self.header

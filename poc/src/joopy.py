@@ -163,7 +163,7 @@ class Joopy(Router, Registry):
     def mvc_create(self, router=None, provider=None):
         module = mvcExtension()
         extension = module.create(provider)
-        extension.install(self)
+        extension(self)
         return self
 
     def decorator(self, decorator):

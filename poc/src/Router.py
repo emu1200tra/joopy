@@ -664,7 +664,7 @@ class Router(Registry):
         @param handler Application code.
         @return A route.
         """
-        return self.route(POST, pattern, handler)
+        return self.route(Router.POST, pattern, handler)
 
     @dispatch(str, object)
     def put(self, pattern, handler):
@@ -675,7 +675,7 @@ class Router(Registry):
         @param handler Application code.
         @return A route.
         """
-        return self.route(PUT, pattern, handler)
+        return self.route(Router.PUT, pattern, handler)
 
     @dispatch(str, object)
     def delete(self, pattern, handler):
@@ -686,33 +686,33 @@ class Router(Registry):
         @param handler Application code.
         @return A route.
         """
-        return self.route(DELETE, pattern, handler)
+        return self.route(Router.DELETE, pattern, handler)
 
     @dispatch(str)
     def get(self, pattern):
         def decorator(handler):
-            self.route(GET, pattern, handler)
+            self.route(Router.GET, pattern, handler)
             return handler
         return decorator
 
     @dispatch(str)
     def post(self, pattern):
         def decorator(handler):
-            self.route(POST, pattern, handler)
+            self.route(Router.POST, pattern, handler)
             return handler
         return decorator
 
     @dispatch(str)
     def put(self, pattern):
         def decorator(handler):
-            self.route(PUT, pattern, handler)
+            self.route(Router.PUT, pattern, handler)
             return handler
         return decorator
 
     @dispatch(str)
     def delete(self, pattern):
         def decorator(handler):
-            self.route(DELETE, pattern, handler)
+            self.route(Router.DELETE, pattern, handler)
             return handler
         return decorator
 

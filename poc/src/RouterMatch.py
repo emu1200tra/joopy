@@ -77,8 +77,8 @@ class RouterMatch(Router.Match):
     def missing(self, method: str, path: str, encoder: MessageEncoder):
         h = None  # Route.Handler
         if self.__handler is None:
-            h = Route.FAVICON if path.endswith("/favicon.ico") \
-                else Route.NOT_FOUND
+            h = Route.FAVICON() if path.endswith("/favicon.ico") \
+                else Route.NOT_FOUND()
         else:
             h = self.__handler
         self.__route = Route(method, path, h)

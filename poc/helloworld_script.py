@@ -13,11 +13,18 @@ class myApp(Joopy):
     def __init__(self):
         super(myApp, self).__init__()
 
-        self.get("/", lambda: b'home')
+        self.get("/", lambda ctx: b'home')
 
-        self.get("/hello", lambda: b'hello world')
+        self.get("/hello", lambda ctx: b'hello world')
 
-        self.get("/goodbye", lambda: b'good bye')
+        self.get("/goodbye", lambda ctx: b'good bye')
+
+        def demo_app(ctx):
+            data = self.prepare_html()
+            ctx.set_header('text/html')
+            return data
+
+        self.get("/demo", lambda ctx: demo_app(ctx))
 
         '''
         post("/login", lambda x: b'login process')
@@ -28,6 +35,12 @@ class myApp(Joopy):
 
         delete("/database", lambda x: b'removing')
         '''
+    def prepare_html(self, path="./demo.html"):
+        file = open(path)
+        lines = file.read()
+        lines = lines.encode("utf-8")
+        file.close()
+        return lines
 
 
 if __name__ == '__main__':

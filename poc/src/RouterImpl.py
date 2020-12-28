@@ -65,7 +65,7 @@ class RouterImpl(Router):
             self.__executor = executor
             return self
 
-    __ROUTE_MARK = Route(Router.GET, "/", None) # Route
+    #__ROUTE_MARK = Route(Router.GET, "/", None) # Route
 
     def __init__(self, loader):
         super(RouterImpl, self).__init__()

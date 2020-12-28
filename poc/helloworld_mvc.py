@@ -11,17 +11,17 @@ class Controller(Joopy):
     def __init__(self):
         super(Controller, self).__init__()
 
-    @self.get("/")
-    def home():
-        return b'home'
+        @self.get("/")
+        def home(ctx):
+            return b'home'
 
-    @self.get("/hello")
-    def hello():
-        return b'hello world'
+        @self.get("/hello")
+        def hello(ctx):
+            return b'hello world'
 
-    @self.get("/goodbye")
-    def goodbye():
-        return b'good bye'
+        @self.get("/goodbye")
+        def goodbye(ctx):
+            return b'good bye'
     '''
     @self.post("/login")
     def login():
@@ -47,7 +47,7 @@ class Controller(Joopy):
 class myApp(Controller):
     def __init__(self):
         super(myApp, self).__init__()    
-        self.mvc(provider=super())
+        self.mvc(router=super())
         
 if __name__ == '__main__':
     myApp.runApp(provider=myApp)
