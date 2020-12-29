@@ -28,7 +28,13 @@ class StatusCodeBase:
         Usage Example: StatusCode.OK.toString() return: '200 Success'
 
         """
-        return str(self.value()) + " " + self.reason()
+        # fix some bugs 
+        temp = self.reason()
+        temp = temp.split(" ")
+        if not temp[0].isdigit():
+            return str(self.value()) + " " + self.reason()
+        else:
+            return self.reason()
 
     def equals(self, obj):
         if isinstance(obj, StatusCodeBase):
