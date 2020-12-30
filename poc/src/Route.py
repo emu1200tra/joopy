@@ -50,7 +50,6 @@ class Route:
             @return Route response.
             @throws Exception If something goes wrong.
             '''
-            #return self.__func(ctx)
             ctx.set_handler(self)
             return self.__func(ctx)
 
@@ -89,10 +88,10 @@ class Route:
                     if ctx.isResponseStarted():
                         return ctx
                     else:
-                        raise SneakyThrows.propagate(cause)
+                        raise Exception("SneakyThrows.propagate(cause)")
 
             if isinstance(next_, Route.After):
-                return lambda ctx: inner_then(ctx, next_)
+                return Route.Handler(lambda ctx: inner_then(ctx, next_))
             else:
                 raise ValueError("The type of argument should be Route.After.")
 
@@ -127,7 +126,11 @@ class Route:
             * @param next Next handler. (Handler)
             * @return A new handler. (Handler)
             '''
-            return self.__func(next_)
+            result = self.__func(next_)
+            if isinstance(result, Route.Handler):
+                return self.__func(next_)
+            else:
+                return Route.Handler(result)
 
         def then(self, next_):
             '''
@@ -143,9 +146,9 @@ class Route:
             * @return A new handler. (Handler)
             '''
             if isinstance(next_, Route.Decorator):
-                return lambda h: self.apply(next_.apply(h))
+                return Route.Decorator(lambda h: self.apply(next_.apply(h)))
             elif isinstance(next_, Route.Handler):
-                return lambda ctx: self.apply(next_).apply(ctx)
+                return Route.Handler(lambda ctx: self.apply(next_).apply(ctx))
             else:
                 raise ValueError(
                     "The type of argument should be Route.Decorator or Route.Handler.")
@@ -194,9 +197,9 @@ class Route:
                 return ctx
 
             if isinstance(next_, Route.Before):
-                return lambda ctx: then_before(ctx, next_)
+                return Route.Before(lambda ctx: then_before(ctx, next_))
             elif isinstance(next_, Route.Handler):
-                return lambda ctx: then_handler(ctx, next_)
+                return Route.Handler(lambda ctx: then_handler(ctx, next_))
             else:
                 raise ValueError(
                     "The type of argument should be Route.Before or Route.Handler.")
@@ -272,7 +275,7 @@ class Route:
                 self.apply(ctx, result, failure)
 
             if isinstance(next_, Route.After):
-                return lambda ctx, result, failure: inner_then(ctx, result, failure)
+                return Route.After(lambda ctx, result, failure: inner_then(ctx, result, failure))
             else:
                 raise ValueError("The type of argument should be Route.After.")
 

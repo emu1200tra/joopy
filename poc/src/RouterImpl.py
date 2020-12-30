@@ -132,29 +132,29 @@ class RouterImpl(Router):
         """ Before: """
         before = None # Route.Before
         for stack in self.__stack:
-            for next in stack._Stack__beforeList:
-                if next is None:
-                    before = next
+            for _next in stack._Stack__beforeList:
+                if before is None:
+                    before = _next
                 else:
-                    before.then(next)
+                    before = before.then(_next)
 
         """ Decorator: """
         decoratorList = [d for stack in self.__stack for d in stack._Stack__decoratorList]
         decorator = None # Route.Decorator
-        for next in decoratorList:
-            if next is None:
-                decorator = next
+        for _next in decoratorList:
+            if decorator is None:
+                decorator = _next
             else:
-                decorator.then(next)
+                decorator = decorator.then(_next)
 
         """ After: """
         after = None # Route.After
         for stack in self.__stack:
-            for next in stack._Stack__afterList:
-                if next is None:
-                    after = next
+            for _next in stack._Stack__afterList:
+                if after is None:
+                    after = _next
                 else:
-                    after.then(next)
+                    after = after.then(_next)
 
         """ Route: """
         safePattern = pathBuilder.toString() # String

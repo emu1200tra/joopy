@@ -2,17 +2,17 @@ from .linked_handler import LinkedHandler
 
 class WorkerHandler(LinkedHandler):
     def __init__(self, _next):
-        super(WorkerHandler, self).__init__()
-        self.next = _next
+        # super(WorkerHandler, self).__init__()
+        self.__next = _next
 
     def apply(self, context):
-        return context.dispatch(lambda ctx: self.element(ctx))
+        def element():
+            try:
+                self.__next.apply(context)
+            except Exception as e:
+                context.send_error(e)
 
-    def element(self, ctx):
-        try:
-            self.next.apply(ctx)
-        except Exception as e:
-            ctx.send_error(e)
+        return context.dispatch(element)
 
     def next(self):
-        return self.next
+        return self.__next

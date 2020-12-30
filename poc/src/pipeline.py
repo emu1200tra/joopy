@@ -16,14 +16,14 @@ class Pipeline:
         _type = Reified.raw_type(returnType) # Class<?> 
 
         ''' Strings: '''
-        if (_type is str): # TODO: CharSequence class in javas # CharSequence.class.isAssignableFrom(type)
-            return Pipeline.__next(mode, executor, Pipeline.__decorate(route, initializer, SendCharSequence(route.getPipeline())), True)
+        # if (_type is str): # TODO: CharSequence class in javas # CharSequence.class.isAssignableFrom(type)
+        return Pipeline.__next(mode, executor, Pipeline.__decorate(route, initializer, SendCharSequence(route.get_pipeline())), True)
 
     @staticmethod
     def __decorate(route: Route, initializer: ContextInitializer, handler: Route.Handler) -> Route.Handler:
         pipeline = handler # Handler
-        if route.isHttpHead():
-            pipeline = HeadResponseHandler(pipeline)
+        # if route.isHttpHead():
+            # pipeline = HeadResponseHandler(pipeline)
         if initializer is None:
             return pipeline
         return PostDispatchInitializerHandler(initializer, pipeline)

@@ -12,12 +12,25 @@ class myApp(Joopy):
 
     def __init__(self):
         super(myApp, self).__init__()
+        
+        def decorator_sleep(_next):
+            import time
+            def handler(ctx):
+                t1 = time.time()
+                response = _next.apply(ctx)
+                time.sleep(1)
+                t2 = time.time()
+                return response + '\nsleep time = {:.2f} sec'.format(t2-t1)
+            return handler
+        
+        self.decorator(lambda _next: lambda ctx: _next.apply(ctx) + '\ndecorator is good !!!!')
+        self.decorator(decorator_sleep)
 
-        self.get("/", lambda ctx: b'home')
+        self.get("/", lambda ctx: 'home')
 
-        self.get("/hello", lambda ctx: b'hello world')
+        self.get("/hello", lambda ctx: 'hello world')
 
-        self.get("/goodbye", lambda ctx: b'good bye')
+        self.get("/goodbye", lambda ctx: 'good bye')
 
         def demo_app(ctx):
             data = self.prepare_html()
@@ -27,18 +40,18 @@ class myApp(Joopy):
         self.get("/demo", lambda ctx: demo_app(ctx))
 
         '''
-        post("/login", lambda x: b'login process')
+        post("/login", lambda x: 'login process')
 
-        post("/database", lambda x: b'posting data')
+        post("/database", lambda x: 'posting data')
 
-        put("/database", lambda x: b'updating')
+        put("/database", lambda x: 'updating')
 
-        delete("/database", lambda x: b'removing')
+        delete("/database", lambda x: 'removing')
         '''
     def prepare_html(self, path="./demo.html"):
         file = open(path)
         lines = file.read()
-        lines = lines.encode("utf-8")
+        # lines = lines.encode("utf-8")
         file.close()
         return lines
 

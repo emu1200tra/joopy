@@ -44,8 +44,7 @@ class wsgiContext(DefaultContext):
     def is_response_started(self):
         return self.ResponseStarted
 
-    @dispatch(str, str)
-    def send(self, data, codec):
+    def send(self, data, codec='utf-8'):
         self.body = data.encode(codec)
         return self.body
 
@@ -73,5 +72,5 @@ class wsgiContext(DefaultContext):
         return self.statusCode
 
     def set_header(self, header):
-        self.header = header;
+        self.header = header
         return self.header

@@ -17,8 +17,8 @@ class wsgiHandler(object):
         start_response(context.statusCode, headers)
 
         #dirty method, this should be done by handler pipeline
-        context.extract()
-
+        # context.extract()
+        
         return [context.body]
         '''
         if handler:

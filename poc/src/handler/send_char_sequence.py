@@ -4,14 +4,16 @@ from .linked_handler import LinkedHandler
 
 class SendCharSequence(LinkedHandler):
     def __init__(self, _next):
-        self.next = _next
+        self.__next = _next
+
     def apply(self, ctx):
         try:
-            result = next.apply(ctx)
+            result = self.__next.apply(ctx)
             if ctx.is_response_started():
                 return result
-            return ctx.send(str(result))
-        except Exception:
-            ctx.send_error(Exception)
+            return ctx.send(result) # result.toString()
+        except Exception as e:
+            ctx.send_error(e)
+    
     def next(self):
-        return self.next
+        return self.__next
