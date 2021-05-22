@@ -13,7 +13,7 @@ Similarity, Joopy supports two ways to set routes:
 In the following examples, we set HTTP GET method for the URL "/" and return the string "hello world" to user.
 
 #### Script API
-```python=
+```python
 from joopy.src.joopy import Joopy
 
 class myApp(Joopy):
@@ -28,7 +28,7 @@ The Script API uses the lambda function to define routes.
 
 
 #### MVC API
-```python=
+```python
 from joopy.src.joopy import Joopy
 
 class Controller(Joopy):
@@ -62,7 +62,7 @@ A Route consists of three part:
 3. Handler function
 
 For example, 
-```python=6
+```python
 self.get("/", lambda ctx: "home")
 ```
 We use `self.get()` for HTTP GET method. The Path pattern is define as "/". The Handler function is `lambda ctx: "home"`.
@@ -71,7 +71,7 @@ We use `self.get()` for HTTP GET method. The Path pattern is define as "/". The 
 Application logic goes inside a handler. A handler is a function that accepts a context object and produces a result.
 
 For example, 
-```python=
+```python
 self.get("/", lambda ctx: "home")
 self.get("/hello", lambda ctx: "hello world")
 self.get("/goodbye", lambda ctx: "good bye")
@@ -84,7 +84,7 @@ self.get("/goodbye", lambda ctx: "good bye")
 Static files such as HTML files can be the result of a handler.
 
 For example, 
-```python=
+```python
 from joopy.src.joopy import Joopy
 
 class myApp(Joopy):
@@ -119,7 +119,7 @@ If there is no handler for a request, Joopy produces a 404 response.
 Cross cutting concerns such as response modification, verification, security, tracing, etc. is available via Route.Decorator. A decorator takes the next handler in the pipeline and produces a new handler.
 
 For example, to modify the response, we can
-```python=
+```python
 from joopy.src.joopy import Joopy
 
 class myApp(Joopy):
@@ -131,7 +131,7 @@ class myApp(Joopy):
 The expected response for URL "/" is "home decorator".
 
 Another example is to compute the latency of response.
-```python=
+```python
 import time
 from joopy.src.joopy import Joopy
 
