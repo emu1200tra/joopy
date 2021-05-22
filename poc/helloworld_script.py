@@ -51,7 +51,6 @@ class myApp(Joopy):
     def prepare_html(self, path="./demo.html"):
         file = open(path)
         lines = file.read()
-        # lines = lines.encode("utf-8")
         file.close()
         return lines
 

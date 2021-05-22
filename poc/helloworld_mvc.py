@@ -13,35 +13,35 @@ class Controller(Joopy):
 
         @self.get("/")
         def home(ctx):
-            return b'home'
+            return 'home'
 
         @self.get("/hello")
         def hello(ctx):
-            return b'hello world'
+            return 'hello world'
 
         @self.get("/goodbye")
         def goodbye(ctx):
-            return b'good bye'
+            return 'good bye'
     '''
     @self.post("/login")
     def login():
         # do something with login
-        return b'login process'
+        return 'login process'
 
     @self.post("/database")
     def post_database():
         # do something with posting data
-        return b'posting data'
+        return 'posting data'
 
     @self.put("/database")
     def update():
         # do something to update data in dataset
-        return b'updating'
+        return 'updating'
 
     @self.delete("/database")
     def remove():
         # remove data from database
-        return b'removing'
+        return 'removing'
     '''
 
 class myApp(Controller):
