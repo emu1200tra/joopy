@@ -1,17 +1,16 @@
 import abc
 import sys
-import src.wsgi as wsgi
-from src.Router import Router
-from src.Registry import Registry
-from src.RouterImpl import RouterImpl
-from src.Server import Base
-from src.wsgi import wsgi
-from src.Chi import Chi
-from src.LoggerFactory import LoggerFactory
-from src.Logger import Logger
-from src.ExecutionMode import ExecutionMode
-from src.mvcExtension import mvcExtension
-from src.todo import *
+from .Router import Router
+from .Registry import Registry
+from .RouterImpl import RouterImpl
+from .Server import Base
+from .wsgi import wsgi
+from .Chi import Chi
+from .LoggerFactory import LoggerFactory
+from .Logger import Logger
+from .ExecutionMode import ExecutionMode
+from .mvcExtension import mvcExtension
+from .todo import *
 from multipledispatch import dispatch
 
 #routers = {}

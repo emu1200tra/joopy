@@ -1,4 +1,4 @@
-from src.todo import ServiceKey
+from .todo import ServiceKey
 from multipledispatch import dispatch
 from abc import abstractmethod, ABCMeta
 
