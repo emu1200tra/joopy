@@ -1,4 +1,4 @@
-from src.joopy import Joopy
+from joopy.src.joopy import Joopy
 
 # get: Send request to server and get data from it
 # post: Send request to server with encrypted body (usually passwd or something that should be secret)
